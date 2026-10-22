@@ -1,7 +1,3 @@
-// ============================================
-// گردآلو - Gerdaloo AI v6.0 (Layout Fixed)
-// ============================================
-
 const chatArea = document.getElementById('chatArea');
 const chatMessages = document.getElementById('chatMessages');
 const welcomeHeader = document.getElementById('welcomeHeader');
@@ -9,7 +5,7 @@ const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 
 // ============================================
-// پایگاه دانش
+// موتور ۱۰۰۰+ موضوعی
 // ============================================
 const ANSWERS = {
   intro: "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است و توسط عرفان ریاحی ساخته شده. 🍑",
@@ -97,3 +93,35 @@ function buildKnowledgeBase() {
   for (const p of WORDS.people) for (const s of WORDS.subjects) {
     add(`${p} ${s}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
   }
+  for (const f of WORDS.features) for (const g of WORDS.general) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    if (/آدرس/.test(g)) ans = ANSWERS.link;
+    if (/رایگان/.test(g)) ans = ANSWERS.free;
+    add(`${f} ${g}`, ans);
+  }
+  for (const g of WORDS.general) for (const f of WORDS.features) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    if (/آدرس/.test(g)) ans = ANSWERS.link;
+    if (/رایگان/.test(g)) ans = ANSWERS.free;
+    add(`${g} ${f}`, ans);
+  }
+  for (const p of WORDS.people) for (const g of WORDS.general) {
+    let ans = ANSWERS.default;
+    if (p === "عرفان ریاحی") ans = ANSWERS.creator;
+    if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
+    add(`${p} ${g}`, ans);
+  }
+  for (const g of WORDS.general) for (const p of WORDS.people) {
+    let ans = ANSWERS.default;
+    if (p === "عرفان ریاحی") ans = ANSWERS.creator;
+    if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
