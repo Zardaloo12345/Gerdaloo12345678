@@ -178,7 +178,6 @@ function buildKnowledgeBase() {
     add(`${g1} ${g2}`, ans);
   }
   
-  // دستی
   add("سلام", ANSWERS.greeting);
   add("درود", ANSWERS.greeting);
   add("خوبی", ANSWERS.greeting);
@@ -188,7 +187,6 @@ function buildKnowledgeBase() {
   add("خودت", ANSWERS.self);
   add("تو کی هستی", ANSWERS.self);
   
-  // قابلیت‌ها
   add("چت هوشمند", "من می‌تونم به هر سوالی جواب بدم، از موضوعات عمومی تا تخصصی. کافیه بپرسی!");
   add("تولید تصویر", "من می‌تونم تصاویر خلاقانه و حرفه‌ای بسازم. فقط کافیه توصیف کنی که چه تصویری می‌خوای.");
   add("تولید ویدیو", "تولید ویدیو از ایده تا اجرا. من می‌تونم بهت در ساخت ویدیوهای جذاب کمک کنم.");
@@ -199,6 +197,7 @@ function buildKnowledgeBase() {
   add("صدا و گفتار", "تبدیل متن به صدا و بالعکس، ساخت پادکست و ... از امکانات منه.");
   add("موسیقی", "من می‌تونم در ساخت آهنگ، تنظیم و نوشتن متن ترانه بهت کمک کنم.");
   add("ابزارها", "من ابزارهای کاربردی زیادی دارم؛ از محاسبات ریاضی تا تبدیل واحدها و...");
+  add("امکانات گردآلو", "گردآلو امکانات زیادی داره: چت، تولید تصویر، تولید ویدیو، پژوهش، نوشتن متن، برنامه‌نویسی، ترجمه، صدا، موسیقی و ابزارهای کاربردی!");
 }
 
 buildKnowledgeBase();
@@ -257,7 +256,6 @@ function addMessage(text, sender) {
   
   chatMessages.appendChild(msg);
   
-  // اسکرول خودکار
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
@@ -274,9 +272,10 @@ function sendMessage() {
   }, 500);
 }
 
-// رویدادها
+// ارسال با دکمه
 sendBtn.addEventListener('click', sendMessage);
 
+// ارسال با کلید Enter
 userInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -284,29 +283,20 @@ userInput.addEventListener('keydown', (e) => {
   }
 });
 
-document.querySelectorAll('.suggestion-card').forEach(card => {
-  card.addEventListener('click', () => {
-    const prompt = card.getAttribute('data-prompt');
-    if (prompt) {
-      userInput.value = prompt;
-      sendMessage();
-    }
-  });
-});
-
-// منوی سمت راست
+// تابعی که برای تمام دکمه‌های HTML (سایدبار چپ، راست، بنر و کارت‌ها) استفاده می‌شود
 function sendSuggestion(event, text) {
   if (event) event.preventDefault();
   userInput.value = text;
   sendMessage();
   
-  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-  if (event && event.currentTarget) {
+  // تغییر حالت فعال منو (اگر از سایدبار راست کلیک شده باشد)
+  if (event && event.currentTarget.classList.contains('menu-item')) {
+    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
     event.currentTarget.classList.add('active');
   }
 }
 
-// ریست کردن چت (خانه)
+// ریست کردن چت (دکمه خانه)
 function resetChat(event) {
   if (event) event.preventDefault();
   
