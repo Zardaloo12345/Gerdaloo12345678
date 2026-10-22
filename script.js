@@ -543,3 +543,11 @@ if (memory.profile.loginMethod) {
 }
 
 console.log('🍑 گردآلو v3.0 آماده است');
+// کلیک روی آرم زردآلو = باز/بسته کردن پنل
+document.querySelector('.brand').addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+  // در موبایل: باز/بسته کردن
+  if (window.innerWidth <= 900) {
+    sidebar.classList.toggle('open');
+  }
+});
