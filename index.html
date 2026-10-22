@@ -9,13 +9,24 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
     body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
     header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; color: #f59e0b; font-size: 18px; border-bottom: 1px solid #334155; flex-shrink: 0; }
-    #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+    #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 5px; }
     .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.6; animation: fade 0.3s; white-space: pre-wrap; }
     .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
     .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
     
-    /* استایل نوار ورودی */
-    .input-box { padding: 15px; background: #1e293b; display: flex; gap: 10px; flex-shrink: 0; border-top: 1px solid #334155; }
+    /* استایل نوار ورودی (بالاتر آمده و شناور شده) */
+    .input-box { 
+      padding: 12px 15px; 
+      margin: 0 15px 25px 15px; /* 25px از پایین فاصله گرفته */
+      background: #1e293b; 
+      display: flex; 
+      gap: 10px; 
+      flex-shrink: 0; 
+      border-radius: 12px; /* گوشه‌های گرد */
+      border: 1px solid #334155;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* سایه برای حس شناور بودن */
+    }
+    
     input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; font-size: 14px; }
     button { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
     button:hover { background: #d97706; }
@@ -60,11 +71,9 @@
       const text = input.value.trim();
       if (!text) return;
 
-      // نمایش پیام کاربر
       chat.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
 
-      // پیدا کردن جواب
       let reply = "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام 🍑 (می‌تونی بگی: داستان، ایمیل، کپشن، شعر یا متن)";
       for (const key in kb) {
         if (text.includes(key)) {
@@ -73,7 +82,6 @@
         }
       }
 
-      // نمایش جواب با تاخیر
       setTimeout(() => {
         chat.innerHTML += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`;
         chat.scrollTop = chat.scrollHeight;
@@ -82,10 +90,8 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // ارسال با کلیک روی دکمه
     btn.onclick = sendMessage;
 
-    // ارسال با زدن Enter
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
