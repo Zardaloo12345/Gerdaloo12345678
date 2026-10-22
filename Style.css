@@ -19,11 +19,10 @@
   --blue-gradient: linear-gradient(135deg, #1e40af, #38bdf8);
 }
 
-/* ====== جلوگیری از هرگونه اسکرول در کل صفحه ====== */
 html, body {
   height: 100vh;
   width: 100vw;
-  overflow: hidden; /* اسکرول کل صفحه غیرفعال */
+  overflow: hidden;
   background-color: var(--bg-body);
   color: var(--text-main);
   display: flex;
@@ -35,11 +34,11 @@ html, body {
   display: flex;
   width: 100%;
   max-width: 1500px;
-  height: 100%; /* پر کردن کل ارتفاع صفحه */
+  height: 100%;
   background-color: var(--bg-panel);
   border-radius: 16px;
   border: 1px solid var(--border-color);
-  overflow: hidden; /* مخفی کردن هر چیزی که بیرون بزنه */
+  overflow: hidden;
 }
 
 /* ================= سایدبارها ================= */
@@ -99,27 +98,26 @@ html, body {
   flex-direction: column;
   padding: 10px;
   background: radial-gradient(circle at top, #0f172a 0%, #060b19 100%);
-  min-width: 0; /* جلوگیری از سرریز شدن */
+  min-width: 0;
 }
 
 .welcome-header {
   text-align: center;
   margin-bottom: 10px;
-  flex-shrink: 0; /* اجازه ندهد فشرده شود */
+  flex-shrink: 0;
 }
 .welcome-header.hidden { display: none; }
 .welcome-header h2 { font-size: 20px; font-weight: 800; color: var(--accent); }
 .welcome-header .heart { color: #ef4444; font-size: 16px; }
 .welcome-header p { font-size: 12px; color: var(--text-main); margin-top: 2px; }
 
-/* بخش چت با flex: 1 پر می‌کند و خودش تنها اسکرول داخلی دارد */
 .chat-area {
   flex: 1;
   background-color: rgba(17, 28, 58, 0.4);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   padding: 10px;
-  overflow-y: auto; /* تنها اینجا اسکرول مجاز است */
+  overflow-y: auto;
   margin-bottom: 8px;
   display: flex;
   flex-direction: column;
@@ -127,7 +125,6 @@ html, body {
 .chat-area::-webkit-scrollbar { width: 4px; }
 .chat-area::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 4px; }
 
-/* پیام‌ها */
 .chat-messages { display: flex; flex-direction: column; gap: 10px; }
 .message {
   display: flex; gap: 8px; align-items: flex-start; flex-direction: row-reverse;
@@ -144,7 +141,6 @@ html, body {
 .message.bot .msg-text { background-color: #ffffff; color: #0f172a; border-top-right-radius: 2px; }
 .message.user .msg-text { background: var(--blue-gradient); color: #ffffff; border-top-right-radius: 2px; }
 
-/* ورودی */
 .input-area {
   display: flex; align-items: center; background-color: var(--bg-card);
   border: 1px solid var(--border-color); border-radius: 20px; padding: 4px 6px;
@@ -154,8 +150,7 @@ html, body {
 .attach-btn, .send-btn { background: none; border: none; color: var(--text-muted); font-size: 14px; padding: 6px; cursor: pointer; border-radius: 50%; }
 .send-btn { background-color: var(--accent); color: #000; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; }
 
-/* پیشنهادها */
-.suggestions { flex-shrink: 0; margin-bottom: 0; }
+.suggestions { flex-shrink: 0; }
 .suggestions h3 { font-size: 11px; color: var(--accent); margin-bottom: 6px; }
 .suggestion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .suggestion-card {
@@ -192,7 +187,7 @@ html, body {
 .status-dot { width: 4px; height: 4px; background-color: #22c55e; border-radius: 50%; }
 .status span { font-size: 8px; color: #22c55e; }
 
-/* ================= موبایل (بدون اسکرول و دکمه‌های ۳ سانتی) ================= */
+/* ================= موبایل ================= */
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
@@ -209,22 +204,14 @@ html, body {
   }
 
   .sidebar-right.closed, .sidebar-left.closed {
-    max-height: 40px; /* فقط هدر بماند */
+    max-height: 40px;
     overflow: hidden;
   }
 
-  .main-content {
-    padding: 8px;
-    flex: 1;
-    min-height: 0; /* برای اینکه اسکرول فقط در چت باشد */
-  }
+  .main-content { padding: 8px; flex: 1; min-height: 0; }
+  .chat-area { flex: 1; margin-bottom: 6px; }
 
-  .chat-area {
-    flex: 1;
-    margin-bottom: 6px;
-  }
-
-  /* دکمه‌های ۳ سانتی‌متری در موبایل (حدود ۱۱۰ پیکسل) */
+  /* دکمه‌های ۳ سانتی‌متری (حدود ۱۰۰ پیکسل) */
   .suggestion-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .suggestion-card { height: 100px; padding: 8px; }
   .s-icon { width: 32px; height: 32px; font-size: 16px; }
