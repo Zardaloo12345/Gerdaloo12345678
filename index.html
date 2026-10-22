@@ -15,7 +15,7 @@
   <div class="app-container">
     
     <!-- ================= سایدبار راست ================= -->
-    <aside class="sidebar-right">
+    <aside class="sidebar-right" id="sidebarRight">
       <div class="brand">
         <div class="brand-logo">
           <i class="fa-solid fa-leaf"></i>
@@ -96,6 +96,16 @@
     <!-- ================= بخش اصلی (وسط) ================= -->
     <main class="main-content">
       
+      <!-- نوار ابزار بالای صفحه -->
+      <div class="mini-toolbar">
+        <button class="mini-btn" onclick="togglePanel('right')" title="باز/بسته کردن منو">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <button class="mini-btn" onclick="togglePanel('left')" title="باز/بسته کردن امکانات">
+          <i class="fa-solid fa-star"></i>
+        </button>
+      </div>
+
       <header class="welcome-header" id="welcomeHeader">
         <h2>سلام! <br> من گردآلو هستم <span class="heart">❤️</span></h2>
         <p>هر سوالی داری بپرس،<br>هر کاری می‌خوای انجام بده،<br>من اینجا هستم تا کمکت کنم.</p>
@@ -156,7 +166,7 @@
     </main>
 
     <!-- ================= سایدبار چپ ================= -->
-    <aside class="sidebar-left">
+    <aside class="sidebar-left" id="sidebarLeft">
       
       <div class="top-bubble" onclick="sendSuggestion(event, 'تو کی هستی؟')">
         <h4>گردآلو</h4>
