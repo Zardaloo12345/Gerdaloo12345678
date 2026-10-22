@@ -13,10 +13,7 @@
     .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.6; animation: fade 0.3s; white-space: pre-wrap; }
     .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
     .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
-    
-    /* استایل برای عکس تولید شده */
     .generated-img { max-width: 100%; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-
     .input-box { padding: 12px 15px; margin: 0 15px 60px 15px; background: #1e293b; display: flex; gap: 10px; flex-shrink: 0; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
     input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; font-size: 14px; }
     button { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
@@ -28,7 +25,7 @@
   <header>گردآلو مینی (موضوعات + ساخت عکس)</header>
   
   <div id="chat">
-    <div class="msg bot">سلام! من گردآلو هستم. می‌تونم درباره هزاران موضوع بهت جواب بدم. همچنین برای ساخت عکس، بنویس: <b>«عکس بساز: [توصیف تصویر]»</b> 🎨</div>
+    <div class="msg bot">سلام! من گردآلو هستم. برای ساخت عکس، دقیقاً بنویس: <b>«عکس بساز: یک گربه فضانورد»</b> 🎨 (دقت کن که با کلمه «عکس بساز:» شروع شود).</div>
   </div>
 
   <div class="input-box">
@@ -37,7 +34,6 @@
   </div>
 
   <script>
-    // ====== دیکشنری پایه ======
     const baseKb = {
       "مسی": "لیونل مسی، اسطوره آرژانتینی و برنده ۸ توپ طلا، بهترین بازیکن تاریخ فوتبال است. 🇦🇷⚽",
       "رونالدو": "کریستیانو رونالدو، ستاره پرتغالی، یکی از بهترین گلزنان تاریخ و برنده ۵ توپ طلا است. 🇵🇹⚽",
@@ -56,7 +52,20 @@
       "زبان انگلیسی": "با تمرین روزانه و تماشای فیلم می‌توانی انگلیسی یاد بگیری. 🇬🇧"
     };
 
-    // ====== تولید ۱۰۰۰+ موضوع ======
+    // دیکشنری ترجمه برای بهبود کیفیت تصویر
+    const translateMap = {
+      "رونالدو": "Cristiano Ronaldo",
+      "مسی": "Lionel Messi",
+      "امباپه": "Kylian Mbappe",
+      "نیمار": "Neymar",
+      "گربه": "cat",
+      "سگ": "dog",
+      "ماشین": "car",
+      "دریا": "sea",
+      "کوه": "mountain",
+      "فضانورد": "astronaut"
+    };
+
     const finalKb = { ...baseKb };
     const subjects = ["هوش مصنوعی", "برنامه نویسی", "کسب و کار", "روانشناسی", "سلامتی", "آشپزی", "تاریخ", "فضا", "کتاب", "شعر", "موسیقی", "ورزش", "ریاضی", "زبان انگلیسی", "تربیت بچه", "فوتبال", "مسی", "رونالدو", "امباپه", "نیمار"];
     const actions = ["چیه", "چیست", "چطور کار می‌کند", "چه فایده‌ای دارد", "چگونه شروع کنم", "بهترین روش چیست", "مزایا و معایب", "نکات مهم", "اشتباهات رایج", "چطور بهتر شود"];
@@ -81,16 +90,22 @@
       chat.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
 
-      // ====== تشخیص درخواست ساخت عکس ======
-      if (text.includes("عکس بساز") || text.includes("تصویر بساز")) {
-        const prompt = text.replace("عکس بساز:", "").replace("تصویر بساز:", "").replace("عکس بساز", "").trim();
+      // ====== تشخیص دقیق دستور ساخت عکس (فقط اگر با این عبارت شروع شود) ======
+      if (text.startsWith("عکس بساز:") || text.startsWith("تصویر بساز:")) {
+        let prompt = text.replace("عکس بساز:", "").replace("تصویر بساز:", "").trim();
         
         if (prompt) {
+          // ترجمه کلمات فارسی به انگلیسی برای بهبود پرامپت
+          for (const fa in translateMap) {
+            if (prompt.includes(fa)) {
+              prompt = prompt.replace(new RegExp(fa, 'g'), translateMap[fa]);
+            }
+          }
+
           chat.innerHTML += `<div class="msg bot">در حال ساخت تصویر برای: "${prompt}" 🎨...</div>`;
           chat.scrollTop = chat.scrollHeight;
 
-          // استفاده از API رایگان Pollinations
-          const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true`;
+          const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 10000)}`;
           
           setTimeout(() => {
             chat.innerHTML += `<div class="msg bot">این هم عکس شما:<br><img src="${imageUrl}" class="generated-img" alt="${prompt}"></div>`;
@@ -101,7 +116,7 @@
       }
 
       // ====== جستجو در دیکشنری متنی ======
-      let reply = "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام 🍑";
+      let reply = "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام 🍑 (برای ساخت عکس بنویس: «عکس بساز: یک گربه»)";
       for (const key in finalKb) {
         if (text.includes(key)) {
           reply = finalKb[key];
