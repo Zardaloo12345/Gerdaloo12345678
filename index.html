@@ -28,47 +28,47 @@
       </div>
 
       <nav class="menu">
-        <a href="#" class="menu-item active">
+        <a href="#" class="menu-item active" onclick="resetChat(event)">
           <i class="fa-solid fa-house"></i>
           <span>خانه</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'درباره چت هوشمند توضیح بده')">
           <i class="fa-solid fa-comment-dots"></i>
           <span>چت هوشمند</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'چطور می‌توانم تصویر تولید کنم؟')">
           <i class="fa-solid fa-image"></i>
           <span>تولید تصویر</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'تولید ویدیو چطور کار می‌کند؟')">
           <i class="fa-solid fa-clapperboard"></i>
           <span>تولید ویدیو</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'درباره پژوهش و تحقیق توضیح بده')">
           <i class="fa-solid fa-book-open"></i>
           <span>پژوهش و تحقیق</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'چه متن‌هایی می‌توانی بنویسی؟')">
           <i class="fa-solid fa-pen-nib"></i>
           <span>نوشتن متن</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'در برنامه‌نویسی چطور کمک می‌کنی؟')">
           <i class="fa-solid fa-code"></i>
           <span>برنامه‌نویسی</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'ترجمه به چه زبان‌هایی انجام می‌دهی؟')">
           <i class="fa-solid fa-language"></i>
           <span>ترجمه</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'امکانات صدا و گفتار چیست؟')">
           <i class="fa-solid fa-microphone-lines"></i>
           <span>صدا و گفتار</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'درباره موسیقی توضیح بده')">
           <i class="fa-solid fa-music"></i>
           <span>موسیقی</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="#" class="menu-item" onclick="sendSuggestion(event, 'چه ابزارهایی داری؟')">
           <i class="fa-solid fa-screwdriver-wrench"></i>
           <span>ابزارها</span>
         </a>
@@ -96,49 +96,43 @@
     <!-- بخش اصلی (وسط) -->
     <main class="main-content">
       
-      <!-- هدر خوش‌آمدگویی (بدون عکس) -->
-      <header class="welcome-header">
+      <!-- هدر خوش‌آمدگویی -->
+      <header class="welcome-header" id="welcomeHeader">
         <h2>سلام! <br> من گردآلو هستم <span class="heart">❤️</span></h2>
         <p>هر سوالی داری بپرس،<br>هر کاری می‌خوای انجام بده،<br>من اینجا هستم تا کمکت کنم.</p>
       </header>
 
       <!-- ناحیه چت -->
-      <section class="chat-area">
-        <div class="chat-messages">
-          <div class="message bot">
-            <div class="msg-avatar"><i class="fa-solid fa-leaf" style="color:#f59e0b"></i></div>
-            <div class="msg-text">
-              سلام! من گردآلو هستم.<br>
-              هر سوالی داری بپرس یا از یکی از امکانات زیر استفاده کن.
-            </div>
-          </div>
+      <section class="chat-area" id="chatArea">
+        <div class="chat-messages" id="chatMessages">
+          <!-- پیام اولیه حذف شد تا هدر تمیز بماند، پیام‌ها با جاوااسکریپت اضافه می‌شوند -->
         </div>
       </section>
 
       <!-- ناحیه ورودی -->
       <div class="input-area">
         <button class="attach-btn"><i class="fa-solid fa-paperclip"></i></button>
-        <input type="text" placeholder="پیام خود را بنویسید...">
-        <button class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+        <input type="text" id="userInput" placeholder="پیام خود را بنویسید..." autocomplete="off">
+        <button class="send-btn" id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
       </div>
 
       <!-- پیشنهادها -->
       <section class="suggestions">
         <h3><i class="fa-solid fa-lightbulb"></i> پیشنهادهای گردآلو</h3>
         <div class="suggestion-grid">
-          <div class="suggestion-card">
+          <div class="suggestion-card" data-prompt="یک ایده خلاقانه برای کسب‌وکار بده">
             <div class="s-icon" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;"><i class="fa-solid fa-lightbulb"></i></div>
             <p>یک ایده خلاقانه<br>برای کسب‌وکار بده</p>
           </div>
-          <div class="suggestion-card">
+          <div class="suggestion-card" data-prompt="عکس یک منظره زیبا بساز">
             <div class="s-icon" style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6;"><i class="fa-solid fa-image"></i></div>
             <p>عکس یک منظره<br>زیبا بساز</p>
           </div>
-          <div class="suggestion-card">
+          <div class="suggestion-card" data-prompt="یک متن ادبی بنویس">
             <div class="s-icon" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6;"><i class="fa-solid fa-file-lines"></i></div>
             <p>یک متن ادبی<br>بنویس</p>
           </div>
-          <div class="suggestion-card">
+          <div class="suggestion-card" data-prompt="یک برنامه پایتون بنویس">
             <div class="s-icon" style="background: rgba(16, 185, 129, 0.2); color: #10b981;"><i class="fa-solid fa-code"></i></div>
             <p>یک برنامه پایتون<br>بنویس</p>
           </div>
@@ -160,7 +154,6 @@
     <!-- سایدبار سمت چپ (امکانات) -->
     <aside class="sidebar-left">
       
-      <!-- حباب بالا سمت چپ -->
       <div class="top-bubble">
         <h4>گردآلو</h4>
         <p>یه قدم جلوتر از بقیه‌ها <span class="heart">❤️</span></p>
@@ -216,5 +209,6 @@
 
   </div>
 
+  <script src="script.js"></script>
 </body>
 </html>
