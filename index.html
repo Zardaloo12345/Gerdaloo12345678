@@ -13,21 +13,21 @@
     .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.6; animation: fade 0.3s; white-space: pre-wrap; }
     .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
     .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
-    form { padding: 10px; background: #1e293b; display: flex; gap: 8px; }
+    .input-box { padding: 10px; background: #1e293b; display: flex; gap: 8px; }
     input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; }
     button { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; }
     @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
-  <header> گردآلو مینی</header>
+  <header>🍑 گردآلو مینی</header>
   <div id="chat">
-    <div class="msg bot">سلام! من گردآلو هستم. چطور می‌تونم کمکت کنم؟</div>
+    <div class="msg bot">سلام! من گردآلو هستم. چطور می‌تونم کمکت کنم؟ (می‌تونی بگی: داستان، ایمیل، کپشن، شعر یا متن)</div>
   </div>
-  <form id="f">
+  <div class="input-box">
     <input id="i" placeholder="پیامت رو بنویس..." autocomplete="off">
-    <button>ارسال</button>
-  </form>
+    <button id="btn">ارسال</button>
+  </div>
   <script>
     const kb = {
       "سلام": "سلام! خوشحالم که باهام حرف میزنی 😊",
@@ -45,23 +45,47 @@
       "شعر": "📜 **شعر کوتاه:**\nدر این شب تار، در این دل خسته،\nبه دنبال نوری، میان هزار پنجره بسته.\nمگر می‌شود پرواز کرد بی بال،\nمگر می‌شود عاشق شد و ماند بی حال.",
       "متن": "📝 **متن انگیزشی:**\nهیچ‌وقت دیر نیست. هر روزی که از خواب بیدار می‌شوی، یک فرصت تازه است برای شروع دوباره. به خودت ایمان داشته باش و قدم اول را بردار؛ بقیه راه خودش باز می‌شود. 🚀"
     };
-    const chat = document.getElementById('chat'), form = document.getElementById('f'), input = document.getElementById('i');
-    
-    form.onsubmit = (e) => {
-      e.preventDefault();
-      const text = input.value.trim(); if (!text) return;
+
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('i');
+    const btn = document.getElementById('btn');
+
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      // نمایش پیام کاربر
       chat.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
-      
+
+      // پیدا کردن جواب
       let reply = "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام 🍑 (می‌تونی بگی: داستان، ایمیل، کپشن، شعر یا متن)";
-      for (const key in kb) { if (text.includes(key)) { reply = kb[key]; break; } }
-      
-      setTimeout(() => { 
-        chat.innerHTML += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`; 
-        chat.scrollTop = chat.scrollHeight; 
+      for (const key in kb) {
+        if (text.includes(key)) {
+          reply = kb[key];
+          break;
+        }
+      }
+
+      // نمایش جواب با تاخیر
+      setTimeout(() => {
+        chat.innerHTML += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`;
+        chat.scrollTop = chat.scrollHeight;
       }, 400);
+
       chat.scrollTop = chat.scrollHeight;
-    };
+    }
+
+    // ارسال با کلیک روی دکمه
+    btn.onclick = sendMessage;
+
+    // ارسال با زدن Enter
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>
