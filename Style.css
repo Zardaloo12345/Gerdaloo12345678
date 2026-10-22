@@ -26,8 +26,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* تغییر به ارتفاع ثابت */
-  overflow: hidden; /* حذف اسکرول کل صفحه */
+  height: 100vh;
+  overflow: hidden;
   padding: 10px;
 }
 
@@ -35,7 +35,7 @@ body {
   display: flex;
   width: 100%;
   max-width: 1500px;
-  height: 100%; /* پر کردن کل ارتفاع */
+  height: 100%;
   background-color: var(--bg-panel);
   border-radius: 20px;
   border: 1px solid var(--border-color);
@@ -43,17 +43,16 @@ body {
   overflow: hidden;
 }
 
-/* ================= سایدبارها (نوار ابزار) ================= */
+/* ================= سایدبارها ================= */
 .sidebar-right, .sidebar-left {
   background-color: var(--bg-panel);
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease, padding 0.3s ease;
   flex-shrink: 0;
-  overflow: hidden; /* جلوگیری از اسکرول داخلی */
+  overflow: hidden;
 }
 
-/* سایدبار راست */
 .sidebar-right {
   width: 240px;
   border-left: 1px solid var(--border-color);
@@ -64,7 +63,6 @@ body {
   padding: 0;
 }
 
-/* سایدبار چپ */
 .sidebar-left {
   width: 220px;
   border-right: 1px solid var(--border-color);
@@ -75,7 +73,6 @@ body {
   padding: 0;
 }
 
-/* دکمه‌های باز و بسته کردن نوار */
 .toolbar-toggle {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -142,9 +139,9 @@ body {
   flex-direction: column;
   gap: 4px;
   padding: 10px;
-  overflow-y: auto; /* در صورت نیاز فقط منو اسکرول بخورد */
+  overflow-y: auto;
 }
-.menu::-webkit-scrollbar { width: 0px; } /* مخفی کردن اسکرول منو */
+.menu::-webkit-scrollbar { width: 0px; }
 
 .menu-item {
   display: flex;
@@ -307,10 +304,14 @@ body {
 .send-btn { background-color: var(--accent); color: #000; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; }
 .send-btn:hover { background-color: var(--accent-hover); }
 
-/* پیشنهادها */
+/* ===== پیشنهادها (سایز ۳ سانت در موبایل) ===== */
 .suggestions { margin-bottom: 10px; }
 .suggestions h3 { font-size: 12px; color: var(--accent); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-.suggestion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.suggestion-grid { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 8px; 
+}
 .suggestion-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -319,10 +320,14 @@ body {
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .suggestion-card:hover { background-color: var(--bg-hover); border-color: var(--accent); transform: translateY(-2px); }
-.s-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 14px; margin: 0 auto 6px auto; }
-.suggestion-card p { font-size: 11px; color: var(--text-muted); }
+.s-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 14px; margin-bottom: 6px; }
+.suggestion-card p { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
 
 /* بنر پایین */
 .bottom-banner {
@@ -360,3 +365,60 @@ body {
 .feature-item:hover { background-color: var(--bg-hover); transform: translateX(-3px); }
 .f-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 14px; color: #fff; flex-shrink: 0; }
 .f-text h4 { font-size: 12px; font-weight: 600; color: var(--text-main); }
+
+/* ================= واکنش‌گرا (مخصوص موبایل) ================= */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+    border-radius: 0;
+    border: none;
+    height: 100vh;
+    padding: 0;
+  }
+
+  .sidebar-right, .sidebar-left {
+    width: 100%;
+    height: auto;
+    max-height: 50vh;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .sidebar-right.closed, .sidebar-left.closed {
+    max-height: 0;
+    border: none;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+
+  /* دکمه‌های ۳ سانتی‌متری در موبایل (حدود ۱۱۰ پیکسل) */
+  .suggestion-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .suggestion-card {
+    height: 110px; /* تقریباً ۳ سانتی‌متر */
+    padding: 10px;
+  }
+  .s-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+  }
+  .suggestion-card p {
+    font-size: 13px;
+  }
+
+  /* دکمه‌های سایدبار هم در موبایل بزرگ‌تر شوند */
+  .feature-item {
+    height: 50px;
+  }
+
+  .chat-area {
+    margin-bottom: 8px;
+  }
+  .bottom-banner {
+    padding: 15px;
+  }
+}
