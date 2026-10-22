@@ -1,63 +1,61 @@
 // ============================================
 // گردآلو - Gerdaloo AI v2.0
-// استریم + Markdown + حافظه + صدا + پایگاه دانش
+// دیزاین ChatGPT-like + استریم + Markdown + حافظه + صدا
 // ============================================
 
-const chatForm = document.getElementById('chatForm');
-const userInput = document.getElementById('userInput');
 const chatMessages = document.getElementById('chatMessages');
+const chatArea = document.getElementById('chatArea');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const micBtn = document.getElementById('micBtn');
+const voiceToggle = document.getElementById('voiceToggle');
+const themeToggle = document.getElementById('themeToggle');
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+const sidebarClose = document.getElementById('sidebarClose');
+const newChatBtn = document.getElementById('newChatBtn');
+const chatHistory = document.getElementById('chatHistory');
 const memoryCount = document.getElementById('memoryCount');
 
-// ===== حافظه پایدار =====
-const MEMORY_KEY = 'gerdaloo_memory';
+// ===== حافظه =====
+const MEMORY_KEY = 'gerdaloo_memory_v2';
 
 function loadMemory() {
   try {
-    return JSON.parse(localStorage.getItem(MEMORY_KEY)) || { facts: [], history: [] };
+    return JSON.parse(localStorage.getItem(MEMORY_KEY)) || { facts: [], history: [], conversations: [] };
   } catch {
-    return { facts: [], history: [] };
+    return { facts: [], history: [], conversations: [] };
   }
 }
 
-function saveMemory(memory) {
+function saveMemory() {
   localStorage.setItem(MEMORY_KEY, JSON.stringify(memory));
 }
 
 let memory = loadMemory();
 memoryCount.textContent = memory.facts.length;
 
-// ===== پایگاه دانش سایت زردآلو =====
+// ===== پایگاه دانش زردآلو =====
 const ANSWERS = {
   intro: "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است و توسط عرفان ریاحی ساخته شده. 🍑",
-  profile: "برای استفاده از زردآلو، اول باید پروفایل خودت را بسازی و اطلاعاتت را کامل کنی: نام، شماره تماس و شماره زردآلو. 👤",
-  market: "بخش «بازار زردآلو» محل خرید و فروش کالاست. می‌توانی کالای جدید ثبت کنی یا کالاهای موجود را ببینی و خرید کنی. 🛒",
-  product: "برای ثبت کالای جدید، از بخش «ثبت کالای جدید» در منوی زردآلو استفاده کن. نام، توضیحات، قیمت و تصویر کالا را وارد کن. 📦",
-  messenger: "بخش «پیام‌رسان» زردآلو برای ارتباط با فروشندگان یا خریداران است. 💬",
-  report: "بخش «گزارش فروشنده» آمار تعداد کالا، ارزش کل (تومان) و بازدید کل را نشان می‌دهد. 📊",
+  profile: "برای استفاده از زردآلو، اول باید پروفایل خودت را بسازی: نام، شماره تماس و شماره زردآلو. 👤",
+  market: "بخش «بازار زردآلو» محل خرید و فروش کالاست. 🛒",
   creator: "سازنده و مالک سایت زردآلو، عرفان ریاحی است. 🧑🏻‍💻",
-  link: "سایت زردآلو در این آدرس در دسترس است: https://zardaloo12345.github.io/zardaloo.online.shop/ 🌍",
-  thanks: "از این عزیزان تشکر شده: شهاب‌الدین ریاحی، دکتر عباس امیدی، آقای زارعی، کوشان طلائی، ملیحه همت‌گیر، سپهر میر قادری، سید ابوالفضل صمصام شریعت، محمد پارسا آیتی، محمد طاها نیرومند، آقای قاسمی، کیان عسگری، مانی شیروی. 🙏",
-  free: "سایت زردآلو رایگان است و برای استفاده از آن هزینه‌ای نیاز نیست. 🆓",
-  default: "برای اطلاعات بیشتر درباره این موضوع، می‌توانی از پیام‌رسان سایت یا گیت‌هاب پروژه کمک بگیری. 🍑"
+  link: "آدرس سایت: https://zardaloo12345.github.io/zardaloo.online.shop/ 🌍",
+  default: "برای اطلاعات بیشتر از پیام‌رسان سایت یا گیت‌هاب کمک بگیر. 🍑"
 };
 
-// ===== جستجو در پایگاه دانش =====
 function findSiteAnswer(text) {
-  const t = text.trim().toLowerCase();
+  const t = text.toLowerCase();
   if (/زردآلو چیه|سایت زردآلو|بازار آنلاین/.test(t)) return ANSWERS.intro;
   if (/پروفایل|ثبت نام|ثبت‌نام|ورود/.test(t)) return ANSWERS.profile;
   if (/بازار|خرید|فروش|سبد/.test(t)) return ANSWERS.market;
-  if (/ثبت کالا|مدیریت کالا|محصول جدید/.test(t)) return ANSWERS.product;
-  if (/پیام|چت|گفتگو/.test(t)) return ANSWERS.messenger;
-  if (/گزارش|آمار|بازدید/.test(t)) return ANSWERS.report;
-  if (/سازنده|عرفان|مالک|مدیر/.test(t)) return ANSWERS.creator;
+  if (/سازنده|عرفان|مالک/.test(t)) return ANSWERS.creator;
   if (/آدرس|لینک|گیت|github/.test(t)) return ANSWERS.link;
-  if (/تشکر|قدردانی|همکار/.test(t)) return ANSWERS.thanks;
-  if (/رایگان|هزینه|پرداخت/.test(t)) return ANSWERS.free;
   return null;
 }
 
-// ===== استریم از Ollama =====
+// ===== استریم Ollama =====
 async function streamOllama(userMessage, onChunk) {
   const memoryContext = memory.facts.length
     ? `\nچیزهایی که درباره کاربر می‌دانی: ${memory.facts.join('، ')}`
@@ -69,7 +67,7 @@ async function streamOllama(userMessage, onChunk) {
     body: JSON.stringify({
       model: 'qwen3',
       messages: [
-        { role: 'system', content: `تو گردآلو هستی، دستیار هوشمند و مهربان سایت زردآلو. پاسخ‌ها را به فارسی و با Markdown بنویس.${memoryContext}` },
+        { role: 'system', content: `تو گردآلو هستی، دستیار هوشمند سایت زردآلو. پاسخ‌ها را فارسی و با Markdown بنویس.${memoryContext}` },
         ...memory.history.slice(-10),
         { role: 'user', content: userMessage }
       ],
@@ -105,13 +103,10 @@ let voiceEnabled = true;
 let isRecording = false;
 let recognition = null;
 
-const voiceToggle = document.getElementById('voiceToggle');
-const micBtn = document.getElementById('micBtn');
-
 function speak(text) {
   if (!voiceEnabled || !('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
+  const utterance = new SpeechSynthesisUtterance(text.replace(/[#*`]/g, ''));
   utterance.lang = 'fa-IR';
   utterance.rate = 0.95;
   const voices = window.speechSynthesis.getVoices();
@@ -121,35 +116,23 @@ function speak(text) {
 }
 
 function initSpeechRecognition() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
     micBtn.disabled = true;
-    micBtn.title = 'مرورگر شما از تشخیص گفتار پشتیبانی نمی‌کند';
     return null;
   }
 
-  const rec = new SpeechRecognition();
+  const rec = new SR();
   rec.lang = 'fa-IR';
   rec.continuous = false;
   rec.interimResults = false;
-  rec.maxAlternatives = 1;
 
   rec.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    userInput.value = transcript;
-    chatForm.dispatchEvent(new Event('submit'));
+    userInput.value = event.results[0][0].transcript;
+    sendMessage();
   };
 
-  rec.onerror = (event) => {
-    console.error('Speech error:', event.error);
-    if (event.error === 'not-allowed') {
-      addMessage('دسترسی به میکروفن داده نشد. لطفاً اجازه بده. 🎤', 'bot');
-    } else if (event.error === 'no-speech') {
-      addMessage('صدایی شنیده نشد. دوباره تلاش کن. 🎤', 'bot');
-    }
-    stopRecording();
-  };
-
+  rec.onerror = () => stopRecording();
   rec.onend = () => stopRecording();
   return rec;
 }
@@ -162,16 +145,114 @@ function startRecording() {
     isRecording = true;
     micBtn.classList.add('recording');
     micBtn.textContent = '⏹️';
-    userInput.placeholder = 'در حال شنیدن...';
-  } catch (e) { console.error(e); }
+  } catch (e) {}
 }
 
 function stopRecording() {
   isRecording = false;
   micBtn.classList.remove('recording');
   micBtn.textContent = '🎤';
-  userInput.placeholder = 'پیامت را بنویس یا میکروفن را بزن...';
 }
+
+// ===== پیام‌ها =====
+function removeWelcome() {
+  const welcome = chatMessages.querySelector('.welcome');
+  if (welcome) welcome.remove();
+}
+
+function addMessage(text, sender, streaming = false) {
+  removeWelcome();
+
+  const msg = document.createElement('div');
+  msg.className = `message ${sender}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = 'message-avatar';
+  avatar.textContent = sender === 'bot' ? '🍑' : 'Z';
+
+  const content = document.createElement('div');
+  content.className = 'message-content';
+
+  const role = document.createElement('div');
+  role.className = 'message-role';
+  role.textContent = sender === 'bot' ? 'گردآلو' : 'شما';
+
+  const textEl = document.createElement('div');
+  textEl.className = 'message-text';
+
+  if (streaming) {
+    textEl.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  } else if (sender === 'bot') {
+    textEl.innerHTML = marked.parse(text);
+  } else {
+    textEl.textContent = text;
+  }
+
+  content.appendChild(role);
+  content.appendChild(textEl);
+  msg.appendChild(avatar);
+  msg.appendChild(content);
+  chatMessages.appendChild(msg);
+  chatArea.scrollTop = chatArea.scrollHeight;
+
+  return textEl;
+}
+
+// ===== ارسال =====
+async function sendMessage() {
+  const text = userInput.value.trim();
+  if (!text) return;
+
+  userInput.value = '';
+  userInput.style.height = 'auto';
+
+  addMessage(text, 'user');
+  memory.history.push({ role: 'user', content: text });
+  saveMemory();
+
+  // پایگاه دانش محلی
+  const siteAnswer = findSiteAnswer(text);
+  if (siteAnswer) {
+    addMessage(siteAnswer, 'bot');
+    speak(siteAnswer);
+    memory.history.push({ role: 'assistant', content: siteAnswer });
+    saveMemory();
+    return;
+  }
+
+  // استریم Ollama
+  const textEl = addMessage('', 'bot', true);
+  sendBtn.disabled = true;
+
+  try {
+    const fullReply = await streamOllama(text, (chunk, accumulated) => {
+      textEl.innerHTML = marked.parse(accumulated);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    });
+    memory.history.push({ role: 'assistant', content: fullReply });
+    saveMemory();
+    speak(fullReply);
+  } catch (err) {
+    textEl.textContent = 'خطا در اتصال. Ollama را چک کن. 🍑';
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+// ===== رویدادها =====
+sendBtn.addEventListener('click', sendMessage);
+
+userInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+userInput.addEventListener('input', () => {
+  userInput.style.height = 'auto';
+  userInput.style.height = Math.min(userInput.scrollHeight, 200) + 'px';
+});
 
 micBtn.addEventListener('click', () => {
   if (isRecording) {
@@ -189,70 +270,42 @@ voiceToggle.addEventListener('click', () => {
   if (!voiceEnabled) window.speechSynthesis.cancel();
 });
 
-// ===== افزودن پیام =====
-function addMessage(text, sender) {
-  const msg = document.createElement('div');
-  msg.className = `message ${sender}`;
-  const avatar = document.createElement('span');
-  avatar.className = 'avatar';
-  avatar.textContent = sender === 'bot' ? '🍑' : '🧑';
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.textContent = text;
-  msg.appendChild(avatar);
-  msg.appendChild(bubble);
-  chatMessages.appendChild(msg);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+// تم تاریک
+const savedTheme = localStorage.getItem('gerdaloo_theme');
+if (savedTheme === 'dark') {
+  document.documentElement.setAttribute('data-theme', 'dark');
+  themeToggle.textContent = '☀️';
 }
 
-// ===== رویداد ارسال =====
-chatForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const text = userInput.value.trim();
-  if (!text) return;
-
-  addMessage(text, 'user');
-  memory.history.push({ role: 'user', content: text });
-  saveMemory(memory);
-  userInput.value = '';
-  userInput.focus();
-
-  // اول: پایگاه دانش محلی
-  const siteAnswer = findSiteAnswer(text);
-  if (siteAnswer) {
-    addMessage(siteAnswer, 'bot');
-    speak(siteAnswer);
-    memory.history.push({ role: 'assistant', content: siteAnswer });
-    saveMemory(memory);
-    return;
-  }
-
-  // دوم: استریم از Ollama با Markdown
-  const msg = document.createElement('div');
-  msg.className = 'message bot';
-  msg.innerHTML = `<span class="avatar">🍑</span><div class="bubble"></div>`;
-  chatMessages.appendChild(msg);
-  const bubble = msg.querySelector('.bubble');
-
-  try {
-    const fullReply = await streamOllama(text, (chunk, accumulated) => {
-      bubble.innerHTML = marked.parse(accumulated);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
-    memory.history.push({ role: 'assistant', content: fullReply });
-    saveMemory(memory);
-    speak(fullReply.replace(/[#*`]/g, '')); // حذف Markdown قبل از خواندن
-  } catch (err) {
-    bubble.textContent = 'خطا در اتصال. Ollama را چک کن. 🍑';
+themeToggle.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    themeToggle.textContent = '🌙';
+    localStorage.setItem('gerdaloo_theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeToggle.textContent = '☀️';
+    localStorage.setItem('gerdaloo_theme', 'dark');
   }
 });
 
-// ===== سوالات سریع =====
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    userInput.value = chip.dataset.q;
-    chatForm.dispatchEvent(new Event('submit'));
-  });
+// سایدبار موبایل
+menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
+sidebarClose.addEventListener('click', () => sidebar.classList.remove('open'));
+
+// گفتگوی جدید
+newChatBtn.addEventListener('click', () => {
+  chatMessages.innerHTML = `
+    <div class="welcome">
+      <div class="welcome-icon">🍑</div>
+      <h1>چطور می‌تونم کمکت کنم؟</h1>
+      <p>دستیار هوشمند سایت زردآلو</p>
+    </div>
+  `;
+  memory.history = [];
+  saveMemory();
+  sidebar.classList.remove('open');
 });
 
 // ===== آماده‌سازی صدا =====
@@ -261,4 +314,4 @@ if ('speechSynthesis' in window) {
 }
 
 userInput.focus();
-console.log('🍑 گردآلو v2.0 آماده است: استریم + Markdown + حافظه + صدا');
+console.log('🍑 گردآلو v2.0 — دیزاین ChatGPT-like آماده شد');
