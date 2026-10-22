@@ -6,107 +6,109 @@
   <title>گردآلو | Gerdaloo AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <div class="bg-blobs">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
+  <div class="app">
 
-  <header class="header glass">
-    <div class="logo">
-      <div class="logo-icon-wrap">
-        <svg viewBox="0 0 200 200" width="44" height="44">
-          <defs>
-            <linearGradient id="peachGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#ffb347"/>
-              <stop offset="100%" stop-color="#ff6b35"/>
-            </linearGradient>
-            <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#7ed957"/>
-              <stop offset="100%" stop-color="#2ecc71"/>
-            </linearGradient>
-          </defs>
-          <circle cx="100" cy="110" r="60" fill="url(#peachGrad)" stroke="#e85d2a" stroke-width="3"/>
-          <path d="M100 50 Q120 20 150 30 Q130 60 100 50 Z" fill="url(#leafGrad)" stroke="#27ae60" stroke-width="2"/>
-          <g stroke="#fff" stroke-width="2.5" opacity="0.95" stroke-linecap="round">
-            <line x1="80" y1="90" x2="100" y2="110"/>
-            <line x1="120" y1="90" x2="100" y2="110"/>
-            <line x1="80" y1="130" x2="100" y2="110"/>
-            <line x1="120" y1="130" x2="100" y2="110"/>
-            <line x1="80" y1="90" x2="120" y2="90"/>
-            <line x1="80" y1="130" x2="120" y2="130"/>
-          </g>
-          <g fill="#fff">
-            <circle cx="80" cy="90" r="5"/>
-            <circle cx="120" cy="90" r="5"/>
-            <circle cx="100" cy="110" r="7"/>
-            <circle cx="80" cy="130" r="5"/>
-            <circle cx="120" cy="130" r="5"/>
-          </g>
-          <path d="M145 70 L150 85 L165 80 L155 95 L160 110" stroke="#f1c40f" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- ===== سایدبار ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">🍑</div>
+          <span class="brand-name">گردآلو</span>
+        </div>
+        <button class="sidebar-close" id="sidebarClose">✕</button>
+      </div>
+
+      <button class="new-chat-btn" id="newChatBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
-      </div>
-      <div class="logo-text">
-        <h1>گردآلو</h1>
-        <span class="logo-sub">Gerdaloo AI · v2.0</span>
-      </div>
-    </div>
-    <div class="header-actions">
-      <div class="memory-badge" id="memoryBadge" title="حافظه گردآلو">
-        <span class="memory-icon">🧠</span>
-        <span id="memoryCount">0</span>
-      </div>
-      <button id="voiceToggle" class="icon-btn voice-toggle" title="روشن/خاموش کردن پاسخ صوتی">🔊</button>
-    </div>
-  </header>
+        <span>گفتگوی جدید</span>
+      </button>
 
-  <main class="container">
-    <section class="hero">
-      <h2>به گردآلو خوش آمدی <span class="wave">👋</span></h2>
-      <p>دستیار هوشمند سایت زردآلو — هر سوالی داری بپرس</p>
-    </section>
-
-    <section class="chat-box glass">
-      <div class="chat-messages" id="chatMessages">
-        <div class="message bot">
-          <span class="avatar">🍑</span>
-          <div class="bubble">سلام! من گردآلو هستم. می‌تونی تایپ کنی یا با میکروفن صحبت کنی 😊</div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">گفتگوهای اخیر</div>
+        <div class="chat-history" id="chatHistory">
+          <div class="history-empty">هنوز گفتگویی نداری</div>
         </div>
       </div>
 
-      <form class="chat-form" id="chatForm">
-        <button type="button" id="micBtn" class="icon-btn mic-btn" title="ضبط صدا">🎤</button>
-        <input type="text" id="userInput" placeholder="پیامت را بنویس یا میکروفن را بزن..." autocomplete="off">
-        <button type="submit" class="send-btn">
-          <span>ارسال</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      <div class="sidebar-footer">
+        <div class="memory-info">
+          <span class="memory-dot"></span>
+          <span>حافظه: <b id="memoryCount">0</b> مورد</span>
+        </div>
+        <div class="user-info">
+          <div class="user-avatar">Z</div>
+          <div class="user-details">
+            <div class="user-name">zardaloo12345</div>
+            <div class="user-plan">نسخه رایگان</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== بخش اصلی ===== -->
+    <main class="main">
+      <!-- هدر -->
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </button>
-      </form>
-    </section>
+        <div class="model-selector">
+          <span class="model-name">گردآلو</span>
+          <span class="model-badge">v2.0</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" id="voiceToggle" title="پاسخ صوتی">🔊</button>
+          <button class="icon-btn" id="themeToggle" title="حالت تاریک">🌙</button>
+        </div>
+      </header>
 
-    <section class="quick-questions">
-      <p>✨ سوالات پرتکرار</p>
-      <div class="chips">
-        <button class="chip" data-q="زردآلو چیه؟">🍑 زردآلو چیه؟</button>
-        <button class="chip" data-q="سازنده زردآلو کیست؟">👨‍💻 سازنده کیست؟</button>
-        <button class="chip" data-q="چطور پروفایل بسازم؟">👤 چطور پروفایل بسازم؟</button>
-        <button class="chip" data-q="سبد خرید چطور کار می‌کند؟">🛒 سبد خرید</button>
-        <button class="chip" data-q="آدرس سایت زردآلو چیست؟">🌍 آدرس سایت</button>
+      <!-- ناحیه چت -->
+      <div class="chat-area" id="chatArea">
+        <div class="messages" id="chatMessages">
+          <!-- پیام خوش‌آمد -->
+          <div class="welcome">
+            <div class="welcome-icon">🍑</div>
+            <h1>چطور می‌تونم کمکت کنم؟</h1>
+            <p>دستیار هوشمند سایت زردآلو</p>
+          </div>
+        </div>
       </div>
-    </section>
-  </main>
 
-  <footer class="footer">
-    <p>ساخته‌شده با <span class="heart">❤️</span> برای پروژه گردآلو</p>
-  </footer>
+      <!-- ناحیه ورودی -->
+      <div class="composer-wrap">
+        <div class="composer">
+          <button class="composer-btn" id="micBtn" title="ضبط صدا">🎤</button>
+          <textarea
+            id="userInput"
+            class="composer-input"
+            placeholder="پیام خود را بنویسید..."
+            rows="1"
+          ></textarea>
+          <button class="composer-send" id="sendBtn" title="ارسال">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div class="composer-footer">
+          گردآلو ممکن است اشتباه کند. اطلاعات مهم را بررسی کنید.
+        </div>
+      </div>
+    </main>
+  </div>
 
   <script src="script.js"></script>
 </body>
