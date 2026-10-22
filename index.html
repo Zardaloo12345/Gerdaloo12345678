@@ -3,48 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو | چت هوشمند (هزاران موضوع)</title>
+  <title>گردآلو | اتصال به DeepSeek</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
     body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    
-    header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; color: #f59e0b; font-size: 18px; border-bottom: 1px solid #334155; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding-right: 20px; padding-left: 20px; }
-    .admin-btn { background: #334155; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; }
-    .admin-btn:hover { background: #f59e0b; color: #000; }
-
-    .admin-mode header { background: #b91c1c; color: #fff; }
-    .admin-mode .bot { background: #fef08a; color: #000; }
-
+    header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; color: #f59e0b; font-size: 18px; border-bottom: 1px solid #334155; flex-shrink: 0; }
     #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 5px; }
-    .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; animation: fade 0.3s; white-space: pre-wrap; }
+    .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; animation: fade 0.3s; white-space: pre-wrap; word-break: break-word; }
     .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
     .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
     
+    /* استایل باکس تفکر (Thinking) */
+    .thinking-box { background: #1e293b; color: #94a3b8; font-size: 12px; padding: 10px; border-radius: 8px; margin-bottom: 5px; border-right: 3px solid #f59e0b; font-style: italic; width: 100%; }
+    .thinking-title { font-weight: bold; color: #f59e0b; margin-bottom: 5px; font-style: normal; font-size: 11px; }
+
     .input-box { padding: 12px 15px; margin: 0 15px 60px 15px; background: #1e293b; display: flex; gap: 10px; flex-shrink: 0; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
     input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; font-size: 14px; }
     button#send { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
+    button#send:disabled { background: #64748b; cursor: not-allowed; }
     
     @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
-    .modal-content { background: #1e293b; padding: 20px; border-radius: 12px; width: 300px; text-align: center; }
-    .modal-content h3 { margin-bottom: 15px; color: #f59e0b; }
-    .modal-content input { width: 100%; margin-bottom: 10px; }
-    .modal-content button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
-    .modal-content .btn-primary { background: #f59e0b; color: #000; }
-    .modal-content .btn-close { background: #ef4444; color: #fff; }
   </style>
 </head>
 <body>
 
-  <header id="main-header">
-    <span>گردآلو | چت هوشمند</span>
-    <button class="admin-btn" onclick="openAdminLogin()">ورود ادمین</button>
-  </header>
+  <header>گردآلو (متصل به DeepSeek)</header>
   
   <div id="chat">
-    <div class="msg bot">سلام! من گردآلو هستم. می‌تونم درباره هزاران موضوع بهت جواب بدم. چی می‌خوای بدونی؟ 🍑</div>
+    <div class="msg bot">سلام! من گردآلو هستم. حالا به مدل DeepSeek مجهز شدم و می‌تونم با تفکر عمیق به سوالاتت جواب بدم. چی می‌خوای بدونی؟ 🍑</div>
   </div>
 
   <div class="input-box">
@@ -52,143 +39,103 @@
     <button id="send" onclick="sendMessage()">ارسال</button>
   </div>
 
-  <div class="modal" id="admin-modal">
-    <div class="modal-content">
-      <h3>ورود ادمین</h3>
-      <input type="text" id="admin-name" placeholder="نام (عرفان)">
-      <input type="password" id="admin-code" placeholder="کد (12345678)">
-      <button class="btn-primary" onclick="loginAdmin()">ورود</button>
-      <button class="btn-close" onclick="closeAdminLogin()">بستن</button>
-    </div>
-  </div>
-
   <script>
-    // ====== بخش ادمین ======
-    let isAdmin = localStorage.getItem('gerdaloo_isAdmin') === 'true';
+    // ⚠️ کلید API خود را اینجا وارد کنید ⚠️
+    const API_KEY = "YOUR_DEEPSEEK_API_KEY"; 
+    const API_URL = "https://api.deepseek.com/chat/completions";
+    const MODEL = "deepseek-flash";
 
-    function openAdminLogin() { document.getElementById('admin-modal').style.display = 'flex'; }
-    function closeAdminLogin() { document.getElementById('admin-modal').style.display = 'none'; }
-    function loginAdmin() {
-      const name = document.getElementById('admin-name').value.trim();
-      const code = document.getElementById('admin-code').value.trim();
-      if (name === "عرفان" && code === "12345678") {
-        isAdmin = true;
-        localStorage.setItem('gerdaloo_isAdmin', 'true');
-        document.body.classList.add('admin-mode');
-        document.getElementById('main-header').innerHTML = '<span>پنل پشتیبانی (عرفان)</span><button class="admin-btn" onclick="logoutAdmin()">خروج</button>';
-        closeAdminLogin();
-        alert("شما وارد حالت پشتیبانی شدید.");
-      } else { alert("نام یا کد اشتباه است!"); }
-    }
-    function logoutAdmin() {
-      isAdmin = false;
-      localStorage.removeItem('gerdaloo_isAdmin');
-      document.body.classList.remove('admin-mode');
-      document.getElementById('main-header').innerHTML = '<span>گردآلو | چت هوشمند</span><button class="admin-btn" onclick="openAdminLogin()">ورود ادمین</button>';
-      alert("از حالت پشتیبانی خارج شدید.");
-    }
-
-    // ====== دیکشنری پاسخ‌های طولانی ======
-    const baseKb = {
-      "سایت زردآلو": "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعار این سایت «با زردآلو خرید راحته!» است. در این سایت می‌توانید پروفایل بسازید، کالا ثبت کنید، خرید و فروش کنید و از پیام‌رسان استفاده کنید. سازنده آن عرفان ریاحی است. 🍑",
-      "سازنده زردآلو": "سازنده و مدیر سایت زردآلو، عرفان ریاحی است که با تلاش خود این پلتفرم را برای راحتی خرید و فروش راه‌اندازی کرده است. 🧑🏻‍💻",
-      "مسی": "لیونل مسی، اسطوره فوتبال آرژانتین و برنده ۸ توپ طلا، بهترین بازیکن تاریخ است. او در جام جهانی ۲۰۲۲ قهرمان شد و رکوردهای بی‌نظیری دارد. 🇦🇷⚽",
-      "رونالدو": "کریستیانو رونالدو، ستاره پرتغالی و یکی از بهترین گلزنان تاریخ، ۵ بار برنده توپ طلا شده است. او به پشتکار و آمادگی جسمانی بالا معروف است. 🇵🇹⚽",
-      "تربیت بچه": "تربیت کودک نیازمند صبر و محبت است. برای تربیت سالم باید به کودک احترام گذاشت، قوانین منطقی تعیین کرد و از تنبیه بدنی پرهیز کرد. الگو بودن والدین مهم‌ترین عامل است. 👶",
-      "سلام": "سلام و درود! خوشحالم که باهام حرف میزنی. هر سوالی داری بپرس تا کامل جوابت رو بدم. 😊",
-      "برنامه نویسی": "برنامه‌نویسی یعنی نوشتن دستورات برای کامپیوتر. برای شروع، زبان پایتون بهترین گزینه است. با تمرین و ساخت پروژه‌های کوچک می‌توانید پیشرفت کنید. 🧑🏻‍💻",
-      "هوش مصنوعی": "هوش مصنوعی شاخه‌ای از علوم کامپیوتر است که به ماشین‌ها توانایی یادگیری و تصمیم‌گیری می‌دهد. در پزشکی، آموزش و حمل‌ونقل کاربرد دارد. 🤖"
-    };
-
-    // ====== تولید بیش از ۱۰,۰۰۰ موضوع ======
-    const finalKb = { ...baseKb };
-    
-    // لیست موضوعات پایه
-    const subjects = [
-      "هوش مصنوعی", "برنامه نویسی", "کسب و کار", "روانشناسی", "سلامتی", "آشپزی", 
-      "تاریخ", "فضا", "کتاب", "شعر", "موسیقی", "ورزش", "ریاضی", "زبان انگلیسی", 
-      "تربیت بچه", "فوتبال", "مسی", "رونالدو", "امباپه", "نیمار", "سایت زردآلو",
-      "بورس", "ارز دیجیتال", "یادگیری ماشین", "دیپ سیک", "چت جی پی تی", "اینترنت", 
-      "شبکه های اجتماعی", "امنیت سایبری", "خودروی خودران", "رباتیک", "نجوم", 
-      "فیزیک", "شیمی", "زیست شناسی", "ورزشکاران", "باشگاه های فوتبال", "جام جهانی"
-    ];
-
-    // لیست پرسش‌ها
-    const actions = [
-      "چیه", "چیست", "چطور کار می‌کند", "چه فایده‌ای دارد", "چگونه شروع کنم", 
-      "بهترین روش چیست", "مزایا و معایب", "نکات مهم", "اشتباهات رایج", "چطور بهتر شود",
-      "تاریخچه", "آینده", "در ایران", "در جهان", "برای کودکان", "برای بزرگسالان",
-      "به زبان ساده", "به صورت تخصصی", "مقدماتی", "پیشرفته"
-    ];
-
-    // ترکیب موضوعات و پرسش‌ها
-    subjects.forEach(sub => {
-      actions.forEach(act => {
-        const key = `${sub} ${act}`;
-        if (!finalKb[key]) {
-          finalKb[key] = `درباره «${sub}» و موضوع «${act}»: برای یادگیری بهتر این موضوع، پیشنهاد می‌شود از منابع معتبر مانند کتاب‌ها، مقالات علمی و ویدیوهای آموزشی استفاده کنید. همچنین تمرین عملی و مشورت با افراد باتجربه می‌تواند بسیار مفید باشد. 🍑`;
-        }
-      });
-    });
-
-    // ====== سیستم پیام‌رسانی ======
-    const CHAT_KEY = 'gerdaloo_messages_v2';
     const chat = document.getElementById('chat');
     const input = document.getElementById('i');
+    const sendBtn = document.getElementById('send');
+    let history = []; // برای حفظ حافظه چت
 
-    function loadMessages() { return JSON.parse(localStorage.getItem(CHAT_KEY)) || []; }
-    function saveMessage(sender, text) {
-      const msgs = loadMessages();
-      msgs.push({ sender, text, time: Date.now() });
-      localStorage.setItem(CHAT_KEY, JSON.stringify(msgs));
-      renderMessages();
-    }
-
-    function renderMessages() {
-      const msgs = loadMessages();
-      chat.innerHTML = '';
-      msgs.forEach(m => {
-        if (isAdmin && m.sender === 'user') chat.innerHTML += `<div class="msg user">👤 کاربر: ${m.text}</div>`;
-        else if (isAdmin && m.sender === 'admin') chat.innerHTML += `<div class="msg bot">👑 شما (ادمین): ${m.text}</div>`;
-        else if (!isAdmin && m.sender === 'admin') chat.innerHTML += `<div class="msg bot">👑 پشتیبانی: ${m.text}</div>`;
-        else if (!isAdmin && m.sender === 'bot') chat.innerHTML += `<div class="msg bot">${m.text}</div>`;
-        else if (!isAdmin && m.sender === 'user') chat.innerHTML += `<div class="msg user">${m.text}</div>`;
-      });
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function sendMessage() {
+    async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
-      input.value = '';
 
-      if (isAdmin) {
-        saveMessage('admin', text);
-      } else {
-        saveMessage('user', text);
-        setTimeout(() => {
-          // جستجوی هوشمند در بیش از ۱۰,۰۰۰ موضوع
-          let reply = "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام 🍑";
-          for (const key in finalKb) {
-            if (text.includes(key)) { reply = finalKb[key]; break; }
+      // نمایش پیام کاربر
+      chat.innerHTML += `<div class="msg user">${text}</div>`;
+      input.value = '';
+      chat.scrollTop = chat.scrollHeight;
+
+      // افزودن به تاریخچه
+      history.push({ role: "user", content: text });
+
+      // غیرفعال کردن دکمه ارسال
+      sendBtn.disabled = true;
+      sendBtn.textContent = "...";
+
+      // نمایش وضعیت تایپ
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'msg bot';
+      typingDiv.innerHTML = '<span class="typing" style="color:#f59e0b">در حال تفکر و پردازش...</span>';
+      chat.appendChild(typingDiv);
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: [
+              { role: "system", content: "تو گردآلو هستی، یک دستیار هوشمند فارسی‌زبان. پاسخ‌هایت کامل، دقیق و با لحنی صمیمی باشد. همیشه به زبان فارسی جواب بده." },
+              ...history
+            ],
+            // فعال‌سازی قابلیت تفکر عمیق
+            thinking: { type: "enabled" },
+            reasoning_effort: "high",
+            stream: false
+          })
+        });
+
+        const data = await response.json();
+        typingDiv.remove();
+
+        if (data.choices && data.choices[0]) {
+          const message = data.choices[0].message;
+          const reply = message.content;
+          const reasoning = message.reasoning_content; // بخش تفکر مدل
+
+          let htmlResponse = '';
+
+          // اگر مدل فرآیند تفکر داشت، آن را در یک باکس نمایش بده
+          if (reasoning) {
+            htmlResponse += `
+              <div class="thinking-box">
+                <div class="thinking-title">🧠 فرآیند تفکر DeepSeek:</div>
+                ${reasoning.replace(/\n/g, '<br>')}
+              </div>
+            `;
           }
-          saveMessage('bot', reply);
-        }, 1000);
+
+          // نمایش پاسخ نهایی
+          htmlResponse += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`;
+          chat.innerHTML += htmlResponse;
+
+          history.push({ role: "assistant", content: reply });
+        } else {
+          chat.innerHTML += `<div class="msg bot">خطا در دریافت پاسخ از هوش مصنوعی.</div>`;
+        }
+
+      } catch (error) {
+        typingDiv.remove();
+        chat.innerHTML += `<div class="msg bot">ارتباط برقرار نشد. کلید API یا اتصال اینترنت را بررسی کنید.</div>`;
+        console.error(error);
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = "ارسال";
+        chat.scrollTop = chat.scrollHeight;
       }
     }
 
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
     });
-
-    if (isAdmin) {
-      document.body.classList.add('admin-mode');
-      document.getElementById('main-header').innerHTML = '<span>پنل پشتیبانی (عرفان)</span><button class="admin-btn" onclick="logoutAdmin()">خروج</button>';
-      input.placeholder = "پاسخ خود را به عنوان ادمین بنویسید...";
-    }
-
-    setInterval(renderMessages, 1000);
-    renderMessages();
   </script>
 </body>
 </html>
