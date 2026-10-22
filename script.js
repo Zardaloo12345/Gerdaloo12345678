@@ -1,134 +1,17 @@
 // ============================================
-// گردآلو - Gerdaloo AI v3.0
+// گردآلو - Gerdaloo AI v4.0
+// دیزاین جدید + موتور ۱۰۰۰ موضوعی آفلاین
 // ============================================
 
-const onboarding = document.getElementById('onboarding');
-const app = document.getElementById('app');
-const step1 = document.getElementById('step1');
-const step2 = document.getElementById('step2');
-const step3 = document.getElementById('step3');
-const nextStep1 = document.getElementById('nextStep1');
-const nextStep2 = document.getElementById('nextStep2');
-const backStep2 = document.getElementById('backStep2');
-const backStep3 = document.getElementById('backStep3');
-const zardalooNumber = document.getElementById('zardalooNumber');
-const userEmail = document.getElementById('userEmail');
-const progressSteps = document.querySelectorAll('.progress-step');
-
-const chatMessages = document.getElementById('chatMessages');
 const chatArea = document.getElementById('chatArea');
+const chatMessages = document.getElementById('chatMessages');
+const welcomeHeader = document.getElementById('welcomeHeader');
 const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
-const micBtn = document.getElementById('micBtn');
-const voiceToggle = document.getElementById('voiceToggle');
-const themeToggle = document.getElementById('themeToggle');
-const menuBtn = document.getElementById('menuBtn');
-const sidebar = document.getElementById('sidebar');
-const sidebarToggle = document.getElementById('sidebarToggle');
-const brandBtn = document.getElementById('brandBtn');
-const newChatBtn = document.getElementById('newChatBtn');
-const memoryCount = document.getElementById('memoryCount');
-const displayUserName = document.getElementById('displayUserName');
-const displayUserPlan = document.getElementById('displayUserPlan');
 
-const settingsModal = document.getElementById('settingsModal');
-const openSettings = document.getElementById('openSettings');
-const closeSettings = document.getElementById('closeSettings');
-const settingTheme = document.getElementById('settingTheme');
-const settingVoice = document.getElementById('settingVoice');
-const settingZardaloo = document.getElementById('settingZardaloo');
-const settingEmail = document.getElementById('settingEmail');
-const clearMemory = document.getElementById('clearMemory');
-
-const MEMORY_KEY = 'gerdaloo_memory_v4';
-
-function loadMemory() {
-  try {
-    return JSON.parse(localStorage.getItem(MEMORY_KEY)) || {
-      facts: [],
-      history: [],
-      profile: { zardaloo: '', email: '', hasProduct: null, loginMethod: null }
-    };
-  } catch {
-    return { facts: [], history: [], profile: { zardaloo: '', email: '', hasProduct: null, loginMethod: null } };
-  }
-}
-
-function saveMemory() {
-  localStorage.setItem(MEMORY_KEY, JSON.stringify(memory));
-}
-
-let memory = loadMemory();
-memoryCount.textContent = memory.facts.length;
-
-// ===== ثبت‌نام =====
-let currentStep = 1;
-
-function showStep(step) {
-  currentStep = step;
-  step1.classList.remove('active');
-  step2.classList.remove('active');
-  step3.classList.remove('active');
-  if (step === 1) step1.classList.add('active');
-  if (step === 2) step2.classList.add('active');
-  if (step === 3) step3.classList.add('active');
-  progressSteps.forEach((el, i) => el.classList.toggle('active', i < step));
-}
-
-nextStep1.addEventListener('click', () => {
-  const num = zardalooNumber.value.trim();
-  if (!num) {
-    zardalooNumber.focus();
-    zardalooNumber.style.borderColor = '#ef4444';
-    return;
-  }
-  zardalooNumber.style.borderColor = '';
-  memory.profile.zardaloo = num;
-  saveMemory();
-  showStep(2);
-});
-
-backStep2.addEventListener('click', () => showStep(1));
-
-nextStep2.addEventListener('click', () => {
-  const email = userEmail.value.trim();
-  if (!email || !email.includes('@')) {
-    userEmail.focus();
-    userEmail.style.borderColor = '#ef4444';
-    return;
-  }
-  userEmail.style.borderColor = '';
-  memory.profile.email = email;
-  saveMemory();
-  showStep(3);
-});
-
-backStep3.addEventListener('click', () => showStep(2));
-
-document.querySelectorAll('input[name="hasProduct"]').forEach(radio => {
-  radio.addEventListener('change', (e) => {
-    memory.profile.hasProduct = e.target.value;
-    saveMemory();
-  });
-});
-
-function completeOnboarding(method) {
-  memory.profile.loginMethod = method;
-  saveMemory();
-  onboarding.style.display = 'none';
-  app.style.display = 'flex';
-  displayUserName.textContent = memory.profile.zardaloo || 'zardaloo12345';
-  displayUserPlan.textContent = `ورود با ${method}`;
-  settingZardaloo.textContent = memory.profile.zardaloo || '---';
-  settingEmail.textContent = memory.profile.email || '---';
-  userInput.focus();
-}
-
-document.getElementById('loginGoogle').addEventListener('click', () => completeOnboarding('گوگل'));
-document.getElementById('loginDeepSeek').addEventListener('click', () => completeOnboarding('دیپ‌سیک'));
-document.getElementById('loginZardaloo').addEventListener('click', () => completeOnboarding('زردآلو'));
-
-// ===== پایگاه دانش =====
+// ============================================
+// پایگاه دانش (۱۰۰۰+ موضوع)
+// ============================================
 const ANSWERS = {
   intro: "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است و توسط عرفان ریاحی ساخته شده. 🍑",
   creator: "سازنده و مالک سایت زردآلو، عرفان ریاحی است. 🧑🏻‍💻",
@@ -295,6 +178,8 @@ function buildKnowledgeBase() {
     if (/رایگان/.test(g1) || /رایگان/.test(g2)) ans = ANSWERS.free;
     add(`${g1} ${g2}`, ans);
   }
+  
+  // دستی
   add("سلام", ANSWERS.greeting);
   add("درود", ANSWERS.greeting);
   add("خوبی", ANSWERS.greeting);
@@ -303,6 +188,18 @@ function buildKnowledgeBase() {
   add("گردآلو", ANSWERS.self);
   add("خودت", ANSWERS.self);
   add("تو کی هستی", ANSWERS.self);
+  
+  // اضافه کردن قابلیت‌های منو
+  add("چت هوشمند", "من می‌تونم به هر سوالی جواب بدم، از موضوعات عمومی تا تخصصی. کافیه بپرسی!");
+  add("تولید تصویر", "من می‌تونم تصاویر خلاقانه و حرفه‌ای بسازم. فقط کافیه توصیف کنی که چه تصویری می‌خوای.");
+  add("تولید ویدیو", "تولید ویدیو از ایده تا اجرا. من می‌تونم بهت در ساخت ویدیوهای جذاب کمک کنم.");
+  add("پژوهش و تحقیق", "من می‌تونم اطلاعات دقیق و معتبر رو برات جمع‌آوری کنم و در پژوهش‌هات کمکت کنم.");
+  add("نوشتن متن", "مقاله، داستان، کپشن، ایمیل و هر متن دیگه‌ای که بخوای، برات می‌نویسم.");
+  add("برنامه‌نویسی", "من می‌تونم کد بنویسم، باگ‌ها رو رفع کنم و برنامه‌نویسی رو بهت آموزش بدم.");
+  add("ترجمه", "من مترجمی سریع و دقیق هستم و می‌تونم به زبان‌های مختلف ترجمه کنم.");
+  add("صدا و گفتار", "تبدیل متن به صدا و بالعکس، ساخت پادکست و ... از امکانات منه.");
+  add("موسیقی", "من می‌تونم در ساخت آهنگ، تنظیم و نوشتن متن ترانه بهت کمک کنم.");
+  add("ابزارها", "من ابزارهای کاربردی زیادی دارم؛ از محاسبات ریاضی تا تبدیل واحدها و...");
 }
 
 buildKnowledgeBase();
@@ -319,216 +216,110 @@ function findAnswer(text) {
   return null;
 }
 
-// ===== صدا =====
-let voiceEnabled = true;
-let isRecording = false;
-let recognition = null;
+// ============================================
+// تعامل با چت (دکمه‌ها و UI)
+// ============================================
 
-function speak(text) {
-  if (!voiceEnabled || !('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text.replace(/[#*`]/g, ''));
-  utterance.lang = 'fa-IR';
-  utterance.rate = 0.95;
-  const voices = window.speechSynthesis.getVoices();
-  const faVoice = voices.find(v => v.lang.startsWith('fa'));
-  if (faVoice) utterance.voice = faVoice;
-  window.speechSynthesis.speak(utterance);
-}
-
-function initSpeechRecognition() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { micBtn.disabled = true; return null; }
-  const rec = new SR();
-  rec.lang = 'fa-IR';
-  rec.continuous = false;
-  rec.interimResults = false;
-  rec.onresult = (event) => {
-    userInput.value = event.results[0][0].transcript;
-    sendMessage();
-  };
-  rec.onerror = () => stopRecording();
-  rec.onend = () => stopRecording();
-  return rec;
-}
-
-function startRecording() {
-  if (!recognition) recognition = initSpeechRecognition();
-  if (!recognition) return;
-  try {
-    recognition.start();
-    isRecording = true;
-    micBtn.classList.add('recording');
-  } catch (e) {}
-}
-
-function stopRecording() {
-  isRecording = false;
-  micBtn.classList.remove('recording');
-}
-
-// ===== چت =====
 function removeWelcome() {
-  const w = chatMessages.querySelector('.welcome');
-  if (w) w.remove();
+  if (welcomeHeader && !welcomeHeader.classList.contains('hidden')) {
+    welcomeHeader.classList.add('hidden');
+  }
 }
 
 function addMessage(text, sender) {
   removeWelcome();
+  
   const msg = document.createElement('div');
   msg.className = `message ${sender}`;
+
   const avatar = document.createElement('div');
-  avatar.className = 'message-avatar';
+  avatar.className = 'msg-avatar';
   avatar.textContent = sender === 'bot' ? '🍑' : 'Z';
+
   const content = document.createElement('div');
-  content.className = 'message-content';
+  content.className = 'msg-content';
+
   const role = document.createElement('div');
-  role.className = 'message-role';
+  role.className = 'msg-role';
   role.textContent = sender === 'bot' ? 'گردآلو' : 'شما';
+
   const textEl = document.createElement('div');
-  textEl.className = 'message-text';
-  textEl.textContent = text;
+  textEl.className = 'msg-text';
+  textEl.innerHTML = text.replace(/\n/g, '<br>');
+
   content.appendChild(role);
   content.appendChild(textEl);
   msg.appendChild(avatar);
   msg.appendChild(content);
+  
   chatMessages.appendChild(msg);
+  
+  // اسکرول خودکار به پایین
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
 function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
+
   userInput.value = '';
-  userInput.style.height = 'auto';
   addMessage(text, 'user');
-  memory.history.push({ role: 'user', content: text });
-  const answer = findAnswer(text) || ANSWERS.default;
+
+  // تاخیر کوتاه برای حس طبیعی
   setTimeout(() => {
+    const answer = findAnswer(text) || ANSWERS.default;
     addMessage(answer, 'bot');
-    speak(answer);
-    memory.history.push({ role: 'assistant', content: answer });
-    saveMemory();
-  }, 400);
+  }, 500);
 }
 
-// ===== رویدادها =====
+// ارسال با دکمه
 sendBtn.addEventListener('click', sendMessage);
 
+// ارسال با کلید Enter
 userInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
+  if (e.key === 'Enter') {
     e.preventDefault();
     sendMessage();
   }
 });
 
-userInput.addEventListener('input', () => {
-  userInput.style.height = 'auto';
-  userInput.style.height = Math.min(userInput.scrollHeight, 200) + 'px';
+// ارسال با کلیک روی کارت‌های پیشنهادی
+document.querySelectorAll('.suggestion-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const prompt = card.getAttribute('data-prompt');
+    if (prompt) {
+      userInput.value = prompt;
+      sendMessage();
+    }
+  });
 });
 
-micBtn.addEventListener('click', () => {
-  if (isRecording) { if (recognition) recognition.stop(); stopRecording(); }
-  else startRecording();
-});
-
-voiceToggle.addEventListener('click', () => {
-  voiceEnabled = !voiceEnabled;
-  voiceToggle.classList.toggle('off', !voiceEnabled);
-  if (!voiceEnabled) window.speechSynthesis.cancel();
-  settingVoice.classList.toggle('active', voiceEnabled);
-});
-
-themeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('light-mode');
-  settingTheme.classList.toggle('active');
-});
-
-settingTheme.addEventListener('click', () => {
-  document.body.classList.toggle('light-mode');
-  settingTheme.classList.toggle('active');
-});
-
-settingVoice.addEventListener('click', () => {
-  voiceEnabled = !voiceEnabled;
-  settingVoice.classList.toggle('active', voiceEnabled);
-  voiceToggle.classList.toggle('off', !voiceEnabled);
-  if (!voiceEnabled) window.speechSynthesis.cancel();
-});
-
-// کلیک روی آرم زردآلو = باز/بسته کردن پنل
-brandBtn.addEventListener('click', () => {
-  if (window.innerWidth <= 900) {
-    sidebar.classList.toggle('open');
-  } else {
-    sidebar.classList.toggle('collapsed');
+// تابع کمکی برای کلیک روی منوهای سمت راست
+function sendSuggestion(event, text) {
+  if (event) event.preventDefault();
+  userInput.value = text;
+  sendMessage();
+  
+  // تغییر حالت فعال منو
+  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
   }
-});
-
-sidebarToggle.addEventListener('click', () => {
-  sidebar.classList.toggle('collapsed');
-});
-
-menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
-
-newChatBtn.addEventListener('click', () => {
-  chatMessages.innerHTML = `
-    <div class="welcome">
-      <div class="welcome-icon">🍑</div>
-      <h1>چطور می‌تونم کمکت کنم؟</h1>
-      <p>دستیار هوشمند سایت زردآلو</p>
-    </div>
-  `;
-  memory.history = [];
-  saveMemory();
-  sidebar.classList.remove('open');
-});
-
-openSettings.addEventListener('click', () => {
-  settingZardaloo.textContent = memory.profile.zardaloo || '---';
-  settingEmail.textContent = memory.profile.email || '---';
-  settingTheme.classList.toggle('active', document.body.classList.contains('light-mode'));
-  settingVoice.classList.toggle('active', voiceEnabled);
-  settingsModal.classList.add('open');
-});
-
-closeSettings.addEventListener('click', () => settingsModal.classList.remove('open'));
-settingsModal.addEventListener('click', (e) => {
-  if (e.target === settingsModal) settingsModal.classList.remove('open');
-});
-
-clearMemory.addEventListener('click', () => {
-  if (confirm('همه خاطرات و تاریخچه پاک شود؟')) {
-    memory.facts = [];
-    memory.history = [];
-    saveMemory();
-    memoryCount.textContent = '0';
-    chatMessages.innerHTML = `
-      <div class="welcome">
-        <div class="welcome-icon">🍑</div>
-        <h1>چطور می‌تونم کمکت کنم؟</h1>
-        <p>دستیار هوشمند سایت زردآلو</p>
-      </div>
-    `;
-    alert('حافظه پاک شد ✅');
-  }
-});
-
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
-// ===== شروع =====
-if (memory.profile.loginMethod) {
-  onboarding.style.display = 'none';
-  app.style.display = 'flex';
-  displayUserName.textContent = memory.profile.zardaloo || 'zardaloo12345';
-  displayUserPlan.textContent = `ورود با ${memory.profile.loginMethod}`;
-  settingZardaloo.textContent = memory.profile.zardaloo || '---';
-  settingEmail.textContent = memory.profile.email || '---';
+// ریست کردن چت (دکمه خانه)
+function resetChat(event) {
+  if (event) event.preventDefault();
+  
+  chatMessages.innerHTML = '';
+  if (welcomeHeader) {
+    welcomeHeader.classList.remove('hidden');
+  }
+  
+  document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
+  
   userInput.focus();
-} else {
-  showStep(1);
 }
-
-console.log('🍑 گردآلو v3.0 آماده است');
