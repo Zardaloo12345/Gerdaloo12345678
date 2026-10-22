@@ -1,6 +1,5 @@
 // ============================================
 // گردآلو - Gerdaloo AI v4.0
-// دیزاین جدید + موتور ۱۰۰۰ موضوعی آفلاین
 // ============================================
 
 const chatArea = document.getElementById('chatArea');
@@ -10,7 +9,7 @@ const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 
 // ============================================
-// پایگاه دانش (۱۰۰۰+ موضوع)
+// موتور ۱۰۰۰+ موضوعی
 // ============================================
 const ANSWERS = {
   intro: "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است و توسط عرفان ریاحی ساخته شده. 🍑",
@@ -189,7 +188,7 @@ function buildKnowledgeBase() {
   add("خودت", ANSWERS.self);
   add("تو کی هستی", ANSWERS.self);
   
-  // اضافه کردن قابلیت‌های منو
+  // قابلیت‌ها
   add("چت هوشمند", "من می‌تونم به هر سوالی جواب بدم، از موضوعات عمومی تا تخصصی. کافیه بپرسی!");
   add("تولید تصویر", "من می‌تونم تصاویر خلاقانه و حرفه‌ای بسازم. فقط کافیه توصیف کنی که چه تصویری می‌خوای.");
   add("تولید ویدیو", "تولید ویدیو از ایده تا اجرا. من می‌تونم بهت در ساخت ویدیوهای جذاب کمک کنم.");
@@ -217,7 +216,7 @@ function findAnswer(text) {
 }
 
 // ============================================
-// تعامل با چت (دکمه‌ها و UI)
+// تعامل با چت
 // ============================================
 
 function removeWelcome() {
@@ -234,7 +233,11 @@ function addMessage(text, sender) {
 
   const avatar = document.createElement('div');
   avatar.className = 'msg-avatar';
-  avatar.textContent = sender === 'bot' ? '🍑' : 'Z';
+  if (sender === 'bot') {
+    avatar.innerHTML = '<i class="fa-solid fa-leaf" style="color:#f59e0b"></i>';
+  } else {
+    avatar.textContent = 'Z';
+  }
 
   const content = document.createElement('div');
   content.className = 'msg-content';
@@ -254,7 +257,7 @@ function addMessage(text, sender) {
   
   chatMessages.appendChild(msg);
   
-  // اسکرول خودکار به پایین
+  // اسکرول خودکار
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
@@ -265,17 +268,15 @@ function sendMessage() {
   userInput.value = '';
   addMessage(text, 'user');
 
-  // تاخیر کوتاه برای حس طبیعی
   setTimeout(() => {
     const answer = findAnswer(text) || ANSWERS.default;
     addMessage(answer, 'bot');
   }, 500);
 }
 
-// ارسال با دکمه
+// رویدادها
 sendBtn.addEventListener('click', sendMessage);
 
-// ارسال با کلید Enter
 userInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -283,7 +284,6 @@ userInput.addEventListener('keydown', (e) => {
   }
 });
 
-// ارسال با کلیک روی کارت‌های پیشنهادی
 document.querySelectorAll('.suggestion-card').forEach(card => {
   card.addEventListener('click', () => {
     const prompt = card.getAttribute('data-prompt');
@@ -294,24 +294,35 @@ document.querySelectorAll('.suggestion-card').forEach(card => {
   });
 });
 
-// تابع کمکی برای کلیک روی منوهای سمت راست
+// منوی سمت راست
 function sendSuggestion(event, text) {
   if (event) event.preventDefault();
   userInput.value = text;
   sendMessage();
   
-  // تغییر حالت فعال منو
   document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
   if (event && event.currentTarget) {
     event.currentTarget.classList.add('active');
   }
 }
 
-// ریست کردن چت (دکمه خانه)
+// ریست کردن چت (خانه)
 function resetChat(event) {
   if (event) event.preventDefault();
   
-  chatMessages.innerHTML = '';
+  chatMessages.innerHTML = `
+    <div class="message bot">
+      <div class="msg-avatar"><i class="fa-solid fa-leaf" style="color:#f59e0b"></i></div>
+      <div class="msg-content">
+        <div class="msg-role">گردآلو</div>
+        <div class="msg-text">
+          سلام! من گردآلو هستم.<br>
+          هر سوالی داری بپرس یا از یکی از امکانات زیر استفاده کن.
+        </div>
+      </div>
+    </div>
+  `;
+  
   if (welcomeHeader) {
     welcomeHeader.classList.remove('hidden');
   }
