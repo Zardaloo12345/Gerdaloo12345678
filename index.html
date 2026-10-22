@@ -49,40 +49,39 @@
       <h1 class="onboarding-title">به گردآلو خوش آمدی</h1>
       <p class="onboarding-subtitle">دستیار هوشمند سایت زردآلو</p>
 
-      <!-- نوار پیشرفت -->
       <div class="progress-bar">
         <div class="progress-step active" data-step="1"></div>
         <div class="progress-step" data-step="2"></div>
         <div class="progress-step" data-step="3"></div>
       </div>
 
-      <!-- مرحله ۱: شماره زردآلو -->
-      <div class="onboarding-step active" id="step1">
+      <!-- مرحله ۱ -->
+      <div class="onboarding-step active" id="step1" data-step="1">
         <label class="field-label">شماره زردآلو خود را وارد کنید</label>
         <input type="tel" class="field-input" id="zardalooNumber" placeholder="مثلاً 09123456789" autocomplete="off">
         <p class="field-hint">این شماره مخصوص سایت زردآلوست</p>
-        <button class="btn-primary" id="nextStep1">
+        <button class="btn-primary" id="nextStep1" type="button">
           <span>ادامه</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
       </div>
 
-      <!-- مرحله ۲: ایمیل -->
-      <div class="onboarding-step" id="step2">
+      <!-- مرحله ۲ -->
+      <div class="onboarding-step" id="step2" data-step="2">
         <label class="field-label">ایمیل خود را وارد کنید</label>
         <input type="email" class="field-input" id="userEmail" placeholder="you@example.com" autocomplete="off">
         <p class="field-hint">برای اطلاع‌رسانی و بازیابی حساب</p>
         <div class="btn-row">
-          <button class="btn-secondary" id="backStep2">بازگشت</button>
-          <button class="btn-primary" id="nextStep2">
+          <button class="btn-secondary" id="backStep2" type="button">بازگشت</button>
+          <button class="btn-primary" id="nextStep2" type="button">
             <span>ادامه</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
         </div>
       </div>
 
-      <!-- مرحله ۳: ثبت کالا و ورود -->
-      <div class="onboarding-step" id="step3">
+      <!-- مرحله ۳ -->
+      <div class="onboarding-step" id="step3" data-step="3">
         <label class="field-label">آیا در زردآلو کالا ثبت کرده‌اید؟</label>
         <div class="radio-group">
           <label class="radio-card">
@@ -98,39 +97,38 @@
         </div>
         <div class="divider"><span>ادامه با</span></div>
         <div class="social-buttons">
-          <button class="social-btn google" id="loginGoogle">
+          <button class="social-btn google" id="loginGoogle" type="button">
             <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             <span>گوگل</span>
           </button>
-          <button class="social-btn deepseek" id="loginDeepSeek">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="#4D6BFE"/><path d="M8 12l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <button class="social-btn deepseek" id="loginDeepSeek" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#4D6BFE"/><path d="M8 12l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span>دیپ‌سیک</span>
           </button>
-          <button class="social-btn zardaloo" id="loginZardaloo">
+          <button class="social-btn zardaloo" id="loginZardaloo" type="button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>
             <span>زردآلو</span>
           </button>
         </div>
-        <button class="btn-link" id="backStep3">بازگشت</button>
+        <button class="btn-link" id="backStep3" type="button">بازگشت</button>
       </div>
     </div>
   </div>
 
   <!-- ===== اپ اصلی ===== -->
   <div class="app" id="app" style="display:none;">
-    <!-- سایدبار -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="brand">
           <div class="brand-icon">🍑</div>
           <span class="brand-name">گردآلو</span>
         </div>
-        <button class="sidebar-toggle" id="sidebarToggle" title="جمع کردن پنل">
+        <button class="sidebar-toggle" id="sidebarToggle" title="جمع کردن پنل" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
       </div>
 
-      <button class="new-chat-btn" id="newChatBtn">
+      <button class="new-chat-btn" id="newChatBtn" type="button">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         <span class="sidebar-text">گفتگوی جدید</span>
       </button>
@@ -147,7 +145,7 @@
           <span class="memory-dot"></span>
           <span class="sidebar-text">حافظه: <b id="memoryCount">0</b> مورد</span>
         </div>
-        <button class="settings-btn" id="openSettings">
+        <button class="settings-btn" id="openSettings" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           <span class="sidebar-text">تنظیمات</span>
         </button>
@@ -161,10 +159,9 @@
       </div>
     </aside>
 
-    <!-- بخش اصلی -->
     <main class="main">
       <header class="topbar">
-        <button class="menu-btn" id="menuBtn">
+        <button class="menu-btn" id="menuBtn" type="button">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
         <div class="model-selector">
@@ -172,10 +169,10 @@
           <span class="model-badge">v2.0</span>
         </div>
         <div class="topbar-actions">
-          <button class="icon-btn" id="voiceToggle" title="پاسخ صوتی">
+          <button class="icon-btn" id="voiceToggle" title="پاسخ صوتی" type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
           </button>
-          <button class="icon-btn" id="themeToggle" title="حالت تاریک">
+          <button class="icon-btn" id="themeToggle" title="حالت تاریک" type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           </button>
         </div>
@@ -193,11 +190,11 @@
 
       <div class="composer-wrap">
         <div class="composer">
-          <button class="composer-btn" id="micBtn" title="ضبط صدا">
+          <button class="composer-btn" id="micBtn" title="ضبط صدا" type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
           </button>
           <textarea id="userInput" class="composer-input" placeholder="پیام خود را بنویسید..." rows="1"></textarea>
-          <button class="composer-send" id="sendBtn" title="ارسال">
+          <button class="composer-send" id="sendBtn" title="ارسال" type="button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
           </button>
         </div>
@@ -206,12 +203,12 @@
     </main>
   </div>
 
-  <!-- ===== پنجره تنظیمات ===== -->
+  <!-- ===== تنظیمات ===== -->
   <div class="settings-modal" id="settingsModal">
     <div class="settings-panel">
       <div class="settings-header">
         <h2>تنظیمات</h2>
-        <button class="settings-close" id="closeSettings">
+        <button class="settings-close" id="closeSettings" type="button">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
@@ -223,14 +220,14 @@
               <div class="setting-title">حالت تاریک</div>
               <div class="setting-desc">تغییر تم رنگی برنامه</div>
             </div>
-            <button class="toggle-switch" id="settingTheme"><span class="toggle-knob"></span></button>
+            <button class="toggle-switch" id="settingTheme" type="button"><span class="toggle-knob"></span></button>
           </div>
           <div class="setting-item">
             <div>
               <div class="setting-title">پاسخ صوتی</div>
               <div class="setting-desc">خواندن پاسخ‌ها با صدا</div>
             </div>
-            <button class="toggle-switch active" id="settingVoice"><span class="toggle-knob"></span></button>
+            <button class="toggle-switch active" id="settingVoice" type="button"><span class="toggle-knob"></span></button>
           </div>
         </div>
         <div class="settings-group">
@@ -255,7 +252,7 @@
               <div class="setting-title">پاک کردن حافظه</div>
               <div class="setting-desc">همه خاطرات و تاریخچه پاک می‌شود</div>
             </div>
-            <button class="btn-danger" id="clearMemory">پاک کردن</button>
+            <button class="btn-danger" id="clearMemory" type="button">پاک کردن</button>
           </div>
         </div>
       </div>
