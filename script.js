@@ -1,9 +1,7 @@
 // ============================================
-// گردآلو - Gerdaloo AI v3.0 (Offline + Onboarding)
-// ثبت‌نام چندمرحله‌ای + ۱۰۰۰+ موضوع + تنظیمات
+// گردآلو - Gerdaloo AI v3.0
 // ============================================
 
-// ===== عناصر ثبت‌نام =====
 const onboarding = document.getElementById('onboarding');
 const app = document.getElementById('app');
 const step1 = document.getElementById('step1');
@@ -17,7 +15,6 @@ const zardalooNumber = document.getElementById('zardalooNumber');
 const userEmail = document.getElementById('userEmail');
 const progressSteps = document.querySelectorAll('.progress-step');
 
-// ===== عناصر چت =====
 const chatMessages = document.getElementById('chatMessages');
 const chatArea = document.getElementById('chatArea');
 const userInput = document.getElementById('userInput');
@@ -28,12 +25,12 @@ const themeToggle = document.getElementById('themeToggle');
 const menuBtn = document.getElementById('menuBtn');
 const sidebar = document.getElementById('sidebar');
 const sidebarToggle = document.getElementById('sidebarToggle');
+const brandBtn = document.getElementById('brandBtn');
 const newChatBtn = document.getElementById('newChatBtn');
 const memoryCount = document.getElementById('memoryCount');
 const displayUserName = document.getElementById('displayUserName');
 const displayUserPlan = document.getElementById('displayUserPlan');
 
-// ===== عناصر تنظیمات =====
 const settingsModal = document.getElementById('settingsModal');
 const openSettings = document.getElementById('openSettings');
 const closeSettings = document.getElementById('closeSettings');
@@ -43,10 +40,7 @@ const settingZardaloo = document.getElementById('settingZardaloo');
 const settingEmail = document.getElementById('settingEmail');
 const clearMemory = document.getElementById('clearMemory');
 
-// ============================================
-// حافظه
-// ============================================
-const MEMORY_KEY = 'gerdaloo_memory_v3';
+const MEMORY_KEY = 'gerdaloo_memory_v4';
 
 function loadMemory() {
   try {
@@ -67,9 +61,7 @@ function saveMemory() {
 let memory = loadMemory();
 memoryCount.textContent = memory.facts.length;
 
-// ============================================
-// ثبت‌نام چندمرحله‌ای
-// ============================================
+// ===== ثبت‌نام =====
 let currentStep = 1;
 
 function showStep(step) {
@@ -80,9 +72,7 @@ function showStep(step) {
   if (step === 1) step1.classList.add('active');
   if (step === 2) step2.classList.add('active');
   if (step === 3) step3.classList.add('active');
-  progressSteps.forEach((el, i) => {
-    el.classList.toggle('active', i < step);
-  });
+  progressSteps.forEach((el, i) => el.classList.toggle('active', i < step));
 }
 
 nextStep1.addEventListener('click', () => {
@@ -138,9 +128,7 @@ document.getElementById('loginGoogle').addEventListener('click', () => completeO
 document.getElementById('loginDeepSeek').addEventListener('click', () => completeOnboarding('دیپ‌سیک'));
 document.getElementById('loginZardaloo').addEventListener('click', () => completeOnboarding('زردآلو'));
 
-// ============================================
-// پایگاه دانش ۱۰۰۰+ موضوعی
-// ============================================
+// ===== پایگاه دانش =====
 const ANSWERS = {
   intro: "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است و توسط عرفان ریاحی ساخته شده. 🍑",
   creator: "سازنده و مالک سایت زردآلو، عرفان ریاحی است. 🧑🏻‍💻",
@@ -331,9 +319,7 @@ function findAnswer(text) {
   return null;
 }
 
-// ============================================
-// صدا
-// ============================================
+// ===== صدا =====
 let voiceEnabled = true;
 let isRecording = false;
 let recognition = null;
@@ -381,9 +367,7 @@ function stopRecording() {
   micBtn.classList.remove('recording');
 }
 
-// ============================================
-// چت
-// ============================================
+// ===== چت =====
 function removeWelcome() {
   const w = chatMessages.querySelector('.welcome');
   if (w) w.remove();
@@ -428,9 +412,7 @@ function sendMessage() {
   }, 400);
 }
 
-// ============================================
-// رویدادها
-// ============================================
+// ===== رویدادها =====
 sendBtn.addEventListener('click', sendMessage);
 
 userInput.addEventListener('keydown', (e) => {
@@ -458,12 +440,12 @@ voiceToggle.addEventListener('click', () => {
 });
 
 themeToggle.addEventListener('click', () => {
-  document.documentElement.classList.toggle('light');
+  document.body.classList.toggle('light-mode');
   settingTheme.classList.toggle('active');
 });
 
 settingTheme.addEventListener('click', () => {
-  document.documentElement.classList.toggle('light');
+  document.body.classList.toggle('light-mode');
   settingTheme.classList.toggle('active');
 });
 
@@ -472,6 +454,15 @@ settingVoice.addEventListener('click', () => {
   settingVoice.classList.toggle('active', voiceEnabled);
   voiceToggle.classList.toggle('off', !voiceEnabled);
   if (!voiceEnabled) window.speechSynthesis.cancel();
+});
+
+// کلیک روی آرم زردآلو = باز/بسته کردن پنل
+brandBtn.addEventListener('click', () => {
+  if (window.innerWidth <= 900) {
+    sidebar.classList.toggle('open');
+  } else {
+    sidebar.classList.toggle('collapsed');
+  }
 });
 
 sidebarToggle.addEventListener('click', () => {
@@ -496,7 +487,7 @@ newChatBtn.addEventListener('click', () => {
 openSettings.addEventListener('click', () => {
   settingZardaloo.textContent = memory.profile.zardaloo || '---';
   settingEmail.textContent = memory.profile.email || '---';
-  settingTheme.classList.toggle('active', document.documentElement.classList.contains('light'));
+  settingTheme.classList.toggle('active', document.body.classList.contains('light-mode'));
   settingVoice.classList.toggle('active', voiceEnabled);
   settingsModal.classList.add('open');
 });
@@ -527,9 +518,7 @@ if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
-// ============================================
-// شروع
-// ============================================
+// ===== شروع =====
 if (memory.profile.loginMethod) {
   onboarding.style.display = 'none';
   app.style.display = 'flex';
@@ -543,11 +532,3 @@ if (memory.profile.loginMethod) {
 }
 
 console.log('🍑 گردآلو v3.0 آماده است');
-// کلیک روی آرم زردآلو = باز/بسته کردن پنل
-document.querySelector('.brand').addEventListener('click', () => {
-  sidebar.classList.toggle('collapsed');
-  // در موبایل: باز/بسته کردن
-  if (window.innerWidth <= 900) {
-    sidebar.classList.toggle('open');
-  }
-});
