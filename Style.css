@@ -417,7 +417,7 @@ body {
   line-height: 1.5;
 }
 
-/* بنر پایین */
+/* بنر پایین (دکمه شد) */
 .bottom-banner {
   background: linear-gradient(90deg, #1e293b, #0f172a);
   border: 1px solid var(--border-color);
@@ -427,6 +427,13 @@ body {
   justify-content: space-between;
   align-items: center;
   color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.bottom-banner:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+  transform: translateY(-2px);
 }
 
 .banner-text {
@@ -445,6 +452,7 @@ body {
   position: relative;
 }
 
+/* حباب بالا (دکمه شد) */
 .top-bubble {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -454,6 +462,13 @@ body {
   margin-bottom: 30px;
   position: relative;
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.top-bubble:hover {
+  border-color: var(--accent);
+  background-color: var(--bg-hover);
+  transform: translateY(-2px);
 }
 
 .top-bubble::after {
@@ -467,6 +482,11 @@ body {
   background-color: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+.top-bubble:hover::after {
+  background-color: var(--bg-hover);
+  border-color: var(--accent);
 }
 
 .top-bubble h4 { font-size: 15px; font-weight: 700; }
@@ -497,13 +517,24 @@ body {
 .feature-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 
+/* آیتم‌های امکانات (دکمه شدند) */
 .feature-item {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.feature-item:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-color);
+  transform: translateX(-5px);
 }
 
 .f-icon {
