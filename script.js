@@ -255,7 +255,6 @@ function addMessage(text, sender) {
   msg.appendChild(content);
   
   chatMessages.appendChild(msg);
-  
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
@@ -269,13 +268,11 @@ function sendMessage() {
   setTimeout(() => {
     const answer = findAnswer(text) || ANSWERS.default;
     addMessage(answer, 'bot');
-  }, 500);
+  }, 400);
 }
 
-// ارسال با دکمه
 sendBtn.addEventListener('click', sendMessage);
 
-// ارسال با کلید Enter
 userInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -283,20 +280,17 @@ userInput.addEventListener('keydown', (e) => {
   }
 });
 
-// تابعی که برای تمام دکمه‌های HTML (سایدبار چپ، راست، بنر و کارت‌ها) استفاده می‌شود
 function sendSuggestion(event, text) {
   if (event) event.preventDefault();
   userInput.value = text;
   sendMessage();
   
-  // تغییر حالت فعال منو (اگر از سایدبار راست کلیک شده باشد)
-  if (event && event.currentTarget.classList.contains('menu-item')) {
+  if (event && event.currentTarget && event.currentTarget.classList.contains('menu-item')) {
     document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
     event.currentTarget.classList.add('active');
   }
 }
 
-// ریست کردن چت (دکمه خانه)
 function resetChat(event) {
   if (event) event.preventDefault();
   
@@ -313,9 +307,7 @@ function resetChat(event) {
     </div>
   `;
   
-  if (welcomeHeader) {
-    welcomeHeader.classList.remove('hidden');
-  }
+  if (welcomeHeader) welcomeHeader.classList.remove('hidden');
   
   document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
   if (event && event.currentTarget) {
@@ -323,4 +315,12 @@ function resetChat(event) {
   }
   
   userInput.focus();
+}
+
+// ============================================
+// نوار ابزار (باز و بسته کردن پنل‌ها)
+// ============================================
+function togglePanel(side) {
+  const panel = document.getElementById(side === 'right' ? 'sidebarRight' : 'sidebarLeft');
+  panel.classList.toggle('collapsed');
 }
