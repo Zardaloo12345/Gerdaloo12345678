@@ -1,8 +1,23 @@
 // ============================================
-// گردآلو - Gerdaloo AI v3.0 (Offline 1000+ Topics)
-// بدون API، بدون Ollama — پایگاه دانش ۱۰۰۰+ موضوعی
+// گردآلو - Gerdaloo AI v3.0 (Offline + Onboarding)
+// ثبت‌نام چندمرحله‌ای + ۱۰۰۰+ موضوع + تنظیمات
 // ============================================
 
+// ===== عناصر ثبت‌نام =====
+const onboarding = document.getElementById('onboarding');
+const app = document.getElementById('app');
+const step1 = document.getElementById('step1');
+const step2 = document.getElementById('step2');
+const step3 = document.getElementById('step3');
+const nextStep1 = document.getElementById('nextStep1');
+const nextStep2 = document.getElementById('nextStep2');
+const backStep2 = document.getElementById('backStep2');
+const backStep3 = document.getElementById('backStep3');
+const zardalooNumber = document.getElementById('zardalooNumber');
+const userEmail = document.getElementById('userEmail');
+const progressSteps = document.querySelectorAll('.progress-step');
+
+// ===== عناصر چت =====
 const chatMessages = document.getElementById('chatMessages');
 const chatArea = document.getElementById('chatArea');
 const userInput = document.getElementById('userInput');
@@ -15,40 +30,135 @@ const sidebar = document.getElementById('sidebar');
 const sidebarToggle = document.getElementById('sidebarToggle');
 const newChatBtn = document.getElementById('newChatBtn');
 const memoryCount = document.getElementById('memoryCount');
+const displayUserName = document.getElementById('displayUserName');
+const displayUserPlan = document.getElementById('displayUserPlan');
 
-// ===== حافظه =====
-const MEMORY_KEY = 'gerdaloo_memory_offline_v3';
-let memory = JSON.parse(localStorage.getItem(MEMORY_KEY)) || { facts: [], history: [] };
-memoryCount.textContent = memory.facts.length;
+// ===== عناصر تنظیمات =====
+const settingsModal = document.getElementById('settingsModal');
+const openSettings = document.getElementById('openSettings');
+const closeSettings = document.getElementById('closeSettings');
+const settingTheme = document.getElementById('settingTheme');
+const settingVoice = document.getElementById('settingVoice');
+const settingZardaloo = document.getElementById('settingZardaloo');
+const settingEmail = document.getElementById('settingEmail');
+const clearMemory = document.getElementById('clearMemory');
+
+// ============================================
+// حافظه
+// ============================================
+const MEMORY_KEY = 'gerdaloo_memory_v3';
+
+function loadMemory() {
+  try {
+    return JSON.parse(localStorage.getItem(MEMORY_KEY)) || {
+      facts: [],
+      history: [],
+      profile: { zardaloo: '', email: '', hasProduct: null, loginMethod: null }
+    };
+  } catch {
+    return { facts: [], history: [], profile: { zardaloo: '', email: '', hasProduct: null, loginMethod: null } };
+  }
+}
 
 function saveMemory() {
   localStorage.setItem(MEMORY_KEY, JSON.stringify(memory));
 }
 
+let memory = loadMemory();
+memoryCount.textContent = memory.facts.length;
+
 // ============================================
-// پایگاه دانش: پاسخ‌های پایه
+// ثبت‌نام چندمرحله‌ای
+// ============================================
+let currentStep = 1;
+
+function showStep(step) {
+  currentStep = step;
+  step1.classList.remove('active');
+  step2.classList.remove('active');
+  step3.classList.remove('active');
+  if (step === 1) step1.classList.add('active');
+  if (step === 2) step2.classList.add('active');
+  if (step === 3) step3.classList.add('active');
+  progressSteps.forEach((el, i) => {
+    el.classList.toggle('active', i < step);
+  });
+}
+
+nextStep1.addEventListener('click', () => {
+  const num = zardalooNumber.value.trim();
+  if (!num) {
+    zardalooNumber.focus();
+    zardalooNumber.style.borderColor = '#ef4444';
+    return;
+  }
+  zardalooNumber.style.borderColor = '';
+  memory.profile.zardaloo = num;
+  saveMemory();
+  showStep(2);
+});
+
+backStep2.addEventListener('click', () => showStep(1));
+
+nextStep2.addEventListener('click', () => {
+  const email = userEmail.value.trim();
+  if (!email || !email.includes('@')) {
+    userEmail.focus();
+    userEmail.style.borderColor = '#ef4444';
+    return;
+  }
+  userEmail.style.borderColor = '';
+  memory.profile.email = email;
+  saveMemory();
+  showStep(3);
+});
+
+backStep3.addEventListener('click', () => showStep(2));
+
+document.querySelectorAll('input[name="hasProduct"]').forEach(radio => {
+  radio.addEventListener('change', (e) => {
+    memory.profile.hasProduct = e.target.value;
+    saveMemory();
+  });
+});
+
+function completeOnboarding(method) {
+  memory.profile.loginMethod = method;
+  saveMemory();
+  onboarding.style.display = 'none';
+  app.style.display = 'flex';
+  displayUserName.textContent = memory.profile.zardaloo || 'zardaloo12345';
+  displayUserPlan.textContent = `ورود با ${method}`;
+  settingZardaloo.textContent = memory.profile.zardaloo || '---';
+  settingEmail.textContent = memory.profile.email || '---';
+  userInput.focus();
+}
+
+document.getElementById('loginGoogle').addEventListener('click', () => completeOnboarding('گوگل'));
+document.getElementById('loginDeepSeek').addEventListener('click', () => completeOnboarding('دیپ‌سیک'));
+document.getElementById('loginZardaloo').addEventListener('click', () => completeOnboarding('زردآلو'));
+
+// ============================================
+// پایگاه دانش ۱۰۰۰+ موضوعی
 // ============================================
 const ANSWERS = {
   intro: "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است و توسط عرفان ریاحی ساخته شده. 🍑",
   creator: "سازنده و مالک سایت زردآلو، عرفان ریاحی است. 🧑🏻‍💻",
   link: "آدرس سایت زردآلو: https://zardaloo12345.github.io/zardaloo.online.shop/ 🌍",
   profile: "برای استفاده از زردآلو، اول باید پروفایل خودت را بسازی: نام، شماره تماس و شماره زردآلو. 👤",
-  market: "بخش «بازار زردآلو» محل خرید و فروش کالاست. می‌توانی کالای جدید ثبت کنی یا کالاهای موجود را ببینی. 🛒",
-  product: "برای ثبت کالای جدید، از بخش «ثبت کالای جدید» در منو استفاده کن. نام، توضیحات، قیمت و تصویر کالا را وارد کن. 📦",
-  cart: "سبد خریدت فعلاً خالی است. بعد از انتخاب کالاها از بازار، آن‌ها را به سبد اضافه کن. 🛍️",
+  market: "بخش «بازار زردآلو» محل خرید و فروش کالاست. 🛒",
+  product: "برای ثبت کالای جدید، از بخش «ثبت کالای جدید» در منو استفاده کن. 📦",
+  cart: "سبد خریدت فعلاً خالی است. 🛍️",
   messenger: "بخش «پیام‌رسان» زردآلو برای ارتباط با فروشندگان یا خریداران است. 💬",
-  report: "بخش «گزارش فروشنده» آمار تعداد کالا، ارزش کل (تومان) و بازدید کل را نشان می‌دهد. 📊",
-  free: "سایت زردآلو رایگان است و برای استفاده از آن هزینه‌ای نیاز نیست. 🆓",
+  report: "بخش «گزارش فروشنده» آمار تعداد کالا، ارزش کل و بازدید کل را نشان می‌دهد. 📊",
+  free: "سایت زردآلو رایگان است. 🆓",
   thanks: "از این عزیزان تشکر شده: شهاب‌الدین ریاحی، دکتر عباس امیدی، آقای زارعی، کوشان طلائی، ملیحه همت‌گیر، سپهر میر قادری، سید ابوالفضل صمصام شریعت، محمد پارسا آیتی، محمد طاها نیرومند، آقای قاسمی، کیان عسگری، مانی شیروی. 🙏",
-  self: "من گردآلو هستم، دستیار هوشمند و آفلاین سایت زردآلو. می‌تونم درباره سایت زردآلو بهت اطلاعات بدم. 🍑",
-  greeting: "سلام! خوشحالم که باهام حرف می‌زنی 😊 چه کمکی می‌تونم بکنم؟",
+  self: "من گردآلو هستم، دستیار هوشمند و آفلاین سایت زردآلو. 🍑",
+  greeting: "سلام! خوشحالم که باهام حرف می‌زنی 😊",
   bye: "خداحافظ! بازم بیا پیشم 👋",
-  default: "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام. می‌تونی درباره سایت زردآلو، بازار، پروفایل یا ثبت کالا ازم بپرسی. 🍑"
+  default: "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام. 🍑"
 };
 
-// ============================================
-// کلمات کلیدی پایه (ترکیب‌ها)
-// ============================================
 const WORDS = {
   subjects: ["زردآلو", "سایت", "بازار", "فروشگاه", "پلتفرم", "وبسایت", "سامانه", "سیستم", "اپلیکیشن", "برنامه"],
   actions: ["چیه", "چیست", "چه کار می‌کند", "چطور کار می‌کند", "چه امکاناتی دارد", "چه کاربردی دارد", "به چه درد می‌خورد", "چه مزیتی دارد", "چه ویژگی دارد", "چگونه کار می‌کند"],
@@ -60,9 +170,6 @@ const WORDS = {
   generalQuestions: ["چیه", "چیست", "کجاست", "چطور", "چگونه", "چه زمانی", "چه کسی", "چرا", "آیا", "چه"]
 };
 
-// ============================================
-// تولید پایگاه دانش ۱۰۰۰+ موضوعی
-// ============================================
 const KNOWLEDGE = [];
 const seen = new Set();
 
@@ -75,230 +182,131 @@ function add(keyword, answer) {
 }
 
 function buildKnowledgeBase() {
-  // ۱. subjects × actions (۱۰ × ۱۰ = ۱۰۰)
-  for (const s of WORDS.subjects) {
-    for (const a of WORDS.actions) {
-      add(`${s} ${a}`, ANSWERS.intro);
-    }
+  for (const s of WORDS.subjects) for (const a of WORDS.actions) add(`${s} ${a}`, ANSWERS.intro);
+  for (const f of WORDS.features) for (const fa of WORDS.featureActions) {
+    let ans = ANSWERS.default;
+    if (/پروفایل|ثبت‌نام|ورود/.test(f)) ans = ANSWERS.profile;
+    if (/بازار|خرید|فروش|قیمت|تخفیف|پرداخت|ارسال|تحویل|گارانتی/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا|مدیریت|دسته‌بندی|جستجو|فیلتر/.test(f)) ans = ANSWERS.product;
+    if (/سبد/.test(f)) ans = ANSWERS.cart;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    add(`${f} ${fa}`, ans);
   }
-
-  // ۲. features × featureActions (۲۰ × ۱۰ = ۲۰۰)
-  for (const f of WORDS.features) {
-    for (const fa of WORDS.featureActions) {
-      let ans = ANSWERS.default;
-      if (/پروفایل|ثبت‌نام|ورود/.test(f)) ans = ANSWERS.profile;
-      if (/بازار|خرید|فروش|قیمت|تخفیف|پرداخت|ارسال|تحویل|گارانتی/.test(f)) ans = ANSWERS.market;
-      if (/ثبت کالا|مدیریت|دسته‌بندی|جستجو|فیلتر/.test(f)) ans = ANSWERS.product;
-      if (/سبد/.test(f)) ans = ANSWERS.cart;
-      if (/پیام/.test(f)) ans = ANSWERS.messenger;
-      if (/گزارش/.test(f)) ans = ANSWERS.report;
-      add(`${f} ${fa}`, ans);
-    }
+  for (const p of WORDS.people) for (const q of WORDS.peopleQuestions) {
+    add(`${p} ${q}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
   }
-
-  // ۳. people × peopleQuestions (۱۳ × ۱۰ = ۱۳۰)
-  for (const p of WORDS.people) {
-    for (const q of WORDS.peopleQuestions) {
-      const ans = p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks;
-      add(`${p} ${q}`, ans);
-    }
+  for (const g of WORDS.general) for (const gq of WORDS.generalQuestions) {
+    let ans = ANSWERS.default;
+    if (/آدرس|لینک|گیت|github/.test(g)) ans = ANSWERS.link;
+    if (/رایگان|هزینه|پرداخت/.test(g)) ans = ANSWERS.free;
+    if (/مزیت|ویژگی|قابلیت|امکانات/.test(g)) ans = ANSWERS.intro;
+    add(`${g} ${gq}`, ans);
   }
-
-  // ۴. general × generalQuestions (۳۸ × ۱۰ = ۳۸۰)
-  for (const g of WORDS.general) {
-    for (const gq of WORDS.generalQuestions) {
-      let ans = ANSWERS.default;
-      if (/آدرس|لینک|گیت|github/.test(g)) ans = ANSWERS.link;
-      if (/امنیت|حریم|قوانین|شرایط/.test(g)) ans = ANSWERS.default;
-      if (/پشتیبانی|تماس|ارتباط|سوال|پاسخ|راهنما|آموزش|کمک/.test(g)) ans = ANSWERS.default;
-      if (/دمو|نمونه|تست/.test(g)) ans = ANSWERS.intro;
-      if (/رایگان|هزینه|پرداخت/.test(g)) ans = ANSWERS.free;
-      if (/زبان|فارسی/.test(g)) ans = ANSWERS.default;
-      if (/موبایل|اپلیکیشن/.test(g)) ans = ANSWERS.intro;
-      if (/نسخه|آپدیت|به‌روزرسانی/.test(g)) ans = ANSWERS.default;
-      if (/باگ|خطا|مشکل|عیب/.test(g)) ans = ANSWERS.default;
-      if (/مزیت|ویژگی|قابلیت|امکانات/.test(g)) ans = ANSWERS.intro;
-      add(`${g} ${gq}`, ans);
-    }
+  for (const s of WORDS.subjects) for (const f of WORDS.features) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار|خرید|فروش/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا|مدیریت/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    add(`${s} ${f}`, ans);
   }
-
-  // ۵. subjects × features (۱۰ × ۲۰ = ۲۰۰)
-  for (const s of WORDS.subjects) {
-    for (const f of WORDS.features) {
-      let ans = ANSWERS.default;
-      if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-      if (/بازار|خرید|فروش/.test(f)) ans = ANSWERS.market;
-      if (/ثبت کالا|مدیریت/.test(f)) ans = ANSWERS.product;
-      if (/پیام/.test(f)) ans = ANSWERS.messenger;
-      if (/گزارش/.test(f)) ans = ANSWERS.report;
-      add(`${s} ${f}`, ans);
-    }
+  for (const f of WORDS.features) for (const s of WORDS.subjects) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار|خرید|فروش/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا|مدیریت/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    add(`${f} ${s}`, ans);
   }
-
-  // ۶. features × subjects (۲۰ × ۱۰ = ۲۰۰)
-  for (const f of WORDS.features) {
-    for (const s of WORDS.subjects) {
-      let ans = ANSWERS.default;
-      if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-      if (/بازار|خرید|فروش/.test(f)) ans = ANSWERS.market;
-      if (/ثبت کالا|مدیریت/.test(f)) ans = ANSWERS.product;
-      if (/پیام/.test(f)) ans = ANSWERS.messenger;
-      if (/گزارش/.test(f)) ans = ANSWERS.report;
-      add(`${f} ${s}`, ans);
-    }
+  for (const s of WORDS.subjects) for (const p of WORDS.people) {
+    add(`${s} ${p}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
   }
-
-  // ۷. subjects × people (۱۰ × ۱۳ = ۱۳۰)
-  for (const s of WORDS.subjects) {
-    for (const p of WORDS.people) {
-      const ans = p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks;
-      add(`${s} ${p}`, ans);
-    }
+  for (const p of WORDS.people) for (const s of WORDS.subjects) {
+    add(`${p} ${s}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
   }
-
-  // ۸. people × subjects (۱۳ × ۱۰ = ۱۳۰)
-  for (const p of WORDS.people) {
-    for (const s of WORDS.subjects) {
-      const ans = p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks;
-      add(`${p} ${s}`, ans);
-    }
+  for (const f of WORDS.features) for (const g of WORDS.general) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    if (/آدرس/.test(g)) ans = ANSWERS.link;
+    if (/رایگان/.test(g)) ans = ANSWERS.free;
+    add(`${f} ${g}`, ans);
   }
-
-  // ۹. features × general (۲۰ × ۳۸ = ۷۶۰)
-  for (const f of WORDS.features) {
-    for (const g of WORDS.general) {
-      let ans = ANSWERS.default;
-      if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-      if (/بازار/.test(f)) ans = ANSWERS.market;
-      if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
-      if (/پیام/.test(f)) ans = ANSWERS.messenger;
-      if (/گزارش/.test(f)) ans = ANSWERS.report;
-      if (/آدرس/.test(g)) ans = ANSWERS.link;
-      if (/رایگان/.test(g)) ans = ANSWERS.free;
-      add(`${f} ${g}`, ans);
-    }
+  for (const g of WORDS.general) for (const f of WORDS.features) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    if (/آدرس/.test(g)) ans = ANSWERS.link;
+    if (/رایگان/.test(g)) ans = ANSWERS.free;
+    add(`${g} ${f}`, ans);
   }
-
-  // ۱۰. general × features (۳۸ × ۲۰ = ۷۶۰)
-  for (const g of WORDS.general) {
-    for (const f of WORDS.features) {
-      let ans = ANSWERS.default;
-      if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-      if (/بازار/.test(f)) ans = ANSWERS.market;
-      if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
-      if (/پیام/.test(f)) ans = ANSWERS.messenger;
-      if (/گزارش/.test(f)) ans = ANSWERS.report;
-      if (/آدرس/.test(g)) ans = ANSWERS.link;
-      if (/رایگان/.test(g)) ans = ANSWERS.free;
-      add(`${g} ${f}`, ans);
-    }
+  for (const p of WORDS.people) for (const g of WORDS.general) {
+    let ans = ANSWERS.default;
+    if (p === "عرفان ریاحی") ans = ANSWERS.creator;
+    if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
+    add(`${p} ${g}`, ans);
   }
-
-  // ۱۱. people × general (۱۳ × ۳۸ = ۴۹۴)
-  for (const p of WORDS.people) {
-    for (const g of WORDS.general) {
-      let ans = ANSWERS.default;
-      if (p === "عرفان ریاحی") ans = ANSWERS.creator;
-      if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
-      add(`${p} ${g}`, ans);
-    }
+  for (const g of WORDS.general) for (const p of WORDS.people) {
+    let ans = ANSWERS.default;
+    if (p === "عرفان ریاحی") ans = ANSWERS.creator;
+    if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
+    add(`${g} ${p}`, ans);
   }
-
-  // ۱۲. general × people (۳۸ × ۱۳ = ۴۹۴)
-  for (const g of WORDS.general) {
-    for (const p of WORDS.people) {
-      let ans = ANSWERS.default;
-      if (p === "عرفان ریاحی") ans = ANSWERS.creator;
-      if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
-      add(`${g} ${p}`, ans);
-    }
+  for (const s of WORDS.subjects) for (const g of WORDS.general) {
+    let ans = ANSWERS.default;
+    if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
+    if (/رایگان/.test(g)) ans = ANSWERS.free;
+    add(`${s} ${g}`, ans);
   }
-
-  // ۱۳. subjects × general (۱۰ × ۳۸ = ۳۸۰)
-  for (const s of WORDS.subjects) {
-    for (const g of WORDS.general) {
-      let ans = ANSWERS.default;
-      if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
-      if (/رایگان/.test(g)) ans = ANSWERS.free;
-      add(`${s} ${g}`, ans);
-    }
+  for (const g of WORDS.general) for (const s of WORDS.subjects) {
+    let ans = ANSWERS.default;
+    if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
+    if (/رایگان/.test(g)) ans = ANSWERS.free;
+    add(`${g} ${s}`, ans);
   }
-
-  // ۱۴. general × subjects (۳۸ × ۱۰ = ۳۸۰)
-  for (const g of WORDS.general) {
-    for (const s of WORDS.subjects) {
-      let ans = ANSWERS.default;
-      if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
-      if (/رایگان/.test(g)) ans = ANSWERS.free;
-      add(`${g} ${s}`, ans);
-    }
+  for (const a of WORDS.actions) for (const f of WORDS.features) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    add(`${a} ${f}`, ans);
   }
-
-  // ۱۵. actions × features (۱۰ × ۲۰ = ۲۰۰)
-  for (const a of WORDS.actions) {
-    for (const f of WORDS.features) {
-      let ans = ANSWERS.default;
-      if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-      if (/بازار/.test(f)) ans = ANSWERS.market;
-      if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
-      if (/پیام/.test(f)) ans = ANSWERS.messenger;
-      if (/گزارش/.test(f)) ans = ANSWERS.report;
-      add(`${a} ${f}`, ans);
-    }
+  for (const f of WORDS.features) for (const a of WORDS.actions) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    add(`${f} ${a}`, ans);
   }
-
-  // ۱۶. features × actions (۲۰ × ۱۰ = ۲۰۰)
-  for (const f of WORDS.features) {
-    for (const a of WORDS.actions) {
-      let ans = ANSWERS.default;
-      if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-      if (/بازار/.test(f)) ans = ANSWERS.market;
-      if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
-      if (/پیام/.test(f)) ans = ANSWERS.messenger;
-      if (/گزارش/.test(f)) ans = ANSWERS.report;
-      add(`${f} ${a}`, ans);
-    }
+  for (const s1 of WORDS.subjects) for (const s2 of WORDS.subjects) add(`${s1} ${s2}`, ANSWERS.intro);
+  for (const f1 of WORDS.features) for (const f2 of WORDS.features) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f1) || /پروفایل/.test(f2)) ans = ANSWERS.profile;
+    if (/بازار/.test(f1) || /بازار/.test(f2)) ans = ANSWERS.market;
+    if (/ثبت کالا/.test(f1) || /ثبت کالا/.test(f2)) ans = ANSWERS.product;
+    if (/پیام/.test(f1) || /پیام/.test(f2)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f1) || /گزارش/.test(f2)) ans = ANSWERS.report;
+    add(`${f1} ${f2}`, ans);
   }
-
-  // ۱۷. subjects × subjects (۱۰ × ۱۰ = ۱۰۰)
-  for (const s1 of WORDS.subjects) {
-    for (const s2 of WORDS.subjects) {
-      add(`${s1} ${s2}`, ANSWERS.intro);
-    }
+  for (const g1 of WORDS.general) for (const g2 of WORDS.general) {
+    let ans = ANSWERS.default;
+    if (/آدرس/.test(g1) || /آدرس/.test(g2)) ans = ANSWERS.link;
+    if (/رایگان/.test(g1) || /رایگان/.test(g2)) ans = ANSWERS.free;
+    add(`${g1} ${g2}`, ans);
   }
-
-  // ۱۸. features × features (۲۰ × ۲۰ = ۴۰۰)
-  for (const f1 of WORDS.features) {
-    for (const f2 of WORDS.features) {
-      let ans = ANSWERS.default;
-      if (/پروفایل/.test(f1) || /پروفایل/.test(f2)) ans = ANSWERS.profile;
-      if (/بازار/.test(f1) || /بازار/.test(f2)) ans = ANSWERS.market;
-      if (/ثبت کالا/.test(f1) || /ثبت کالا/.test(f2)) ans = ANSWERS.product;
-      if (/پیام/.test(f1) || /پیام/.test(f2)) ans = ANSWERS.messenger;
-      if (/گزارش/.test(f1) || /گزارش/.test(f2)) ans = ANSWERS.report;
-      add(`${f1} ${f2}`, ans);
-    }
-  }
-
-  // ۱۹. general × general (۳۸ × ۳۸ = ۱۴۴۴)
-  for (const g1 of WORDS.general) {
-    for (const g2 of WORDS.general) {
-      let ans = ANSWERS.default;
-      if (/آدرس/.test(g1) || /آدرس/.test(g2)) ans = ANSWERS.link;
-      if (/رایگان/.test(g1) || /رایگان/.test(g2)) ans = ANSWERS.free;
-      if (/مزیت|ویژگی/.test(g1) || /مزیت|ویژگی/.test(g2)) ans = ANSWERS.intro;
-      add(`${g1} ${g2}`, ans);
-    }
-  }
-
-  // ۲۰. subjects × peopleQuestions (۱۰ × ۱۰ = ۱۰۰)
-  for (const s of WORDS.subjects) {
-    for (const q of WORDS.peopleQuestions) {
-      add(`${s} ${q}`, ANSWERS.default);
-    }
-  }
-
-  // ۲۱. greeting و bye
   add("سلام", ANSWERS.greeting);
   add("درود", ANSWERS.greeting);
   add("خوبی", ANSWERS.greeting);
@@ -310,23 +318,22 @@ function buildKnowledgeBase() {
 }
 
 buildKnowledgeBase();
-console.log(`✅ پایگاه دانش گردآلو ساخته شد: ${KNOWLEDGE.length} موضوع`);
+console.log(`✅ پایگاه دانش گردآلو: ${KNOWLEDGE.length} موضوع`);
 
-// ===== جستجو در پایگاه دانش =====
 function findAnswer(text) {
   const t = text.toLowerCase().trim();
-  // اول تطبیق دقیق
   for (const item of KNOWLEDGE) {
     if (t === item.keywords[0]) return item.answer;
   }
-  // بعد تطبیق جزئی (کلیدواژه در متن)
   for (const item of KNOWLEDGE) {
     if (item.keywords.some(k => t.includes(k))) return item.answer;
   }
   return null;
 }
 
-// ===== بخش صوتی =====
+// ============================================
+// صدا
+// ============================================
 let voiceEnabled = true;
 let isRecording = false;
 let recognition = null;
@@ -366,17 +373,17 @@ function startRecording() {
     recognition.start();
     isRecording = true;
     micBtn.classList.add('recording');
-    micBtn.textContent = '⏹️';
   } catch (e) {}
 }
 
 function stopRecording() {
   isRecording = false;
   micBtn.classList.remove('recording');
-  micBtn.textContent = '🎤';
 }
 
-// ===== پیام‌ها =====
+// ============================================
+// چت
+// ============================================
 function removeWelcome() {
   const w = chatMessages.querySelector('.welcome');
   if (w) w.remove();
@@ -386,22 +393,17 @@ function addMessage(text, sender) {
   removeWelcome();
   const msg = document.createElement('div');
   msg.className = `message ${sender}`;
-
   const avatar = document.createElement('div');
   avatar.className = 'message-avatar';
   avatar.textContent = sender === 'bot' ? '🍑' : 'Z';
-
   const content = document.createElement('div');
   content.className = 'message-content';
-
   const role = document.createElement('div');
   role.className = 'message-role';
   role.textContent = sender === 'bot' ? 'گردآلو' : 'شما';
-
   const textEl = document.createElement('div');
   textEl.className = 'message-text';
   textEl.textContent = text;
-
   content.appendChild(role);
   content.appendChild(textEl);
   msg.appendChild(avatar);
@@ -410,19 +412,14 @@ function addMessage(text, sender) {
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-// ===== ارسال =====
 function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
-
   userInput.value = '';
   userInput.style.height = 'auto';
-
   addMessage(text, 'user');
   memory.history.push({ role: 'user', content: text });
-
   const answer = findAnswer(text) || ANSWERS.default;
-
   setTimeout(() => {
     addMessage(answer, 'bot');
     speak(answer);
@@ -431,7 +428,9 @@ function sendMessage() {
   }, 400);
 }
 
-// ===== رویدادها =====
+// ============================================
+// رویدادها
+// ============================================
 sendBtn.addEventListener('click', sendMessage);
 
 userInput.addEventListener('keydown', (e) => {
@@ -454,7 +453,24 @@ micBtn.addEventListener('click', () => {
 voiceToggle.addEventListener('click', () => {
   voiceEnabled = !voiceEnabled;
   voiceToggle.classList.toggle('off', !voiceEnabled);
-  voiceToggle.textContent = voiceEnabled ? '🔊' : '🔇';
+  if (!voiceEnabled) window.speechSynthesis.cancel();
+  settingVoice.classList.toggle('active', voiceEnabled);
+});
+
+themeToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('light');
+  settingTheme.classList.toggle('active');
+});
+
+settingTheme.addEventListener('click', () => {
+  document.documentElement.classList.toggle('light');
+  settingTheme.classList.toggle('active');
+});
+
+settingVoice.addEventListener('click', () => {
+  voiceEnabled = !voiceEnabled;
+  settingVoice.classList.toggle('active', voiceEnabled);
+  voiceToggle.classList.toggle('off', !voiceEnabled);
   if (!voiceEnabled) window.speechSynthesis.cancel();
 });
 
@@ -462,9 +478,7 @@ sidebarToggle.addEventListener('click', () => {
   sidebar.classList.toggle('collapsed');
 });
 
-themeToggle.addEventListener('click', () => {
-  document.documentElement.classList.toggle('light');
-});
+menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
 
 newChatBtn.addEventListener('click', () => {
   chatMessages.innerHTML = `
@@ -476,7 +490,56 @@ newChatBtn.addEventListener('click', () => {
   `;
   memory.history = [];
   saveMemory();
+  sidebar.classList.remove('open');
 });
 
-userInput.focus();
-console.log('🍑 گردآلو v3.0 (Offline 1000+ Topics) آماده است');
+openSettings.addEventListener('click', () => {
+  settingZardaloo.textContent = memory.profile.zardaloo || '---';
+  settingEmail.textContent = memory.profile.email || '---';
+  settingTheme.classList.toggle('active', document.documentElement.classList.contains('light'));
+  settingVoice.classList.toggle('active', voiceEnabled);
+  settingsModal.classList.add('open');
+});
+
+closeSettings.addEventListener('click', () => settingsModal.classList.remove('open'));
+settingsModal.addEventListener('click', (e) => {
+  if (e.target === settingsModal) settingsModal.classList.remove('open');
+});
+
+clearMemory.addEventListener('click', () => {
+  if (confirm('همه خاطرات و تاریخچه پاک شود؟')) {
+    memory.facts = [];
+    memory.history = [];
+    saveMemory();
+    memoryCount.textContent = '0';
+    chatMessages.innerHTML = `
+      <div class="welcome">
+        <div class="welcome-icon">🍑</div>
+        <h1>چطور می‌تونم کمکت کنم؟</h1>
+        <p>دستیار هوشمند سایت زردآلو</p>
+      </div>
+    `;
+    alert('حافظه پاک شد ✅');
+  }
+});
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+// ============================================
+// شروع
+// ============================================
+if (memory.profile.loginMethod) {
+  onboarding.style.display = 'none';
+  app.style.display = 'flex';
+  displayUserName.textContent = memory.profile.zardaloo || 'zardaloo12345';
+  displayUserPlan.textContent = `ورود با ${memory.profile.loginMethod}`;
+  settingZardaloo.textContent = memory.profile.zardaloo || '---';
+  settingEmail.textContent = memory.profile.email || '---';
+  userInput.focus();
+} else {
+  showStep(1);
+}
+
+console.log('🍑 گردآلو v3.0 آماده است');
