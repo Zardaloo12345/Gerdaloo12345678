@@ -1,5 +1,5 @@
 // ============================================
-// گردآلو - Gerdaloo AI v5.0 (Compact & Toolbar)
+// گردآلو - Gerdaloo AI v6.0 (Layout Fixed)
 // ============================================
 
 const chatArea = document.getElementById('chatArea');
@@ -9,7 +9,7 @@ const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 
 // ============================================
-// موتور ۱۰۰۰+ موضوعی
+// پایگاه دانش
 // ============================================
 const ANSWERS = {
   intro: "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است و توسط عرفان ریاحی ساخته شده. 🍑",
@@ -24,7 +24,7 @@ const ANSWERS = {
   free: "سایت زردآلو رایگان است. 🆓",
   thanks: "از این عزیزان تشکر شده: شهاب‌الدین ریاحی، دکتر عباس امیدی، آقای زارعی، کوشان طلائی، ملیحه همت‌گیر، سپهر میر قادری، سید ابوالفضل صمصام شریعت، محمد پارسا آیتی، محمد طاها نیرومند، آقای قاسمی، کیان عسگری، مانی شیروی. 🙏",
   self: "من گردآلو هستم، دستیار هوشمند و آفلاین سایت زردآلو. 🍑",
-  greeting: "سلام! خوشحالم که باهام حرف می‌زنی 😊",
+  greeting: "سلام! چطور می‌تونم کمکت کنم؟ 😊",
   bye: "خداحافظ! بازم بیا پیشم 👋",
   default: "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام. 🍑"
 };
@@ -66,4 +66,34 @@ function buildKnowledgeBase() {
   for (const p of WORDS.people) for (const q of WORDS.peopleQuestions) {
     add(`${p} ${q}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
   }
-  for (const g of WORDS.g
+  for (const g of WORDS.general) for (const gq of WORDS.generalQuestions) {
+    let ans = ANSWERS.default;
+    if (/آدرس|لینک|گیت|github/.test(g)) ans = ANSWERS.link;
+    if (/رایگان|هزینه|پرداخت/.test(g)) ans = ANSWERS.free;
+    if (/مزیت|ویژگی|قابلیت|امکانات/.test(g)) ans = ANSWERS.intro;
+    add(`${g} ${gq}`, ans);
+  }
+  for (const s of WORDS.subjects) for (const f of WORDS.features) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار|خرید|فروش/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا|مدیریت/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    add(`${s} ${f}`, ans);
+  }
+  for (const f of WORDS.features) for (const s of WORDS.subjects) {
+    let ans = ANSWERS.default;
+    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
+    if (/بازار|خرید|فروش/.test(f)) ans = ANSWERS.market;
+    if (/ثبت کالا|مدیریت/.test(f)) ans = ANSWERS.product;
+    if (/پیام/.test(f)) ans = ANSWERS.messenger;
+    if (/گزارش/.test(f)) ans = ANSWERS.report;
+    add(`${f} ${s}`, ans);
+  }
+  for (const s of WORDS.subjects) for (const p of WORDS.people) {
+    add(`${s} ${p}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
+  }
+  for (const p of WORDS.people) for (const s of WORDS.subjects) {
+    add(`${p} ${s}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
+  }
