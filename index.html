@@ -3,161 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو | Gerdaloo AI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <title>گردآلو مینی</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+    body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; color: #f59e0b; font-size: 18px; border-bottom: 1px solid #334155; }
+    #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+    .msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 14px; line-height: 1.6; animation: fade 0.3s; }
+    .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
+    .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
+    form { padding: 10px; background: #1e293b; display: flex; gap: 8px; }
+    input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; }
+    button { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; }
+    @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
 </head>
 <body>
-
-  <div class="app-container">
-    
-    <!-- ================= سمت راست: امکانات (نوار ابزار) ================= -->
-    <aside class="sidebar-right" id="rightSidebar">
-      <div class="sidebar-header">
-        <div class="brand">
-          <div class="brand-logo">
-            <i class="fa-solid fa-leaf"></i>
-            <div class="brand-fruit"></div>
-          </div>
-          <div class="brand-text">
-            <h1>گردآلو</h1>
-            <p>هوش مصنوعی همیشه در کنار تو</p>
-          </div>
-        </div>
-        <button class="toolbar-toggle" onclick="toggleSidebar('right')">
-          <i class="fa-solid fa-chevron-right"></i>
-        </button>
-      </div>
-
-      <div class="features-panel">
-        <div class="feature-item" onclick="sendSuggestion(event, 'درباره چت هوشمند توضیح بده')">
-          <div class="f-icon" style="background: #3b82f6;"><i class="fa-solid fa-comment-dots"></i></div>
-          <div class="f-text"><h4>چت و گفتگو</h4><p>هر سوالی، هر موضوعی</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'چطور می‌توانم تصویر تولید کنم؟')">
-          <div class="f-icon" style="background: #8b5cf6;"><i class="fa-solid fa-image"></i></div>
-          <div class="f-text"><h4>تولید تصویر</h4><p>تصاویر خلاقانه و حرفه‌ای</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'تولید ویدیو چطور کار می‌کند؟')">
-          <div class="f-icon" style="background: #ef4444;"><i class="fa-solid fa-clapperboard"></i></div>
-          <div class="f-text"><h4>تولید ویدیو</h4><p>از ایده تا ویدیو</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'درباره پژوهش و تحقیق توضیح بده')">
-          <div class="f-icon" style="background: #10b981;"><i class="fa-solid fa-book-open"></i></div>
-          <div class="f-text"><h4>پژوهش و تحقیق</h4><p>اطلاعات دقیق و معتبر</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'چه متن‌هایی می‌توانی بنویسی؟')">
-          <div class="f-icon" style="background: #f59e0b;"><i class="fa-solid fa-pen-nib"></i></div>
-          <div class="f-text"><h4>نوشتن متن</h4><p>مقاله، داستان، کپشن</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'در برنامه‌نویسی چطور کمک می‌کنی؟')">
-          <div class="f-icon" style="background: #06b6d4;"><i class="fa-solid fa-code"></i></div>
-          <div class="f-text"><h4>برنامه‌نویسی</h4><p>کد، رفع اشکال، آموزش</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'ترجمه به چه زبان‌هایی انجام می‌دهی؟')">
-          <div class="f-icon" style="background: #ec4899;"><i class="fa-solid fa-language"></i></div>
-          <div class="f-text"><h4>ترجمه</h4><p>مترجمی سریع و دقیق</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'امکانات صدا و گفتار چیست؟')">
-          <div class="f-icon" style="background: #3b82f6;"><i class="fa-solid fa-microphone-lines"></i></div>
-          <div class="f-text"><h4>صدا و گفتار</h4><p>تبدیل متن به صدا و بالعکس</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'درباره موسیقی توضیح بده')">
-          <div class="f-icon" style="background: #ec4899;"><i class="fa-solid fa-music"></i></div>
-          <div class="f-text"><h4>موسیقی</h4><p>ساخت آهنگ و متن ترانه</p></div>
-        </div>
-        <div class="feature-item" onclick="sendSuggestion(event, 'چه ابزارهایی داری؟')">
-          <div class="f-icon" style="background: #64748b;"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-          <div class="f-text"><h4>ابزارهای کاربردی</h4><p>محاسبه، تبدیل و ...</p></div>
-        </div>
-      </div>
-
-      <div class="user-profile">
-        <div class="user-avatar"></div>
-        <div class="user-info">
-          <h3>گردآلو</h3>
-          <p>همیشه آماده</p>
-          <div class="status"><span class="status-dot"></span><span>آنلاین</span></div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- ================= وسط: بخش اصلی ================= -->
-    <main class="main-content">
-      
-      <header class="welcome-header" id="welcomeHeader">
-        <h2>سلام! <br> چطور می‌تونم کمکت کنم؟ <span class="heart">❤️</span></h2>
-        <p>دستیار هوشمند سایت زردآلو</p>
-      </header>
-
-      <section class="chat-area" id="chatArea">
-        <div class="chat-messages" id="chatMessages">
-          <div class="message bot">
-            <div class="msg-avatar"><i class="fa-solid fa-leaf" style="color:#f59e0b"></i></div>
-            <div class="msg-content">
-              <div class="msg-role">گردآلو</div>
-              <div class="msg-text">
-                سلام! چطور می‌تونم کمکت کنم؟<br>
-                هر سوالی داری بپرس یا از امکانات سمت راست استفاده کن.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div class="input-area">
-        <button class="attach-btn"><i class="fa-solid fa-paperclip"></i></button>
-        <input type="text" id="userInput" placeholder="پیام خود را بنویسید..." autocomplete="off">
-        <button class="send-btn" id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
-      </div>
-
-      <section class="suggestions">
-        <h3><i class="fa-solid fa-lightbulb"></i> پیشنهادهای گردآلو</h3>
-        <div class="suggestion-grid">
-          <div class="suggestion-card" onclick="sendSuggestion(event, 'یک ایده خلاقانه برای کسب‌وکار بده')">
-            <div class="s-icon" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;"><i class="fa-solid fa-lightbulb"></i></div>
-            <p>ایده کسب‌وکار</p>
-          </div>
-          <div class="suggestion-card" onclick="sendSuggestion(event, 'عکس یک منظره زیبا بساز')">
-            <div class="s-icon" style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6;"><i class="fa-solid fa-image"></i></div>
-            <p>عکس منظره</p>
-          </div>
-          <div class="suggestion-card" onclick="sendSuggestion(event, 'یک متن ادبی بنویس')">
-            <div class="s-icon" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6;"><i class="fa-solid fa-file-lines"></i></div>
-            <p>متن ادبی</p>
-          </div>
-          <div class="suggestion-card" onclick="sendSuggestion(event, 'یک برنامه پایتون بنویس')">
-            <div class="s-icon" style="background: rgba(16, 185, 129, 0.2); color: #10b981;"><i class="fa-solid fa-code"></i></div>
-            <p>برنامه پایتون</p>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- ================= سمت چپ: بنر ================= -->
-    <aside class="sidebar-left" id="leftSidebar">
-      <div class="sidebar-header">
-        <button class="toolbar-toggle" onclick="toggleSidebar('left')">
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
-        <h3>دنیای گردآلو</h3>
-      </div>
-
-      <div class="banner-panel" onclick="sendSuggestion(event, 'امکانات گردآلو را به من نشان بده')">
-        <div class="banner-content">
-          <i class="fa-solid fa-leaf" style="color:#f59e0b; font-size: 40px; margin-bottom: 15px; display: block;"></i>
-          <h3>با گردآلو،</h3>
-          <p>دنیای ایده‌ها و امکاناتت<br>در دستان توست...</p>
-        </div>
-      </div>
-    </aside>
-
+  <header>🍑 گردآلو مینی</header>
+  <div id="chat">
+    <div class="msg bot">سلام! من گردآلو هستم. چطور می‌تونم کمکت کنم؟</div>
   </div>
-
-  <script src="script.js"></script>
+  <form id="f">
+    <input id="i" placeholder="پیامت رو بنویس..." autocomplete="off">
+    <button>ارسال</button>
+  </form>
+  <script>
+    const kb = {
+      "سلام": "سلام! خوشحالم که باهام حرف میزنی 😊",
+      "سازنده": "سازنده سایت زردآلو، عرفان ریاحی است 🧑🏻‍💻",
+      "آدرس": "آدرس سایت: zardaloo12345.github.io/zardaloo.online.shop",
+      "پروفایل": "برای استفاده از زردآلو، اول باید پروفایل خودت رو بسازی 👤",
+      "کالا": "برای ثبت کالا، از بخش «ثبت کالای جدید» در منو استفاده کن 📦",
+      "بازار": "بخش بازار زردآلو محل خرید و فروش کالاست 🛒",
+      "خداحافظ": "خداحافظ! بازم بیا پیشم 👋"
+    };
+    const chat = document.getElementById('chat'), form = document.getElementById('f'), input = document.getElementById('i');
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const text = input.value.trim(); if (!text) return;
+      chat.innerHTML += `<div class="msg user">${text}</div>`;
+      input.value = '';
+      let reply = "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام 🍑";
+      for (const key in kb) { if (text.includes(key)) { reply = kb[key]; break; } }
+      setTimeout(() => { chat.innerHTML += `<div class="msg bot">${reply}</div>`; chat.scrollTop = chat.scrollHeight; }, 400);
+      chat.scrollTop = chat.scrollHeight;
+    };
+  </script>
 </body>
 </html>
