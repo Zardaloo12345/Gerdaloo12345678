@@ -14,17 +14,22 @@
 
   <div class="app-container">
     
-    <!-- ================= سایدبار راست ================= -->
-    <aside class="sidebar-right" id="sidebarRight">
-      <div class="brand">
-        <div class="brand-logo">
-          <i class="fa-solid fa-leaf"></i>
-          <div class="brand-fruit"></div>
+    <!-- ================= سایدبار راست (نوار ابزار) ================= -->
+    <aside class="sidebar-right" id="rightSidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-logo">
+            <i class="fa-solid fa-leaf"></i>
+            <div class="brand-fruit"></div>
+          </div>
+          <div class="brand-text">
+            <h1>گردآلو</h1>
+            <p>هوش مصنوعی همیشه در کنار تو</p>
+          </div>
         </div>
-        <div class="brand-text">
-          <h1>گردآلو</h1>
-          <p>هوش مصنوعی همیشه در کنار تو</p>
-        </div>
+        <button class="toolbar-toggle" onclick="toggleSidebar('right')">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
       </div>
 
       <nav class="menu">
@@ -84,7 +89,7 @@
         </div>
         <div class="user-info">
           <h3>گردآلو</h3>
-          <p>همیشه آماده، همیشه مفید</p>
+          <p>همیشه آماده</p>
           <div class="status">
             <span class="status-dot"></span>
             <span>آنلاین</span>
@@ -96,16 +101,6 @@
     <!-- ================= بخش اصلی (وسط) ================= -->
     <main class="main-content">
       
-      <!-- نوار ابزار بالای صفحه -->
-      <div class="mini-toolbar">
-        <button class="mini-btn" onclick="togglePanel('right')" title="باز/بسته کردن منو">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-        <button class="mini-btn" onclick="togglePanel('left')" title="باز/بسته کردن امکانات">
-          <i class="fa-solid fa-star"></i>
-        </button>
-      </div>
-
       <header class="welcome-header" id="welcomeHeader">
         <h2>سلام! <br> من گردآلو هستم <span class="heart">❤️</span></h2>
         <p>هر سوالی داری بپرس،<br>هر کاری می‌خوای انجام بده،<br>من اینجا هستم تا کمکت کنم.</p>
@@ -137,19 +132,19 @@
         <div class="suggestion-grid">
           <div class="suggestion-card" onclick="sendSuggestion(event, 'یک ایده خلاقانه برای کسب‌وکار بده')">
             <div class="s-icon" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;"><i class="fa-solid fa-lightbulb"></i></div>
-            <p>یک ایده خلاقانه<br>برای کسب‌وکار بده</p>
+            <p>ایده کسب‌وکار</p>
           </div>
           <div class="suggestion-card" onclick="sendSuggestion(event, 'عکس یک منظره زیبا بساز')">
             <div class="s-icon" style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6;"><i class="fa-solid fa-image"></i></div>
-            <p>عکس یک منظره<br>زیبا بساز</p>
+            <p>عکس منظره</p>
           </div>
           <div class="suggestion-card" onclick="sendSuggestion(event, 'یک متن ادبی بنویس')">
             <div class="s-icon" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6;"><i class="fa-solid fa-file-lines"></i></div>
-            <p>یک متن ادبی<br>بنویس</p>
+            <p>متن ادبی</p>
           </div>
           <div class="suggestion-card" onclick="sendSuggestion(event, 'یک برنامه پایتون بنویس')">
             <div class="s-icon" style="background: rgba(16, 185, 129, 0.2); color: #10b981;"><i class="fa-solid fa-code"></i></div>
-            <p>یک برنامه پایتون<br>بنویس</p>
+            <p>برنامه پایتون</p>
           </div>
         </div>
       </section>
@@ -159,63 +154,62 @@
           با گردآلو، دنیای ایده‌ها و امکاناتت<br>در دستان توست...
         </div>
         <div class="banner-icon">
-          <i class="fa-solid fa-leaf" style="color:#f59e0b; font-size: 30px;"></i>
+          <i class="fa-solid fa-leaf" style="color:#f59e0b; font-size: 24px;"></i>
         </div>
       </div>
 
     </main>
 
-    <!-- ================= سایدبار چپ ================= -->
-    <aside class="sidebar-left" id="sidebarLeft">
-      
-      <div class="top-bubble" onclick="sendSuggestion(event, 'تو کی هستی؟')">
-        <h4>گردآلو</h4>
-        <p>یه قدم جلوتر از بقیه‌ها <span class="heart">❤️</span></p>
+    <!-- ================= سایدبار چپ (نوار ابزار) ================= -->
+    <aside class="sidebar-left" id="leftSidebar">
+      <div class="sidebar-header">
+        <button class="toolbar-toggle" onclick="toggleSidebar('left')">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <h3 style="font-size: 14px;"><i class="fa-solid fa-crown" style="color:#f59e0b"></i> امکانات</h3>
       </div>
 
       <div class="features-panel">
-        <h3><i class="fa-solid fa-crown" style="color:#f59e0b"></i> امکانات گردآلو</h3>
-        
         <div class="feature-list">
           <div class="feature-item" onclick="sendSuggestion(event, 'درباره چت هوشمند توضیح بده')">
             <div class="f-icon" style="background: #3b82f6;"><i class="fa-solid fa-comment-dots"></i></div>
-            <div class="f-text"><h4>چت و گفتگو</h4><p>هر سوالی، هر موضوعی</p></div>
+            <div class="f-text"><h4>چت</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'چطور می‌توانم تصویر تولید کنم؟')">
             <div class="f-icon" style="background: #8b5cf6;"><i class="fa-solid fa-image"></i></div>
-            <div class="f-text"><h4>تولید تصویر</h4><p>تصاویر خلاقانه و حرفه‌ای</p></div>
+            <div class="f-text"><h4>تصویر</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'تولید ویدیو چطور کار می‌کند؟')">
             <div class="f-icon" style="background: #ef4444;"><i class="fa-solid fa-clapperboard"></i></div>
-            <div class="f-text"><h4>تولید ویدیو</h4><p>از ایده تا ویدیو</p></div>
+            <div class="f-text"><h4>ویدیو</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'درباره پژوهش و تحقیق توضیح بده')">
             <div class="f-icon" style="background: #10b981;"><i class="fa-solid fa-book-open"></i></div>
-            <div class="f-text"><h4>پژوهش و تحقیق</h4><p>اطلاعات دقیق و معتبر</p></div>
+            <div class="f-text"><h4>تحقیق</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'چه متن‌هایی می‌توانی بنویسی؟')">
             <div class="f-icon" style="background: #f59e0b;"><i class="fa-solid fa-pen-nib"></i></div>
-            <div class="f-text"><h4>نوشتن متن</h4><p>مقاله، داستان، کپشن و ...</p></div>
+            <div class="f-text"><h4>متن</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'در برنامه‌نویسی چطور کمک می‌کنی؟')">
             <div class="f-icon" style="background: #06b6d4;"><i class="fa-solid fa-code"></i></div>
-            <div class="f-text"><h4>برنامه‌نویسی</h4><p>کد، رفع اشکال، آموزش</p></div>
+            <div class="f-text"><h4>کد</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'ترجمه به چه زبان‌هایی انجام می‌دهی؟')">
             <div class="f-icon" style="background: #ec4899;"><i class="fa-solid fa-language"></i></div>
-            <div class="f-text"><h4>ترجمه</h4><p>مترجمی سریع و دقیق</p></div>
+            <div class="f-text"><h4>ترجمه</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'امکانات صدا و گفتار چیست؟')">
             <div class="f-icon" style="background: #3b82f6;"><i class="fa-solid fa-microphone-lines"></i></div>
-            <div class="f-text"><h4>صدا و گفتار</h4><p>تبدیل متن به صدا و بالعکس</p></div>
+            <div class="f-text"><h4>صدا</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'درباره موسیقی توضیح بده')">
             <div class="f-icon" style="background: #ec4899;"><i class="fa-solid fa-music"></i></div>
-            <div class="f-text"><h4>موسیقی</h4><p>ساخت آهنگ و متن ترانه</p></div>
+            <div class="f-text"><h4>موسیقی</h4></div>
           </div>
           <div class="feature-item" onclick="sendSuggestion(event, 'چه ابزارهایی داری؟')">
             <div class="f-icon" style="background: #64748b;"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-            <div class="f-text"><h4>ابزارهای کاربردی</h4><p>محاسبه، تبدیل، و ...</p></div>
+            <div class="f-text"><h4>ابزار</h4></div>
           </div>
         </div>
       </div>
