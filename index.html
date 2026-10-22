@@ -4,52 +4,74 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>گردآلو | Gerdaloo AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <header class="header">
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <header class="header glass">
     <div class="logo">
-      <svg viewBox="0 0 200 200" width="48" height="48">
-        <circle cx="100" cy="110" r="60" fill="#e67e22" stroke="#d35400" stroke-width="4"/>
-        <path d="M100 50 Q120 20 150 30 Q130 60 100 50 Z" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
-        <g stroke="#fff" stroke-width="2" opacity="0.9">
-          <line x1="80" y1="90" x2="100" y2="110"/>
-          <line x1="120" y1="90" x2="100" y2="110"/>
-          <line x1="80" y1="130" x2="100" y2="110"/>
-          <line x1="120" y1="130" x2="100" y2="110"/>
-          <line x1="80" y1="90" x2="120" y2="90"/>
-          <line x1="80" y1="130" x2="120" y2="130"/>
-        </g>
-        <g fill="#fff">
-          <circle cx="80" cy="90" r="5"/>
-          <circle cx="120" cy="90" r="5"/>
-          <circle cx="100" cy="110" r="6"/>
-          <circle cx="80" cy="130" r="5"/>
-          <circle cx="120" cy="130" r="5"/>
-        </g>
-        <path d="M145 70 L150 85 L165 80 L155 95 L160 110" stroke="#f1c40f" stroke-width="3" fill="none" stroke-linecap="round"/>
-      </svg>
-      <div>
+      <div class="logo-icon-wrap">
+        <svg viewBox="0 0 200 200" width="44" height="44">
+          <defs>
+            <linearGradient id="peachGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffb347"/>
+              <stop offset="100%" stop-color="#ff6b35"/>
+            </linearGradient>
+            <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#7ed957"/>
+              <stop offset="100%" stop-color="#2ecc71"/>
+            </linearGradient>
+          </defs>
+          <circle cx="100" cy="110" r="60" fill="url(#peachGrad)" stroke="#e85d2a" stroke-width="3"/>
+          <path d="M100 50 Q120 20 150 30 Q130 60 100 50 Z" fill="url(#leafGrad)" stroke="#27ae60" stroke-width="2"/>
+          <g stroke="#fff" stroke-width="2.5" opacity="0.95" stroke-linecap="round">
+            <line x1="80" y1="90" x2="100" y2="110"/>
+            <line x1="120" y1="90" x2="100" y2="110"/>
+            <line x1="80" y1="130" x2="100" y2="110"/>
+            <line x1="120" y1="130" x2="100" y2="110"/>
+            <line x1="80" y1="90" x2="120" y2="90"/>
+            <line x1="80" y1="130" x2="120" y2="130"/>
+          </g>
+          <g fill="#fff">
+            <circle cx="80" cy="90" r="5"/>
+            <circle cx="120" cy="90" r="5"/>
+            <circle cx="100" cy="110" r="7"/>
+            <circle cx="80" cy="130" r="5"/>
+            <circle cx="120" cy="130" r="5"/>
+          </g>
+          <path d="M145 70 L150 85 L165 80 L155 95 L160 110" stroke="#f1c40f" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="logo-text">
         <h1>گردآلو</h1>
-        <span class="logo-sub">Gerdaloo AI v2.0</span>
+        <span class="logo-sub">Gerdaloo AI · v2.0</span>
       </div>
     </div>
     <div class="header-actions">
       <div class="memory-badge" id="memoryBadge" title="حافظه گردآلو">
-        🧠 <span id="memoryCount">0</span>
+        <span class="memory-icon">🧠</span>
+        <span id="memoryCount">0</span>
       </div>
-      <button id="voiceToggle" class="voice-toggle" title="روشن/خاموش کردن پاسخ صوتی">🔊</button>
+      <button id="voiceToggle" class="icon-btn voice-toggle" title="روشن/خاموش کردن پاسخ صوتی">🔊</button>
     </div>
   </header>
 
   <main class="container">
     <section class="hero">
-      <h2>به گردآلو خوش آمدی! 🍑</h2>
-      <p>دستیار هوشمند سایت زردآلو — متنی یا صوتی بپرس</p>
+      <h2>به گردآلو خوش آمدی <span class="wave">👋</span></h2>
+      <p>دستیار هوشمند سایت زردآلو — هر سوالی داری بپرس</p>
     </section>
 
-    <section class="chat-box">
+    <section class="chat-box glass">
       <div class="chat-messages" id="chatMessages">
         <div class="message bot">
           <span class="avatar">🍑</span>
@@ -58,28 +80,34 @@
       </div>
 
       <form class="chat-form" id="chatForm">
-        <button type="button" id="micBtn" class="mic-btn" title="ضبط صدا">🎤</button>
+        <button type="button" id="micBtn" class="icon-btn mic-btn" title="ضبط صدا">🎤</button>
         <input type="text" id="userInput" placeholder="پیامت را بنویس یا میکروفن را بزن..." autocomplete="off">
-        <button type="submit">ارسال</button>
+        <button type="submit" class="send-btn">
+          <span>ارسال</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
       </form>
     </section>
 
     <section class="quick-questions">
-      <p>سوالات پرتکرار:</p>
+      <p>✨ سوالات پرتکرار</p>
       <div class="chips">
-        <button class="chip" data-q="زردآلو چیه؟">زردآلو چیه؟</button>
-        <button class="chip" data-q="سازنده زردآلو کیست؟">سازنده کیست؟</button>
-        <button class="chip" data-q="چطور پروفایل بسازم؟">چطور پروفایل بسازم؟</button>
-        <button class="chip" data-q="سبد خرید چطور کار می‌کند؟">سبد خرید</button>
-        <button class="chip" data-q="آدرس سایت زردآلو چیست؟">آدرس سایت</button>
+        <button class="chip" data-q="زردآلو چیه؟">🍑 زردآلو چیه؟</button>
+        <button class="chip" data-q="سازنده زردآلو کیست؟">👨‍💻 سازنده کیست؟</button>
+        <button class="chip" data-q="چطور پروفایل بسازم؟">👤 چطور پروفایل بسازم؟</button>
+        <button class="chip" data-q="سبد خرید چطور کار می‌کند؟">🛒 سبد خرید</button>
+        <button class="chip" data-q="آدرس سایت زردآلو چیست؟">🌍 آدرس سایت</button>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <p>ساخته‌شده با ❤️ برای پروژه گردآلو | Gerdaloo AI</p>
+    <p>ساخته‌شده با <span class="heart">❤️</span> برای پروژه گردآلو</p>
   </footer>
 
   <script src="script.js"></script>
 </body>
-            </html>
+</html>
