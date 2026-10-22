@@ -8,26 +8,32 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
     body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; color: #f59e0b; font-size: 18px; border-bottom: 1px solid #334155; }
+    header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; color: #f59e0b; font-size: 18px; border-bottom: 1px solid #334155; flex-shrink: 0; }
     #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
     .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.6; animation: fade 0.3s; white-space: pre-wrap; }
     .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
     .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
-    .input-box { padding: 10px; background: #1e293b; display: flex; gap: 8px; }
-    input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; }
-    button { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; }
+    
+    /* استایل نوار ورودی */
+    .input-box { padding: 15px; background: #1e293b; display: flex; gap: 10px; flex-shrink: 0; border-top: 1px solid #334155; }
+    input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; font-size: 14px; }
+    button { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
+    button:hover { background: #d97706; }
     @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
   <header>🍑 گردآلو مینی</header>
+  
   <div id="chat">
     <div class="msg bot">سلام! من گردآلو هستم. چطور می‌تونم کمکت کنم؟ (می‌تونی بگی: داستان، ایمیل، کپشن، شعر یا متن)</div>
   </div>
+
   <div class="input-box">
-    <input id="i" placeholder="پیامت رو بنویس..." autocomplete="off">
+    <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
     <button id="btn">ارسال</button>
   </div>
+
   <script>
     const kb = {
       "سلام": "سلام! خوشحالم که باهام حرف میزنی 😊",
