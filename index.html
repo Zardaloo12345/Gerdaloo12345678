@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو | اتصال به DeepSeek</title>
+  <title>گردآلو | جامع‌ترین هوش مصنوعی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
@@ -13,124 +13,143 @@
     .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; animation: fade 0.3s; white-space: pre-wrap; word-break: break-word; }
     .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
     .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
-    
-    /* استایل باکس تفکر (Thinking) */
-    .thinking-box { background: #1e293b; color: #94a3b8; font-size: 12px; padding: 10px; border-radius: 8px; margin-bottom: 5px; border-right: 3px solid #f59e0b; font-style: italic; width: 100%; }
-    .thinking-title { font-weight: bold; color: #f59e0b; margin-bottom: 5px; font-style: normal; font-size: 11px; }
-
     .input-box { padding: 12px 15px; margin: 0 15px 60px 15px; background: #1e293b; display: flex; gap: 10px; flex-shrink: 0; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
     input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; font-size: 14px; }
     button#send { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
-    button#send:disabled { background: #64748b; cursor: not-allowed; }
-    
     @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-  <header>گردآلو (متصل به DeepSeek)</header>
+  <header>گردآلو | داستان‌نویسی، انشا، املا و سایت‌های کاربردی</header>
   
   <div id="chat">
-    <div class="msg bot">سلام! من گردآلو هستم. حالا به مدل DeepSeek مجهز شدم و می‌تونم با تفکر عمیق به سوالاتت جواب بدم. چی می‌خوای بدونی؟ 🍑</div>
+    <div class="msg bot">سلام! من گردآلو هستم. حالا می‌تونم برات داستان و انشا بنویسم، املای متن رو بررسی کنم و لینک سایت‌های مهم (کتب درسی و کاربردی) رو بهت بدم.
+دستورات:
+✍️ داستان: بنویس «داستان: [موضوع]»
+📝 انشا: بنویس «انشا: [موضوع]»
+📖 املا: بنویس «املا: [متن]»
+🔗 کتب درسی: بنویس «کتب درسی»
+🌐 سایت‌های کاربردی: بنویس «سایت‌های کاربردی»</div>
   </div>
 
   <div class="input-box">
-    <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
+    <input id="i" placeholder="پیامت رو بنویس..." autocomplete="off">
     <button id="send" onclick="sendMessage()">ارسال</button>
   </div>
 
   <script>
-    // ⚠️ کلید API خود را اینجا وارد کنید ⚠️
-    const API_KEY = "YOUR_DEEPSEEK_API_KEY"; 
-    const API_URL = "https://api.deepseek.com/chat/completions";
-    const MODEL = "deepseek-flash";
-
     const chat = document.getElementById('chat');
     const input = document.getElementById('i');
-    const sendBtn = document.getElementById('send');
-    let history = []; // برای حفظ حافظه چت
 
-    async function sendMessage() {
+    // ====== دیکشنری پایه ======
+    const globalKb = {
+      "سلام": "سلام! خوشحالم که باهام حرف میزنی. چطور می‌تونم کمکت کنم؟ 😊",
+      "سایت زردآلو": "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. 🍑",
+      "مسی": "لیونل مسی، اسطوره فوتبال آرژانتین و برنده ۸ توپ طلا است. 🇦🇷⚽",
+      "رونالدو": "کریستیانو رونالدو، ستاره پرتغالی و برنده ۵ توپ طلا است. 🇵🇹⚽",
+      "شادی": "شادی یک احساس مثبت و انرژی‌بخش است. 😊",
+      "غم": "غم یک احساس طبیعی است. به خودت اجازه بده که احساساتت رو تجربه کنی. ❤️"
+    };
+
+    // ====== تولید داستان ======
+    function generateStory(topic) {
+      const stories = {
+        "دوستی": `در دل یک جنگل سرسبز، دو دوست به نام‌های آرش و سارا زندگی می‌کردند. آرش پسری شجاع و سارا دختری مهربان بود. یک روز، سارا متوجه شد که یک پرنده کوچک بالش شکسته است و نمی‌تواند پرواز کند. آرش با دیدن پرنده گفت: «نگران نباش، با هم ازش مراقبت می‌کنیم.» آن‌ها هر روز به پرنده غذا می‌دادند و بالش را تمیز می‌کردند. بعد از چند هفته، پرنده سلامتی‌اش را به دست آورد و در آسمان آبی پرواز کرد. آرش و سارا با خوشحالی به هم نگاه کردند و فهمیدند که دوستی واقعی یعنی کنار هم بودن در سختی‌ها. 🕊️`,
+        "شجاعت": `روزی روزگاری، در یک روستای کوچک، پسری به نام رضا زندگی می‌کرد که از تاریکی می‌ترسید. یک شب، صدای گریه یک بچه گربه را از انبار شنید. رضا با وجود ترسش، چراغ‌قوه‌اش را برداشت و به سمت انبار رفت. بچه گربه بالای یک درخت گیر کرده بود. رضا با دست‌های لرزان اما قلبی محکم، بالا رفت و گربه را نجات داد. وقتی به خانه برگشت، مادرش پرسید: «از تاریکی نمی‌ترسیدی؟» رضا لبخند زد و گفت: «ترسیدم، اما کاری که درست بود را انجام دادم.» از آن روز به بعد، رضا فهمید که شجاعت یعنی ترسیدن اما ادامه دادن. 🦁`,
+        "امید": `در یک زمستان سرد، پیرمردی در خانه‌ای چوبی زندگی می‌کرد. او هر روز به پنجره نگاه می‌کرد و منتظر بهار بود. یک روز، دختر کوچکی از کنار خانه‌اش رد شد و پرسید: «چرا اینقدر غمگینی؟» پیرمرد گفت: «منتظر بهار هستم.» دخترک لبخند زد و یک گل کوچک کاغذی از جیبش درآورد و گفت: «بهار همیشه در قلب ماست، حتی اگر بیرون برف باشد.» پیرمرد با دیدن گل، لبخندی زد و فهمید که امید را نباید از دست داد. از آن روز، او هر روز یک گل کاغذی درست می‌کرد و به همسایه‌ها هدیه می‌داد. 🌸`
+      };
+      
+      if (stories[topic]) return `📖 **داستان درباره «${topic}»:**\n\n${stories[topic]}`;
+      return `📖 **داستان درباره «${topic}»:**\n\nروزی روزگاری، در دنیایی پر از شگفتی، ماجرایی درباره «${topic}» رخ داد. شخصیت‌های این داستان هر کدام درس‌هایی از زندگی را تجربه کردند. آن‌ها فهمیدند که «${topic}» بخشی از زندگی است و باید با آن روبرو شد. در پایان، همه با لبخند به گذشته نگاه کردند و قدر لحظه‌ها را دانستند. ✨`;
+    }
+
+    // ====== تولید انشا ======
+    function generateEssay(topic) {
+      return `📝 **انشا با موضوع «${topic}»:**\n\nمقدمه: «${topic}» یکی از مهم‌ترین موضوعاتی است که در زندگی با آن روبرو می‌شویم. در این انشا تلاش می‌کنیم تا جنبه‌های مختلف این موضوع را بررسی کنیم.\n\nبدنه: «${topic}» می‌تواند تأثیرات عمیقی بر زندگی ما داشته باشد. از یک سو، باعث رشد و پیشرفت می‌شود و از سوی دیگر، چالش‌هایی را به همراه دارد. برای درک بهتر این موضوع، باید به تجربه‌های شخصی و مشاهدات خود رجوع کنیم. بسیاری از افراد در مواجهه با «${topic}» درس‌های ارزشمندی می‌آموزند که در ادامه زندگی به کارشان می‌آید.\n\nنتیجه‌گیری: در نهایت، می‌توان گفت که «${topic}» بخشی از زندگی است و باید با آگاهی و پذیرش با آن روبرو شد. با نگاه مثبت و تلاش برای یادگیری، می‌توان از هر تجربه‌ای درس گرفت و به رشد شخصی دست یافت. 🍑`;
+    }
+
+    // ====== بررسی املا ======
+    function checkSpelling(text) {
+      const commonMistakes = {
+        "خواهه": "خواهد",
+        "میخوام": "می‌خواهم",
+        "نمیدونم": "نمی‌دانم",
+        "بچه ها": "بچه‌ها",
+        "کتابها": "کتاب‌ها",
+        "میرم": "می‌روم",
+        "باید": "باید (درست)",
+        "انشا": "انشا (درست)",
+        "داستان": "داستان (درست)"
+      };
+      
+      let corrected = text;
+      let mistakes = [];
+      
+      for (const [wrong, right] of Object.entries(commonMistakes)) {
+        if (text.includes(wrong)) {
+          corrected = corrected.replace(new RegExp(wrong, 'g'), right);
+          mistakes.push(`«${wrong}» → «${right}»`);
+        }
+      }
+      
+      if (mistakes.length > 0) {
+        return `📖 **بررسی املا:**\n\nمتن شما دارای اشکالات زیر بود:\n${mistakes.map(m => `• ${m}`).join('\n')}\n\n**متن اصلاح‌شده:**\n${corrected}`;
+      }
+      return `📖 **بررسی املا:**\n\nمتن شما از نظر املا صحیح به نظر می‌رسد. ✅\n\nمتن: ${text}`;
+    }
+
+    // ====== ارسال پیام ======
+    function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
 
-      // نمایش پیام کاربر
       chat.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
-      chat.scrollTop = chat.scrollHeight;
 
-      // افزودن به تاریخچه
-      history.push({ role: "user", content: text });
+      let reply = "";
 
-      // غیرفعال کردن دکمه ارسال
-      sendBtn.disabled = true;
-      sendBtn.textContent = "...";
-
-      // نمایش وضعیت تایپ
-      const typingDiv = document.createElement('div');
-      typingDiv.className = 'msg bot';
-      typingDiv.innerHTML = '<span class="typing" style="color:#f59e0b">در حال تفکر و پردازش...</span>';
-      chat.appendChild(typingDiv);
-      chat.scrollTop = chat.scrollHeight;
-
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`
-          },
-          body: JSON.stringify({
-            model: MODEL,
-            messages: [
-              { role: "system", content: "تو گردآلو هستی، یک دستیار هوشمند فارسی‌زبان. پاسخ‌هایت کامل، دقیق و با لحنی صمیمی باشد. همیشه به زبان فارسی جواب بده." },
-              ...history
-            ],
-            // فعال‌سازی قابلیت تفکر عمیق
-            thinking: { type: "enabled" },
-            reasoning_effort: "high",
-            stream: false
-          })
-        });
-
-        const data = await response.json();
-        typingDiv.remove();
-
-        if (data.choices && data.choices[0]) {
-          const message = data.choices[0].message;
-          const reply = message.content;
-          const reasoning = message.reasoning_content; // بخش تفکر مدل
-
-          let htmlResponse = '';
-
-          // اگر مدل فرآیند تفکر داشت، آن را در یک باکس نمایش بده
-          if (reasoning) {
-            htmlResponse += `
-              <div class="thinking-box">
-                <div class="thinking-title">🧠 فرآیند تفکر DeepSeek:</div>
-                ${reasoning.replace(/\n/g, '<br>')}
-              </div>
-            `;
-          }
-
-          // نمایش پاسخ نهایی
-          htmlResponse += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`;
-          chat.innerHTML += htmlResponse;
-
-          history.push({ role: "assistant", content: reply });
-        } else {
-          chat.innerHTML += `<div class="msg bot">خطا در دریافت پاسخ از هوش مصنوعی.</div>`;
-        }
-
-      } catch (error) {
-        typingDiv.remove();
-        chat.innerHTML += `<div class="msg bot">ارتباط برقرار نشد. کلید API یا اتصال اینترنت را بررسی کنید.</div>`;
-        console.error(error);
-      } finally {
-        sendBtn.disabled = false;
-        sendBtn.textContent = "ارسال";
-        chat.scrollTop = chat.scrollHeight;
+      // ۱. داستان
+      if (text.startsWith("داستان:") || text.startsWith("داستان :")) {
+        const topic = text.replace(/داستان\s*:/, "").trim();
+        reply = generateStory(topic || "دلخواه");
       }
+      // ۲. انشا
+      else if (text.startsWith("انشا:") || text.startsWith("انشا :")) {
+        const topic = text.replace(/انشا\s*:/, "").trim();
+        reply = generateEssay(topic || "دلخواه");
+      }
+      // ۳. املا
+      else if (text.startsWith("املا:") || text.startsWith("املا :")) {
+        const userText = text.replace(/املا\s*:/, "").trim();
+        reply = checkSpelling(userText);
+      }
+      // ۴. کتب درسی
+      else if (text.includes("کتب درسی") || text.includes("کتاب درسی")) {
+        reply = `📚 **سایت رسمی کتب درسی:**\n\nآدرس: https://chap.sch.ir\n\nاین پایگاه رسمی وزارت آموزش و پرورش است و نسخه الکترونیکی (PDF) تمام کتاب‌های درسی از ابتدایی تا متوسطه را به صورت رایگان در اختیار شما قرار می‌دهد. [citation:2][citation:6]`;
+      }
+      // ۵. سایت‌های کاربردی
+      else if (text.includes("سایت‌های کاربردی") || text.includes("سایت های کاربردی")) {
+        reply = `🌐 **سایت‌های کاربردی ایرانی:**\n\n• موتور جستجو گردو: gerdoo.me\n• نقشه و مسیریاب نشان: neshan.org\n• مسیریاب بلد: balad.ir\n• مترجم فرازین: faraazin.ir\n• تلوبیون (تلویزیون آنلاین): telewebion.com\n• فیلیمو: filimo.com\n• آپارات: aparat.com\n• تاریخ و اوقات شرعی: time.ir\n• پایگاه کتب درسی: chap.sch.ir [citation:3][citation:7]`;
+      }
+      // ۶. دیکشنری عادی
+      else {
+        for (const key in globalKb) {
+          if (text.includes(key)) { reply = globalKb[key]; break; }
+        }
+      }
+
+      // اگر پاسخ پیدا نشد
+      if (!reply) {
+        reply = "متأسفم، درباره این موضوع اطلاعاتی ندارم. 🍑 (برای داستان: «داستان: [موضوع]» | برای انشا: «انشا: [موضوع]» | برای املا: «املا: [متن]» | برای کتب درسی: «کتب درسی» | برای سایت‌های کاربردی: «سایت‌های کاربردی»)";
+      }
+
+      setTimeout(() => {
+        chat.innerHTML += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      }, 500);
+
+      chat.scrollTop = chat.scrollHeight;
     }
 
     input.addEventListener('keypress', (e) => {
