@@ -10,7 +10,7 @@
     body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
     header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; color: #f59e0b; font-size: 18px; border-bottom: 1px solid #334155; }
     #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 14px; line-height: 1.6; animation: fade 0.3s; }
+    .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.6; animation: fade 0.3s; white-space: pre-wrap; }
     .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
     .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
     form { padding: 10px; background: #1e293b; display: flex; gap: 8px; }
@@ -20,7 +20,7 @@
   </style>
 </head>
 <body>
-  <header>🍑 گردآلو مینی</header>
+  <header> گردآلو مینی</header>
   <div id="chat">
     <div class="msg bot">سلام! من گردآلو هستم. چطور می‌تونم کمکت کنم؟</div>
   </div>
@@ -36,17 +36,30 @@
       "پروفایل": "برای استفاده از زردآلو، اول باید پروفایل خودت رو بسازی 👤",
       "کالا": "برای ثبت کالا، از بخش «ثبت کالای جدید» در منو استفاده کن 📦",
       "بازار": "بخش بازار زردآلو محل خرید و فروش کالاست 🛒",
-      "خداحافظ": "خداحافظ! بازم بیا پیشم 👋"
+      "خداحافظ": "خداحافظ! بازم بیا پیشم 👋",
+      
+      // === بخش نوشتن متن ===
+      "داستان": "📖 **داستان کوتاه:**\nدر دل شب، ستاره‌ای کوچک تصمیم گرفت از آسمان جدا شود تا دنیای زیر پایش را ببیند. او به دریا رسید، به جنگل رفت و در نهایت فهمید که زیبایی واقعی در نورانی کردن آسمان برای دیگران است.",
+      "ایمیل": "📧 **متن ایمیل:**\nموضوع: درخواست همکاری\n\nبا سلام و احترام،\nامیدوارم این پیام شما را در سلامت کامل بیابد. بنده به منظور بررسی فرصت‌های همکاری مشترک، درخواست یک جلسه حضوری یا آنلاین دارم. لطفاً در صورت تمایل، زمان مناسب خود را اعلام فرمایید.\n\nبا تشکر و احترام",
+      "کپشن": "📱 **کپشن اینستاگرام:**\nزندگی مثل یک کتاب است؛ بعضی فصل‌ها را باید بارها خواند تا معنایش را بفهمی. صفحه جدید را با امید باز کن... ✨\n\n#زندگی #امید #انگیزه #کتاب_زندگی",
+      "شعر": "📜 **شعر کوتاه:**\nدر این شب تار، در این دل خسته،\nبه دنبال نوری، میان هزار پنجره بسته.\nمگر می‌شود پرواز کرد بی بال،\nمگر می‌شود عاشق شد و ماند بی حال.",
+      "متن": "📝 **متن انگیزشی:**\nهیچ‌وقت دیر نیست. هر روزی که از خواب بیدار می‌شوی، یک فرصت تازه است برای شروع دوباره. به خودت ایمان داشته باش و قدم اول را بردار؛ بقیه راه خودش باز می‌شود. 🚀"
     };
     const chat = document.getElementById('chat'), form = document.getElementById('f'), input = document.getElementById('i');
+    
     form.onsubmit = (e) => {
       e.preventDefault();
       const text = input.value.trim(); if (!text) return;
       chat.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
-      let reply = "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام 🍑";
+      
+      let reply = "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام 🍑 (می‌تونی بگی: داستان، ایمیل، کپشن، شعر یا متن)";
       for (const key in kb) { if (text.includes(key)) { reply = kb[key]; break; } }
-      setTimeout(() => { chat.innerHTML += `<div class="msg bot">${reply}</div>`; chat.scrollTop = chat.scrollHeight; }, 400);
+      
+      setTimeout(() => { 
+        chat.innerHTML += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`; 
+        chat.scrollTop = chat.scrollHeight; 
+      }, 400);
       chat.scrollTop = chat.scrollHeight;
     };
   </script>
