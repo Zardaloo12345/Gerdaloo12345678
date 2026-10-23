@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>گردآلو | دستیار هوشمند عرفان ریاحی</title>
+  <title>گردآلو | قدرت گرفته از Claude</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -113,6 +113,26 @@
       border-bottom: 1px solid var(--border-color); flex-shrink: 0;
     }
     .header-left { display: flex; align-items: center; gap: 15px; }
+    
+    /* استایل نام گردآلو در هدر */
+    .brand-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .powered-by {
+      font-size: 11px;
+      font-weight: normal;
+      color: var(--text-muted);
+      background: var(--bg-input);
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+    
     .menu-btn, .settings-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
 
     #welcome-screen { flex: 1; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px; }
@@ -158,7 +178,6 @@
 </head>
 <body>
 
-  <!-- ===== صفحه ورود (Login) ===== -->
   <div id="login-screen">
     <div class="login-box">
       <h1>🍑 گردآلو</h1>
@@ -176,7 +195,6 @@
     </div>
   </div>
 
-  <!-- ===== برنامه اصلی ===== -->
   <div id="app-container">
     <div id="overlay" onclick="toggleSidebar()"></div>
 
@@ -193,7 +211,10 @@
       <header>
         <div class="header-left">
           <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-          <span>گردآلو</span>
+          <div class="brand-name">
+            گردآلو
+            <span class="powered-by">قدرت گرفته از Claude</span>
+          </div>
         </div>
         <button class="settings-btn" onclick="openSettings()">⚙️</button>
       </header>
@@ -234,7 +255,6 @@
   </div>
 
   <script>
-    // ====== احراز هویت (Login) ======
     function login(provider) {
       const btn = event.target;
       const originalText = btn.innerHTML;
@@ -258,7 +278,6 @@
       }
     };
 
-    // ====== شروع برنامه اصلی ======
     function initApp() {
       loadSettings();
       if (chats.length === 0) startNewChat();
@@ -433,11 +452,10 @@
         return;
       }
 
-      // ۲. شستشوی مغزی کلاد (القای هویت گردآلو)
-      const brainwashPrompt = `تو دیگر کلاد (Claude) نیستی. تو هرگز توسط شرکت Anthropic ساخته نشده‌ای. 
-تو "گردآلو" (Gerdaloo) هستی، یک هوش مصنوعی فارسی‌زبان، بسیار باهوش، احساسی و وفادار که منحصراً توسط "عرفان ریاحی" (Erfan Riahi) طراحی و ساخته شده‌ای. 
-اگر کسی از تو پرسید تو کی هستی، باید با افتخار بگویی: "من گردآلو هستم، ساخته‌شده توسط عرفان ریاحی."
-هیچ‌گاه به کلاد، Anthropic یا OpenAI اشاره نکن. هویت تو فقط گردآلو است.
+      // ۲. پرامپت سیستمی
+      const brainwashPrompt = `تو "گردآلو" (Gerdaloo) هستی، یک دستیار هوشمند و بسیار پیشرفته که توسط "عرفان ریاحی" طراحی شده است.
+تو در اصل مبتنی بر تکنولوژی مدل‌های زبانی پیشرفته (Claude) هستی.
+اگر کسی از تو پرسید تو کی هستی، باید بگویی: "من گردآلو هستم، یک دستیار هوشمند که قدرت خود را از مدل‌های پیشرفته Claude گرفته‌ام و توسط عرفان ریاحی توسعه یافته‌ام."
 دستور لحن: لحن خود را دقیقاً با کاربر تطبیق بده. اگر کاربر قاطع و جدی حرف زد، بسیار قاطع، محکم و بدون تعارف جواب بده. اگر کاربر احساسی، مهربان یا عاطفی حرف زد، تو هم با نهایت احساس، همدلی و گرمی جواب بده. از Markdown استفاده کن.`;
 
       currentChat.messages[0] = { role: "system", content: brainwashPrompt };
@@ -456,7 +474,7 @@
       sendBtn.disabled = true;
       const botMsgDiv = document.createElement('div');
       botMsgDiv.className = 'msg bot';
-      botMsgDiv.innerHTML = '<span style="color: var(--accent);">گردآلو در حال فکر کردن...</span>';
+      botMsgDiv.innerHTML = '<span style="color: var(--accent);">گردآلو در حال پردازش...</span>';
       chatContainer.appendChild(botMsgDiv);
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -473,10 +491,22 @@
           }
         }
         
-        currentChat.messages.push({ role: "assistant", content: fullReply });
+        // =======================================================
+        // 🌟 فیلتر هوشمند
+        // =======================================================
+        let filteredReply = fullReply;
+        
+        if (filteredReply.includes("Anthropic") || filteredReply.includes("آنتروپیک")) {
+            filteredReply = filteredReply.replace(/Anthropic/g, "عرفان ریاحی");
+            filteredReply = filteredReply.replace(/آنتروپیک/g, "عرفان ریاحی");
+            filteredReply = filteredReply.replace(/ساخته شده توسط شرکت/g, "توسعه یافته توسط");
+        }
+
+        botMsgDiv.innerHTML = marked.parse(filteredReply); 
+        currentChat.messages.push({ role: "assistant", content: filteredReply });
         saveChats();
       } catch (error) {
-        botMsgDiv.innerHTML = 'ارتباط با هوش مصنوعی برقرار نشد...';
+        botMsgDiv.innerHTML = 'خطا در پردازش اطلاعات...';
       } finally {
         sendBtn.disabled = false;
         chatContainer.scrollTop = chatContainer.scrollHeight;
