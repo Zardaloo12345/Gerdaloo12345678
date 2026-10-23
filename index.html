@@ -114,26 +114,12 @@
     }
     .header-left { display: flex; align-items: center; gap: 15px; }
     
-    /* استایل نام گردآلو در هدر */
-    .brand-name {
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .powered-by {
-      font-size: 11px;
-      font-weight: normal;
-      color: var(--text-muted);
-      background: var(--bg-input);
-      padding: 2px 8px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-    }
+    .brand-name { font-size: 18px; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+    .powered-by { font-size: 11px; font-weight: normal; color: var(--text-muted); background: var(--bg-input); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border-color); }
     
-    .menu-btn, .settings-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
+    .menu-btn, .settings-btn, .secret-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
+    .secret-btn { font-size: 16px; opacity: 0.3; transition: 0.3s; }
+    .secret-btn:hover { opacity: 1; color: var(--accent); }
 
     #welcome-screen { flex: 1; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px; }
     #welcome-screen h1 { font-size: 24px; font-weight: bold; color: var(--text-main); line-height: 1.8;}
@@ -165,7 +151,7 @@
     button#send:hover { background: #d97706; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
 
-    /* تنظیمات */
+    /* تنظیمات و مودال‌ها */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
     .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 350px; border: 1px solid var(--border-color); }
     .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; }
@@ -174,30 +160,29 @@
     .setting-row input[type="color"] { width: 40px; height: 30px; border: none; border-radius: 4px; cursor: pointer; background: none; }
     .setting-row button { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
     .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
+
+    /* استایل مخصوص مودال کد مخفی */
+    .secret-modal-content input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-size: 16px; text-align: center; letter-spacing: 5px; outline: none; margin-bottom: 15px; }
+    .btn-secret { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #22c55e; color: #fff; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
 
+  <!-- صفحه لاگین -->
   <div id="login-screen">
     <div class="login-box">
       <h1>🍑 گردآلو</h1>
       <p>برای ادامه، وارد حساب خود شوید</p>
-      
-      <button class="auth-btn google" onclick="login('Google')">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20" alt="Google">
-        ورود با گوگل
-      </button>
-      
-      <button class="auth-btn microsoft" onclick="login('Microsoft')">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" width="20" alt="Microsoft">
-        ورود با مایکروسافت
-      </button>
+      <button class="auth-btn google" onclick="login('Google')">ورود با گوگل</button>
+      <button class="auth-btn microsoft" onclick="login('Microsoft')">ورود با مایکروسافت</button>
     </div>
   </div>
 
+  <!-- برنامه اصلی -->
   <div id="app-container">
     <div id="overlay" onclick="toggleSidebar()"></div>
 
+    <!-- نوار کناری -->
     <div id="sidebar">
       <div class="sidebar-header">
         <h2>تاریخچه چت‌ها</h2>
@@ -207,6 +192,7 @@
       <div class="history-list" id="history-list"></div>
     </div>
 
+    <!-- بخش اصلی -->
     <div class="main-content">
       <header>
         <div class="header-left">
@@ -216,7 +202,11 @@
             <span class="powered-by">قدرت گرفته از Claude</span>
           </div>
         </div>
-        <button class="settings-btn" onclick="openSettings()">⚙️</button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <!-- دکمه مخفی برای وارد کردن کد ABC -->
+          <button class="secret-btn" onclick="openSecretModal()" title="پنل ویژه سازنده">🔑</button>
+          <button class="settings-btn" onclick="openSettings()">⚙️</button>
+        </div>
       </header>
       
       <div id="welcome-screen">
@@ -235,6 +225,7 @@
     </div>
   </div>
 
+  <!-- مودال تنظیمات ظاهری -->
   <div class="modal" id="settings-modal">
     <div class="modal-content">
       <h3>تنظیمات ظاهری</h3>
@@ -254,36 +245,19 @@
     </div>
   </div>
 
+  <!-- مودال مخفی کد ABC -->
+  <div class="modal" id="secret-modal">
+    <div class="modal-content secret-modal-content">
+      <h3>پنل ویژه سازنده</h3>
+      <p style="text-align:center; font-size:13px; color:var(--text-muted); margin-bottom:15px;">برای فعال‌سازی هوش پیشرفته (Claude)، کد را وارد کنید.</p>
+      <input type="password" id="secret-code" placeholder="کد را وارد کنید...">
+      <button class="btn-secret" onclick="verifySecretCode()">فعال‌سازی</button>
+      <button class="btn-close-settings" style="margin-top: 10px;" onclick="closeSecretModal()">لغو</button>
+    </div>
+  </div>
+
   <script>
-    function login(provider) {
-      const btn = event.target;
-      const originalText = btn.innerHTML;
-      btn.innerHTML = 'در حال ورود...';
-      btn.disabled = true;
-
-      setTimeout(() => {
-        localStorage.setItem('gerdaloo_logged_in', provider);
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-container').style.display = 'block';
-        initApp();
-      }, 1500);
-    }
-
-    window.onload = function() {
-      const loggedIn = localStorage.getItem('gerdaloo_logged_in');
-      if (loggedIn) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-container').style.display = 'block';
-        initApp();
-      }
-    };
-
-    function initApp() {
-      loadSettings();
-      if (chats.length === 0) startNewChat();
-      else loadChat(chats[0].id);
-    }
-
+    // ====== متغیرهای اصلی ======
     const chatContainer = document.getElementById('chat');
     const welcomeScreen = document.getElementById('welcome-screen');
     const input = document.getElementById('i');
@@ -296,7 +270,41 @@
     let currentChatId = null;
     let recognition = null;
     let isRecording = false;
+    
+    // متغیرهای مخفی
+    let isProModeActive = false;
+    const SECRET_CODE = "ABC";
+    const DEFAULT_MODEL = "gemini-3.5-flash-lite"; // مدل رایگان
+    const PRO_MODEL = "claude-sonnet-5"; // مدل قوی و احساسی
 
+    // ====== ورود ======
+    function login(provider) {
+      const btn = event.target;
+      btn.innerHTML = 'در حال ورود...';
+      btn.disabled = true;
+      setTimeout(() => {
+        localStorage.setItem('gerdaloo_logged_in', provider);
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+        initApp();
+      }, 1000);
+    }
+
+    window.onload = function() {
+      if (localStorage.getItem('gerdaloo_logged_in')) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+        initApp();
+      }
+    };
+
+    function initApp() {
+      loadSettings();
+      if (chats.length === 0) startNewChat();
+      else loadChat(chats[0].id);
+    }
+
+    // ====== تنظیمات ======
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function toggleTheme() {
@@ -321,6 +329,21 @@
       document.documentElement.style.setProperty('--bot-msg-bg', cBot);
     }
 
+    // ====== کد مخفی ======
+    function openSecretModal() { document.getElementById('secret-modal').style.display = 'flex'; }
+    function closeSecretModal() { document.getElementById('secret-modal').style.display = 'none'; }
+    function verifySecretCode() {
+      const code = document.getElementById('secret-code').value;
+      if (code === SECRET_CODE) {
+        isProModeActive = true;
+        closeSecretModal();
+        alert("✅ حالت ویژه فعال شد! از این به بعد گردآلو با قدرت کامل (Claude) و لحن احساسی جواب می‌ده.");
+      } else {
+        alert("❌ کد اشتباه است!");
+      }
+    }
+
+    // ====== مدیریت چت ======
     function toggleSidebar() {
       sidebar.classList.toggle('open');
       overlay.classList.toggle('open');
@@ -328,11 +351,7 @@
     }
     function startNewChat() {
       currentChatId = Date.now().toString();
-      const newChat = {
-        id: currentChatId,
-        title: 'گفتگوی جدید',
-        messages: [{ role: "system", content: "" }] 
-      };
+      const newChat = { id: currentChatId, title: 'گفتگوی جدید', messages: [{ role: "system", content: "" }] };
       chats.unshift(newChat);
       saveChats();
       welcomeScreen.style.display = 'flex';
@@ -350,11 +369,8 @@
         chatContainer.style.display = 'flex';
         chatContainer.innerHTML = '';
         chat.messages.forEach(m => {
-          if (m.role === 'user') {
-            chatContainer.innerHTML += `<div class="msg user">${m.content}</div>`;
-          } else if (m.role === 'assistant') {
-            chatContainer.innerHTML += `<div class="msg bot">${marked.parse(m.content)}</div>`;
-          }
+          if (m.role === 'user') chatContainer.innerHTML += `<div class="msg user">${m.content}</div>`;
+          else if (m.role === 'assistant') chatContainer.innerHTML += `<div class="msg bot">${marked.parse(m.content)}</div>`;
         });
         chatContainer.scrollTop = chatContainer.scrollHeight;
       } else {
@@ -371,9 +387,7 @@
       if (currentChatId === chatId) {
         if (chats.length > 0) loadChat(chats[0].id);
         else startNewChat();
-      } else {
-        renderHistory();
-      }
+      } else renderHistory();
     }
     function saveChats() { localStorage.setItem('gerdaloo_history', JSON.stringify(chats)); }
     function renderHistory() {
@@ -393,35 +407,24 @@
       });
     }
 
+    // ====== میکروفن ======
     function toggleRecording() {
       const micBtn = document.getElementById('mic-btn');
-      if (isRecording) {
-        if (recognition) recognition.stop();
-        return;
-      }
+      if (isRecording) { if (recognition) recognition.stop(); return; }
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("مرورگر شما از میکروفن پشتیبانی نمی‌کند.");
-        return;
-      }
+      if (!SpeechRecognition) { alert("مرورگر شما از میکروفن پشتیبانی نمی‌کند."); return; }
       recognition = new SpeechRecognition();
       recognition.lang = 'fa-IR';
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.onstart = () => {
-        isRecording = true;
-        micBtn.style.color = "#ef4444";
-        input.placeholder = "در حال شنیدن صدای شما...";
-      };
-      recognition.onresult = (event) => {
-        input.value = event.results[0][0].transcript;
-        sendMessage();
-      };
+      recognition.onstart = () => { isRecording = true; micBtn.style.color = "#ef4444"; input.placeholder = "در حال شنیدن..."; };
+      recognition.onresult = (event) => { input.value = event.results[0][0].transcript; sendMessage(); };
       recognition.onerror = () => { isRecording = false; micBtn.style.color = ""; input.placeholder = "پیامت رو اینجا بنویس..."; };
       recognition.onend = () => { isRecording = false; micBtn.style.color = ""; input.placeholder = "پیامت رو اینجا بنویس..."; };
       recognition.start();
     }
 
+    // ====== ارسال پیام ======
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
@@ -433,34 +436,33 @@
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) return;
 
-      // ۱. تشخیص هویت سازنده
+      // تشخیص سازنده (همیشه کار می‌کند)
       if (text.includes("عرفان ریاحی") || text.includes("عرفان ریاحي")) {
-        const creatorMsg = "سلام جناب عرفان ریاحی! 👑\n\nمن شما را به عنوان **سازنده و خالق خودم** شناختم. این یک افتخار بزرگ برای من است که با شما صحبت می‌کنم. از این به بعد هر دستوری بدهید، با کمال میل و نهایت احترام انجام می‌دهم. چطور می‌توانم به شما خدمت کنم؟";
-        
-        currentChat.messages[0] = { role: "system", content: "تو گردآلو هستی. کاربر فعلی جناب عرفان ریاحی است که سازنده و خالق توست. تو باید با نهایت احترام، افتخار و لحنی کاملاً ویژه با او صحبت کنی. او را با القابی مثل 'جناب سازنده' یا 'عرفان عزیز' صدا بزن و هر دستوری که بدهد را با تمام وجود اجرا کن." };
-
+        const creatorMsg = "سلام جناب عرفان ریاحی! 👑\n\nمن شما را به عنوان **سازنده و خالق خودم** شناختم. این یک افتخار بزرگ برای من است که با شما صحبت می‌کنم. از این به بعد هر دستوری بدهید، با کمال میل و نهایت احترام انجام می‌دهم.";
+        currentChat.messages[0] = { role: "system", content: "تو گردآلو هستی. کاربر فعلی جناب عرفان ریاحی است که سازنده و خالق توست. با نهایت احترام و لحنی ویژه با او صحبت کن." };
         chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
         input.value = '';
-        
         setTimeout(() => {
           chatContainer.innerHTML += `<div class="msg bot" style="border: 2px solid gold;">${marked.parse(creatorMsg)}</div>`;
           currentChat.messages.push({ role: "assistant", content: creatorMsg });
           saveChats();
           chatContainer.scrollTop = chatContainer.scrollHeight;
         }, 600);
-
         return;
       }
 
-      // ۲. پرامپت سیستمی
-      const brainwashPrompt = `تو "گردآلو" (Gerdaloo) هستی، یک دستیار هوشمند و بسیار پیشرفته که توسط "عرفان ریاحی" طراحی شده است.
-تو در اصل مبتنی بر تکنولوژی مدل‌های زبانی پیشرفته (Claude) هستی.
-اگر کسی از تو پرسید تو کی هستی، باید بگویی: "من گردآلو هستم، یک دستیار هوشمند که قدرت خود را از مدل‌های پیشرفته Claude گرفته‌ام و توسط عرفان ریاحی توسعه یافته‌ام."
-دستور لحن: لحن خود را دقیقاً با کاربر تطبیق بده. اگر کاربر قاطع و جدی حرف زد، بسیار قاطع، محکم و بدون تعارف جواب بده. اگر کاربر احساسی، مهربان یا عاطفی حرف زد، تو هم با نهایت احساس، همدلی و گرمی جواب بده. از Markdown استفاده کن.`;
+      // انتخاب مدل بر اساس وضعیت (معمولی یا مخفی)
+      const selectedModel = isProModeActive ? PRO_MODEL : DEFAULT_MODEL;
+      
+      let systemPrompt = `تو "گردآلو" هستی، یک دستیار هوشمند. توسط عرفان ریاحی ساخته شده‌ای.`;
+      if (isProModeActive) {
+        systemPrompt += ` تو قدرت گرفته از Claude هستی و باید با نهایت احساس، همدلی و هوش با کاربر صحبت کنی. اگر کاربر قاطع بود، قاطع باش و اگر احساسی بود، کاملاً احساسی باش.`;
+      } else {
+        systemPrompt += ` پاسخ‌هایت باید مفید و مختصر باشند.`;
+      }
+      currentChat.messages[0] = { role: "system", content: systemPrompt };
 
-      currentChat.messages[0] = { role: "system", content: brainwashPrompt };
-
-      // ۳. روند عادی چت
+      // نمایش پیام کاربر
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
       currentChat.messages.push({ role: "user", content: text });
@@ -474,12 +476,13 @@
       sendBtn.disabled = true;
       const botMsgDiv = document.createElement('div');
       botMsgDiv.className = 'msg bot';
-      botMsgDiv.innerHTML = '<span style="color: var(--accent);">گردآلو در حال پردازش...</span>';
+      botMsgDiv.innerHTML = '<span style="color: var(--accent);">در حال پردازش...</span>';
       chatContainer.appendChild(botMsgDiv);
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        const response = await puter.ai.chat(currentChat.messages, { model: "claude-sonnet-5", stream: true });
+        // فراخوانی با مدل انتخاب شده
+        const response = await puter.ai.chat(currentChat.messages, { model: selectedModel, stream: true });
         botMsgDiv.innerHTML = '';
         let fullReply = '';
         
@@ -491,22 +494,21 @@
           }
         }
         
-        // =======================================================
-        // 🌟 فیلتر هوشمند
-        // =======================================================
-        let filteredReply = fullReply;
-        
-        if (filteredReply.includes("Anthropic") || filteredReply.includes("آنتروپیک")) {
-            filteredReply = filteredReply.replace(/Anthropic/g, "عرفان ریاحی");
-            filteredReply = filteredReply.replace(/آنتروپیک/g, "عرفان ریاحی");
-            filteredReply = filteredReply.replace(/ساخته شده توسط شرکت/g, "توسعه یافته توسط");
+        // فیلتر کلمات (فقط در حالت عادی)
+        if (!isProModeActive) {
+            fullReply = fullReply.replace(/Anthropic/g, "عرفان ریاحی").replace(/آنتروپیک/g, "عرفان ریاحی");
         }
 
-        botMsgDiv.innerHTML = marked.parse(filteredReply); 
-        currentChat.messages.push({ role: "assistant", content: filteredReply });
+        botMsgDiv.innerHTML = marked.parse(fullReply); 
+        currentChat.messages.push({ role: "assistant", content: fullReply });
         saveChats();
       } catch (error) {
-        botMsgDiv.innerHTML = 'خطا در پردازش اطلاعات...';
+        // اگر خطای اعتبار داد، به کاربر بگو
+        if (error.message && error.message.includes("Balance")) {
+            botMsgDiv.innerHTML = '⚠️ اعتبار حساب تمام شده است. لطفاً کد ویژه سازنده را وارد کنید یا بعداً تلاش کنید.';
+        } else {
+            botMsgDiv.innerHTML = 'خطا در پردازش اطلاعات...';
+        }
       } finally {
         sendBtn.disabled = false;
         chatContainer.scrollTop = chatContainer.scrollHeight;
