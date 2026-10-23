@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>گردآلو | نسخه نهایی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
@@ -104,7 +104,7 @@
     }
     #welcome-screen h1 { font-size: 32px; font-weight: bold; color: var(--text-main); }
 
-    /* محیط چت: فقط این بخش اسکرول می‌شود */
+    /* محیط چت */
     #chat { 
       flex: 1; 
       overflow-y: auto; 
@@ -140,9 +140,9 @@
 
     .msg img { max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; }
 
-    /* ===== نوار ورودی (چسبیده به پایین) ===== */
+    /* ===== نوار ورودی ===== */
     .input-wrapper {
-      padding: 10px 15px 15px 15px;
+      padding: 10px 15px 40px 15px;
       background: var(--bg-main);
       flex-shrink: 0;
       width: 100%;
@@ -151,11 +151,11 @@
     .input-box { 
       background: var(--bg-input); 
       display: flex; 
-      gap: 10px; 
+      gap: 8px; /* فاصله بین دکمه‌ها */
       border-radius: 12px; 
       border: 1px solid var(--border-color); 
       align-items: center;
-      padding: 8px 12px;
+      padding: 8px;
       width: 100%;
       max-width: 900px;
       margin: 0 auto;
@@ -169,11 +169,33 @@
     .icon-btn:hover { color: var(--accent); }
     .icon-btn.active { color: var(--accent); }
     
-    input { flex: 1; padding: 12px 8px; border-radius: 8px; border: none; outline: none; background: transparent; color: var(--text-main); font-size: 14px; }
-    button#send { padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: bold; cursor: pointer; font-size: 14px; }
+    input { 
+      flex: 1; 
+      padding: 12px 8px; 
+      border-radius: 8px; 
+      border: none; 
+      outline: none; 
+      background: transparent; 
+      color: var(--text-main); 
+      font-size: 14px; 
+    }
+    
+    /* دکمه ارسال کاملاً مشخص و بزرگ */
+    button#send { 
+      padding: 10px 25px; 
+      border-radius: 8px; 
+      border: none; 
+      background: var(--accent); 
+      color: #000; 
+      font-weight: bold; 
+      font-size: 15px; 
+      cursor: pointer; 
+      flex-shrink: 0;
+    }
+    button#send:hover { background: #d97706; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
 
-    /* تنظیمات */
+    /* ===== تنظیمات ===== */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
     .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 350px; border: 1px solid var(--border-color); }
     .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; }
@@ -183,6 +205,7 @@
     .setting-row button { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
     .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
 
+    /* نشانگرها */
     .mode-indicator {
       display: none; background: var(--accent); color: #000;
       font-size: 12px; padding: 4px 10px; border-radius: 20px;
@@ -197,6 +220,7 @@
   <div id="overlay" onclick="toggleSidebar()"></div>
   <div class="mode-indicator" id="mode-indicator">حالت فعال است</div>
 
+  <!-- نوار کناری -->
   <div id="sidebar">
     <div class="sidebar-header">
       <h2>تاریخچه چت‌ها</h2>
@@ -206,6 +230,7 @@
     <div class="history-list" id="history-list"></div>
   </div>
 
+  <!-- بخش اصلی -->
   <div class="main-content">
     <header>
       <div class="header-left">
@@ -221,7 +246,7 @@
 
     <div id="chat"></div>
 
-    <!-- نوار ورودی که دقیقاً به پایین چسبیده -->
+    <!-- نوار ورودی با دکمه ارسال کاملاً مشخص -->
     <div class="input-wrapper">
       <div class="input-box">
         <button class="icon-btn" onclick="document.getElementById('file-input').click()" title="پیوست عکس">📎</button>
@@ -234,6 +259,8 @@
         <button class="icon-btn" id="web-btn" onclick="toggleWebMode()" title="جستجوی وب">🌐</button>
         
         <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
+        
+        <!-- دکمه ارسال -->
         <button id="send" onclick="sendMessage()">ارسال</button>
       </div>
     </div>
@@ -311,7 +338,7 @@
       document.documentElement.style.setProperty('--bot-msg-text', cFont);
     }
 
-    // نوار کناری و چت‌ها
+    // نوار کناری
     function toggleSidebar() {
       sidebar.classList.toggle('open');
       overlay.classList.toggle('open');
@@ -468,6 +495,7 @@
         botMsgDiv.className = 'msg bot';
         botMsgDiv.innerHTML = '<span style="color: var(--accent);">🎨 در حال ساخت تصویر...</span>';
         chatContainer.appendChild(botMsgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
           const result = await puter.ai.chat(text, { model: "gemini-3.1-flash-image-preview" });
@@ -500,6 +528,7 @@
         botMsgDiv.className = 'msg bot';
         botMsgDiv.innerHTML = '<span style="color: var(--accent);">📄 در حال خواندن فایل...</span>';
         chatContainer.appendChild(botMsgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
           const response = await puter.ai.chat([{ role: "user", content: [{ type: "file", puter_path: currentDocPath }, { type: "text", text: text || "این سند را برای من خلاصه کن." }] }], { model: "claude-sonnet-5", stream: true });
@@ -535,6 +564,7 @@
         botMsgDiv.className = 'msg bot';
         botMsgDiv.innerHTML = '<span style="color: #3b82f6;">🌐 در حال جستجو در اینترنت...</span>';
         chatContainer.appendChild(botMsgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
           const response = await puter.ai.chat(text, { model: "openai/gpt-5.6-luna", tools: [{ type: "web_search" }], stream: true });
@@ -570,6 +600,7 @@
         botMsgDiv.className = 'msg bot';
         botMsgDiv.innerHTML = '<span style="color: var(--accent);">در حال تحلیل عکس...</span>';
         chatContainer.appendChild(botMsgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
           const response = await puter.ai.chat(text || "این عکس را توصیف کن.", currentImageData, { model: "claude-sonnet-5", stream: true });
@@ -611,6 +642,7 @@
       botMsgDiv.className = 'msg bot';
       botMsgDiv.innerHTML = '<span style="color: var(--accent);">در حال فکر کردن...</span>';
       chatContainer.appendChild(botMsgDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
         const response = await puter.ai.chat(currentChat.messages, { model: "claude-sonnet-5", stream: true });
