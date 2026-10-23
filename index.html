@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو | با تنظیمات ظاهری</title>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+  <title>گردآلو | نسخه پیشرفته</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&family=Lalezar&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <style>
-    /* ====== متغیرهای رنگ (برای تم) ====== */
+    /* ====== متغیرهای رنگ و استایل (برای تنظیمات) ====== */
     :root {
       --bg-main: #0f172a;
       --bg-header: #1e293b;
@@ -19,13 +19,14 @@
       --border-color: #334155;
       --accent: #f59e0b;
       
-      /* رنگ‌های پیام (قابل تغییر) */
       --user-msg-bg: #1e40af;
       --bot-msg-bg: #ffffff;
       --bot-msg-text: #0f172a;
+      
+      --font-size: 14px;
+      --font-family: 'Vazirmatn', sans-serif;
     }
 
-    /* حالت روشن */
     body.light-mode {
       --bg-main: #f1f5f9;
       --bg-header: #ffffff;
@@ -37,8 +38,13 @@
       --border-color: #cbd5e1;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
-    body { background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; transition: background 0.3s, color 0.3s; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      background: var(--bg-main); color: var(--text-main); 
+      height: 100vh; display: flex; overflow: hidden; 
+      transition: background 0.3s, color 0.3s; 
+      font-family: var(--font-family);
+    }
 
     /* ===== نوار کناری (تاریخچه) ===== */
     #sidebar {
@@ -48,7 +54,6 @@
       display: flex; flex-direction: column; border-left: 1px solid var(--border-color);
     }
     #sidebar.open { transform: translateX(0); }
-
     #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
     #overlay.open { display: block; }
 
@@ -59,17 +64,30 @@
     .new-chat-btn {
       margin: 15px; padding: 12px; background: var(--accent); color: #000;
       border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;
+      transition: 0.2s;
     }
+    .new-chat-btn:hover { background: #d97706; }
 
     .history-list { flex: 1; overflow-y: auto; padding: 0 10px 20px 10px; }
+    
+    /* آیتم تاریخچه */
     .history-item {
+      display: flex; justify-content: space-between; align-items: center;
       padding: 12px; margin-bottom: 8px; background: var(--bg-main);
       border-radius: 8px; font-size: 13px; color: var(--text-muted);
-      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      border: 1px solid transparent; transition: 0.2s;
+      cursor: pointer; border: 1px solid transparent; transition: 0.2s;
     }
     .history-item:hover { background: var(--border-color); }
     .history-item.active { border-color: var(--accent); background: var(--border-color); color: var(--text-main); }
+    .history-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; pointer-events: none; }
+    
+    /* دکمه حذف چت */
+    .delete-chat-btn {
+      background: none; border: none; color: #ef4444; cursor: pointer;
+      font-size: 14px; display: none; padding: 2px 5px; border-radius: 4px;
+    }
+    .delete-chat-btn:hover { background: rgba(239, 68, 68, 0.2); }
+    .history-item:hover .delete-chat-btn { display: block; }
 
     /* ===== بخش اصلی ===== */
     .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; width: 100%; position: relative; }
@@ -90,23 +108,27 @@
     }
     #welcome-screen h1 {
       font-size: 32px; font-weight: bold; color: var(--text-main);
-      line-height: 1.5; text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      line-height: 1.5;
     }
 
     #chat { flex: 1; overflow-y: auto; padding: 15px; display: none; flex-direction: column; gap: 10px; }
-    .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; animation: fade 0.3s; white-space: pre-wrap; word-break: break-word; }
     
-    /* استفاده از متغیرهای رنگ */
+    .msg { 
+      padding: 12px 16px; border-radius: 12px; max-width: 85%; 
+      font-size: var(--font-size); font-family: var(--font-family);
+      line-height: 1.8; animation: fade 0.3s; white-space: pre-wrap; word-break: break-word; 
+    }
+    
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
 
-    /* نوار ورودی (بالاتر آمده) */
+    /* نوار ورودی */
     .input-box { 
       padding: 12px 15px; margin: 0 15px 60px 15px; 
       background: var(--bg-input); display: flex; gap: 10px; 
       flex-shrink: 0; border-radius: 12px; border: 1px solid var(--border-color); 
     }
-    input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: var(--bg-input-field); color: var(--text-main); font-size: 14px; }
+    input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: var(--bg-input-field); color: var(--text-main); font-size: 14px; font-family: var(--font-family); }
     button#send { padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: bold; cursor: pointer; font-size: 14px; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
 
@@ -114,13 +136,30 @@
 
     /* ===== مودال تنظیمات ===== */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-    .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 350px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; }
-    .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
-    .setting-row:last-child { border-bottom: none; margin-bottom: 20px; }
-    .setting-row input[type="color"] { width: 40px; height: 30px; border: none; border-radius: 4px; cursor: pointer; background: none; }
-    .setting-row button { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
-    .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
+    .modal-content { 
+      background: var(--bg-header); padding: 25px; border-radius: 16px; 
+      width: 100%; max-width: 400px; border: 1px solid var(--border-color); 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+    
+    .settings-group { margin-bottom: 20px; }
+    .settings-group-title { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-weight: bold; }
+    
+    .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; }
+    .setting-row select { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px; border-radius: 4px; outline: none; font-family: inherit; }
+    .setting-row input[type="color"] { width: 35px; height: 25px; border: none; border-radius: 4px; cursor: pointer; background: none; }
+    .setting-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+    
+    .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    
+    /* دکمه‌های خطرناک (پاک کردن حافظه) */
+    .btn-danger { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ef4444; background: transparent; color: #ef4444; font-weight: bold; cursor: pointer; margin-bottom: 8px; transition: 0.2s; }
+    .btn-danger:hover { background: #ef4444; color: #fff; }
+    
+    .btn-secondary { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input-field); color: var(--text-main); font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .btn-secondary:hover { background: var(--border-color); }
   </style>
 </head>
 <body>
@@ -165,29 +204,78 @@
   <!-- مودال تنظیمات -->
   <div class="modal" id="settings-modal">
     <div class="modal-content">
-      <h3>تنظیمات ظاهری</h3>
+      <h3>تنظیمات گردآلو</h3>
       
-      <div class="setting-row">
-        <span>حالت تاریک/روشن</span>
-        <button onclick="toggleTheme()" id="theme-btn">تغییر</button>
+      <!-- گروه عمومی -->
+      <div class="settings-group">
+        <div class="settings-group-title">عمومی</div>
+        <div class="setting-row">
+          <span>حالت تاریک</span>
+          <input type="checkbox" id="setting-theme" onchange="toggleTheme(this.checked)">
+        </div>
+        <div class="setting-row">
+          <span>ارسال با کلید Enter</span>
+          <input type="checkbox" id="setting-enter" checked onchange="toggleEnter(this.checked)">
+        </div>
       </div>
 
-      <div class="setting-row">
-        <span>رنگ پیام‌های شما</span>
-        <input type="color" id="color-user" oninput="applyCustomColors()">
+      <!-- گروه ظاهر -->
+      <div class="settings-group">
+        <div class="settings-group-title">ظاهر و رنگ‌ها</div>
+        <div class="setting-row">
+          <span>رنگ پیام‌های شما</span>
+          <input type="color" id="color-user" oninput="applyColors()">
+        </div>
+        <div class="setting-row">
+          <span>رنگ پیام‌های گردآلو</span>
+          <input type="color" id="color-bot" oninput="applyColors()">
+        </div>
+        <div class="setting-row">
+          <span>رنگ متن گردآلو</span>
+          <input type="color" id="color-font" oninput="applyColors()">
+        </div>
+        <div class="setting-row">
+          <span>اندازه فونت</span>
+          <select id="setting-fontsize" onchange="applyFontSettings()">
+            <option value="12px">کوچک</option>
+            <option value="14px" selected>متوسط</option>
+            <option value="16px">بزرگ</option>
+            <option value="18px">خیلی بزرگ</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <span>نوع فونت</span>
+          <select id="setting-fontfamily" onchange="applyFontSettings()">
+            <option value="'Vazirmatn', sans-serif" selected>وزیرمتن (پیش‌فرض)</option>
+            <option value="'Lalezar', cursive">لاله‌زار (تیتر)</option>
+            <option value="'Noto Naskh Arabic', serif">نسخ عربی</option>
+            <option value="Tahoma, sans-serif">Tahoma</option>
+          </select>
+        </div>
       </div>
 
-      <div class="setting-row">
-        <span>رنگ پیام‌های گردآلو</span>
-        <input type="color" id="color-bot" oninput="applyCustomColors()">
+      <!-- گروه هوش مصنوعی -->
+      <div class="settings-group">
+        <div class="settings-group-title">هوش مصنوعی</div>
+        <div class="setting-row">
+          <span>مدل هوش مصنوعی</span>
+          <select id="setting-model" onchange="saveModel()">
+            <option value="gpt-5.6-luna" selected>GPT-5.6 Luna (قوی)</option>
+            <option value="gpt-4o-mini">GPT-4o Mini (سریع)</option>
+            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+            <option value="deepseek-chat">DeepSeek Chat</option>
+          </select>
+        </div>
       </div>
 
-      <div class="setting-row">
-        <span>رنگ متن گردآلو</span>
-        <input type="color" id="color-font" oninput="applyCustomColors()">
+      <!-- گروه داده‌ها -->
+      <div class="settings-group">
+        <div class="settings-group-title">مدیریت داده‌ها</div>
+        <button class="btn-secondary" onclick="exportData()" style="margin-bottom: 8px;">📥 دانلود تاریخچه چت‌ها</button>
+        <button class="btn-danger" onclick="clearAllData()">🗑️ پاک کردن کل حافظه</button>
       </div>
 
-      <button class="btn-close-settings" onclick="closeSettings()">بستن</button>
+      <button class="btn-close-settings" onclick="closeSettings()">بستن تنظیمات</button>
     </div>
   </div>
 
@@ -203,49 +291,8 @@
 
     let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
     let currentChatId = null;
-
-    // ====== تنظیمات (تم و رنگ‌ها) ======
-    function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
-    function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
-
-    function toggleTheme() {
-      document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      localStorage.setItem('gerdaloo_theme', isLight ? 'light' : 'dark');
-    }
-
-    function applyCustomColors() {
-      const colorUser = document.getElementById('color-user').value;
-      const colorBot = document.getElementById('color-bot').value;
-      const colorFont = document.getElementById('color-font').value;
-
-      document.documentElement.style.setProperty('--user-msg-bg', colorUser);
-      document.documentElement.style.setProperty('--bot-msg-bg', colorBot);
-      document.documentElement.style.setProperty('--bot-msg-text', colorFont);
-
-      localStorage.setItem('gerdaloo_color_user', colorUser);
-      localStorage.setItem('gerdaloo_color_bot', colorBot);
-      localStorage.setItem('gerdaloo_color_font', colorFont);
-    }
-
-    function loadSettings() {
-      // لود تم
-      if (localStorage.getItem('gerdaloo_theme') === 'light') {
-        document.body.classList.add('light-mode');
-      }
-      // لود رنگ‌ها
-      const cUser = localStorage.getItem('gerdaloo_color_user') || '#1e40af';
-      const cBot = localStorage.getItem('gerdaloo_color_bot') || '#ffffff';
-      const cFont = localStorage.getItem('gerdaloo_color_font') || '#0f172a';
-
-      document.getElementById('color-user').value = cUser;
-      document.getElementById('color-bot').value = cBot;
-      document.getElementById('color-font').value = cFont;
-
-      document.documentElement.style.setProperty('--user-msg-bg', cUser);
-      document.documentElement.style.setProperty('--bot-msg-bg', cBot);
-      document.documentElement.style.setProperty('--bot-msg-text', cFont);
-    }
+    let enterToSend = true;
+    let currentModel = 'gpt-5.6-luna';
 
     // ====== مدیریت نوار کناری ======
     function toggleSidebar() {
@@ -267,7 +314,6 @@
       chats.unshift(newChat);
       saveChats();
       
-      // نمایش صفحه خوش‌آمدگویی و مخفی کردن چت
       welcomeScreen.style.display = 'flex';
       chatContainer.style.display = 'none';
       chatContainer.innerHTML = '';
@@ -282,8 +328,6 @@
       if (!chat) return;
       
       currentChatId = chatId;
-      
-      // اگر پیامی جز system وجود دارد، چت را نشان بده، وگرنه خوش‌آمدگویی
       const hasUserMessages = chat.messages.some(m => m.role !== 'system');
       
       if (hasUserMessages) {
@@ -292,11 +336,8 @@
         chatContainer.innerHTML = '';
         
         chat.messages.forEach(m => {
-          if (m.role === 'user') {
-            chatContainer.innerHTML += `<div class="msg user">${m.content}</div>`;
-          } else if (m.role === 'assistant') {
-            chatContainer.innerHTML += `<div class="msg bot">${m.content.replace(/\n/g, '<br>')}</div>`;
-          }
+          if (m.role === 'user') chatContainer.innerHTML += `<div class="msg user">${m.content}</div>`;
+          else if (m.role === 'assistant') chatContainer.innerHTML += `<div class="msg bot">${m.content.replace(/\n/g, '<br>')}</div>`;
         });
         chatContainer.scrollTop = chatContainer.scrollHeight;
       } else {
@@ -306,6 +347,23 @@
       
       toggleSidebar();
       renderHistory();
+    }
+
+    // ====== حذف یک چت ======
+    function deleteChat(chatId, event) {
+      event.stopPropagation(); // جلوگیری از اجرای loadChat
+      if (!confirm('آیا از حذف این چت مطمئن هستید؟')) return;
+
+      chats = chats.filter(c => c.id !== chatId);
+      saveChats();
+
+      // اگر چت فعلی حذف شد، برو به چت جدید
+      if (currentChatId === chatId) {
+        if (chats.length > 0) loadChat(chats[0].id);
+        else startNewChat();
+      } else {
+        renderHistory();
+      }
     }
 
     // ====== ذخیره و رندر تاریخچه ======
@@ -321,10 +379,14 @@
       chats.forEach(chat => {
         const div = document.createElement('div');
         div.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
-        const userMsg = chat.messages.find(m => m.role === 'user');
-        const title = userMsg ? userMsg.content.substring(0, 30) + (userMsg.content.length > 30 ? '...' : '') : 'گفتگوی جدید';
         
-        div.textContent = title;
+        const userMsg = chat.messages.find(m => m.role === 'user');
+        const title = userMsg ? userMsg.content.substring(0, 25) + (userMsg.content.length > 25 ? '...' : '') : 'گفتگوی جدید';
+        
+        div.innerHTML = `
+          <span class="history-title">${title}</span>
+          <button class="delete-chat-btn" onclick="deleteChat('${chat.id}', event)">🗑️</button>
+        `;
         div.onclick = () => loadChat(chat.id);
         historyList.appendChild(div);
       });
@@ -337,7 +399,6 @@
 
       if (!currentChatId) startNewChat();
 
-      // مخفی کردن خوش‌آمدگویی و نمایش چت
       welcomeScreen.style.display = 'none';
       chatContainer.style.display = 'flex';
 
@@ -367,7 +428,7 @@
 
       try {
         const response = await puter.ai.chat(currentChat.messages, {
-          model: "gpt-5.6-luna",
+          model: currentModel,
           stream: true
         });
 
@@ -386,7 +447,7 @@
         saveChats();
 
       } catch (error) {
-        botMsgDiv.innerHTML = 'خطا در اتصال به هوش مصنوعی. لطفاً دوباره تلاش کنید.';
+        botMsgDiv.innerHTML = 'خطا در اتصال به هوش مصنوعی.';
         console.error(error);
       } finally {
         sendBtn.disabled = false;
@@ -395,11 +456,125 @@
       }
     }
 
+    // ====== سیستم تنظیمات ======
+    function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+    function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+
+    function toggleTheme(isDark) {
+      if (isDark) document.body.classList.remove('light-mode');
+      else document.body.classList.add('light-mode');
+      localStorage.setItem('gerdaloo_theme', isDark ? 'dark' : 'light');
+    }
+
+    function toggleEnter(allow) {
+      enterToSend = allow;
+      localStorage.setItem('gerdaloo_enter', allow);
+    }
+
+    function applyColors() {
+      const cUser = document.getElementById('color-user').value;
+      const cBot = document.getElementById('color-bot').value;
+      const cFont = document.getElementById('color-font').value;
+
+      document.documentElement.style.setProperty('--user-msg-bg', cUser);
+      document.documentElement.style.setProperty('--bot-msg-bg', cBot);
+      document.documentElement.style.setProperty('--bot-msg-text', cFont);
+
+      localStorage.setItem('gerdaloo_color_user', cUser);
+      localStorage.setItem('gerdaloo_color_bot', cBot);
+      localStorage.setItem('gerdaloo_color_font', cFont);
+    }
+
+    function applyFontSettings() {
+      const size = document.getElementById('setting-fontsize').value;
+      const family = document.getElementById('setting-fontfamily').value;
+
+      document.documentElement.style.setProperty('--font-size', size);
+      document.documentElement.style.setProperty('--font-family', family);
+
+      localStorage.setItem('gerdaloo_fontsize', size);
+      localStorage.setItem('gerdaloo_fontfamily', family);
+    }
+
+    function saveModel() {
+      currentModel = document.getElementById('setting-model').value;
+      localStorage.setItem('gerdaloo_model', currentModel);
+    }
+
+    // ====== مدیریت داده‌ها ======
+    function clearAllData() {
+      if (!confirm('⚠️ هشدار! تمام تاریخچه چت‌ها و حافظه پاک خواهد شد. مطمئن هستید؟')) return;
+      
+      chats = [];
+      localStorage.removeItem('gerdaloo_history');
+      startNewChat();
+      closeSettings();
+    }
+
+    function exportData() {
+      if (chats.length === 0) return alert('تاریخچه‌ای برای دانلود وجود ندارد.');
+      
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(chats, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "gerdaloo_history.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    // ====== لود کردن تنظیمات در شروع ======
+    function loadSettings() {
+      // تم
+      const theme = localStorage.getItem('gerdaloo_theme');
+      if (theme === 'light') {
+        document.body.classList.add('light-mode');
+        document.getElementById('setting-theme').checked = false;
+      } else {
+        document.getElementById('setting-theme').checked = true;
+      }
+
+      // Enter
+      const enter = localStorage.getItem('gerdaloo_enter');
+      if (enter === 'false') {
+        enterToSend = false;
+        document.getElementById('setting-enter').checked = false;
+      }
+
+      // رنگ‌ها
+      const cUser = localStorage.getItem('gerdaloo_color_user') || '#1e40af';
+      const cBot = localStorage.getItem('gerdaloo_color_bot') || '#ffffff';
+      const cFont = localStorage.getItem('gerdaloo_color_font') || '#0f172a';
+      document.getElementById('color-user').value = cUser;
+      document.getElementById('color-bot').value = cBot;
+      document.getElementById('color-font').value = cFont;
+      document.documentElement.style.setProperty('--user-msg-bg', cUser);
+      document.documentElement.style.setProperty('--bot-msg-bg', cBot);
+      document.documentElement.style.setProperty('--bot-msg-text', cFont);
+
+      // فونت
+      const size = localStorage.getItem('gerdaloo_fontsize') || '14px';
+      const family = localStorage.getItem('gerdaloo_fontfamily') || "'Vazirmatn', sans-serif";
+      document.getElementById('setting-fontsize').value = size;
+      document.getElementById('setting-fontfamily').value = family;
+      document.documentElement.style.setProperty('--font-size', size);
+      document.documentElement.style.setProperty('--font-family', family);
+
+      // مدل
+      const model = localStorage.getItem('gerdaloo_model') || 'gpt-5.6-luna';
+      currentModel = model;
+      document.getElementById('setting-model').value = model;
+    }
+
+    // ====== رویدادها ======
     input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
+      if (e.key === 'Enter' && !e.shiftKey && enterToSend) { 
+        e.preventDefault(); 
+        sendMessage(); 
+      }
     });
 
-    // ====== شروع اولیه ======
+    // ====== شروع ======
     loadSettings();
     
     if (chats.length === 0) {
