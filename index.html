@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو | همه‌فن‌حریف</title>
+  <title>گردآلو | متصل به Puter AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+  <!-- این خط جادویی است: کتابخانه Puter را لود می‌کند -->
+  <script src="https://js.puter.com/v2/"></script>
+  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
     body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -16,206 +19,91 @@
     .input-box { padding: 12px 15px; margin: 0 15px 60px 15px; background: #1e293b; display: flex; gap: 10px; flex-shrink: 0; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
     input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; font-size: 14px; }
     button#send { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
+    button#send:disabled { background: #64748b; cursor: not-allowed; }
     @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-  <header>گردآلو | همه‌فن‌حریف (بازی، تفکر، دانش)</header>
+  <header>گردآلو (متصل به gpt-5.6-luna)</header>
   
   <div id="chat">
-    <div class="msg bot">سلام! من گردآلو هستم. حالا می‌تونم باهات بازی کنم، معما حل کنم، درباره هر موضوعی (علمی، احساسی، زردآلو و...) حرف بزنم. چی دوست داری؟ 🍑🎮🧠</div>
+    <div class="msg bot">سلام! من گردآلو هستم. حالا به یک هوش مصنوعی واقعی (Puter) وصل شدم. هر سوالی داری بپرس! (بار اول ممکن است پنجره ورود Puter باز شود) 🍑🚀</div>
   </div>
 
   <div class="input-box">
-    <input id="i" placeholder="دستور بده، سوال بپرس یا بگو بازی کنیم..." autocomplete="off">
+    <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
     <button id="send" onclick="sendMessage()">ارسال</button>
   </div>
 
   <script>
-    // ====== وضعیت بازی‌ها ======
-    let gameState = { active: null, target: null, score: 0 };
-
-    // ====== ۱. دیکشنری جامع (دانش زردآلو + علمی + احساسی + بازی) ======
-    const globalKb = {
-      // --- دانش زردآلو ---
-      "سایت زردآلو": "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است. بخش‌های آن شامل پروفایل، بازار، ثبت کالا، سبد خرید، پیام‌رسان و گزارش فروشنده است. 🍑",
-      "سازنده زردآلو": "سازنده و مدیر سایت زردآلو، جناب آقای عرفان ریاحی است. ایشان با تلاش خود این پلتفرم را برای راحتی خرید و فروش راه‌اندازی کرده‌اند. 🧑🏻‍💻",
-      "آدرس زردآلو": "آدرس سایت زردآلو: https://zardaloo12345.github.io/zardaloo.online.shop/ 🌍",
-      "پروفایل زردآلو": "برای استفاده از زردآلو، باید پروفایل بسازی: نام، شماره تماس و شماره زردآلو. 👤",
-      "ثبت کالا در زردآلو": "برای ثبت کالا در زردآلو، از بخش «ثبت کالای جدید» استفاده کن و نام، توضیحات، قیمت و تصویر کالا را وارد کن. 📦",
-      "سبد خرید زردآلو": "سبد خریدت فعلاً خالیه. بعد از انتخاب کالاها از بازار، به سبد اضافه‌شون کن. 🛍️",
-
-      // --- علمی ---
-      "هوش مصنوعی": "هوش مصنوعی (AI) شاخه‌ای از علوم کامپیوتر است که به ماشین‌ها توانایی یادگیری، استدلال و تصمیم‌گیری می‌دهد. 🤖",
-      "برنامه نویسی": "برنامه‌نویسی هنر نوشتن دستورات برای کامپیوتر است. زبان‌هایی مثل پایتون پایه ساخت نرم‌افزارها هستند. 🧑🏻‍💻",
-      "فیزیک": "فیزیک علم مطالعه ماده، انرژی و نیروهای بنیادی جهان است. ⚛️",
-      "روانشناسی": "روانشناسی علم مطالعه ذهن و رفتار انسان است. 🧠",
-
-      // --- احساسی ---
-      "شادی": "شادی یک احساس مثبت و انرژی‌بخش است. برای حفظ شادی، قدردانی از چیزهای کوچک زندگی مؤثر است. 😊",
-      "غم": "غم یک احساس طبیعی است. غم را بپذیر و به خودت اجازه بده که گریه کنی. صحبت کردن با یک دوست می‌تواند سبکت کند. ❤️",
-      "خشم": "خشم یک احساس قدرتمند است. قبل از واکنش، چند نفس عمیق بکش و ریشه خشم را پیدا کن. 😠",
-      "استرس": "استرس واکنش بدن به فشارهای روانی است. تنفس عمیق و ورزش می‌تواند استرس را کاهش دهد. 😰",
-      "عشق": "عشق پیچیده‌ترین و زیباترین احساس انسانی است. عشق واقعی با احترام و اعتماد همراه است. ❤️",
-
-      // --- فوتبال ---
-      "مسی": "لیونل مسی، اسطوره فوتبال آرژانتین و برنده ۸ توپ طلا است. 🇦🇷⚽",
-      "رونالدو": "کریستیانو رونالدو، ستاره پرتغالی و برنده ۵ توپ طلا است. 🇵🇹⚽",
-
-      // --- سلام و احوال‌پرسی ---
-      "سلام": "سلام! خوشحالم که باهام حرف میزنی. می‌خوای بازی کنیم، معما حل کنیم یا سوال علمی بپرسی؟ 😊"
-    };
-
-    // ====== ۲. موتور بازی‌ها ======
-    const games = {
-      "حدس عدد": () => {
-        gameState = { active: "guess", target: Math.floor(Math.random() * 100) + 1, score: 0 };
-        return "🎮 بازی حدس عدد شروع شد! من یک عدد بین ۱ تا ۱۰۰ در نظر گرفتم. تو باید حدس بزنی. عددت رو بگو:";
-      },
-      "سنگ کاغذ قیچی": () => {
-        gameState = { active: "rps" };
-        return "🎮 بازی سنگ، کاغذ، قیچی شروع شد! یکی رو انتخاب کن (سنگ، کاغذ یا قیچی):";
-      },
-      "داستان سازی": () => {
-        gameState = { active: "story" };
-        return "🎮 بازی داستان‌سازی! یک کلمه یا موضوع بگو تا من یک داستان کوتاه و جذاب درباره‌ش بسازم:";
-      },
-      "معما": () => {
-        const riddles = [
-          { q: "چیزی که هر چه بیشتر برداری، بزرگ‌تر می‌شود. چیه؟", a: "چاله" },
-          { q: "چیزی که در آب می‌میرد اما در خاک زنده نمی‌شود. چیه؟", a: "نمک" },
-          { q: "چیزی که مال توست اما دیگران بیشتر از تو ازش استفاده می‌کنند. چیه؟", a: "اسم تو" },
-          { q: "چیزی که هر چه ازش کم کنی، بزرگ‌تر می‌شود. چیه؟", a: "عشق" }
-        ];
-        const r = riddles[Math.floor(Math.random() * riddles.length)];
-        gameState = { active: "riddle", answer: r.a };
-        return `🧠 معمای جدید: ${r.q}\n(برای دیدن جواب بنویس: جواب معما)`;
-      }
-    };
-
-    // ====== ۳. پاسخ‌دهی به بازی‌ها ======
-    function handleGame(text) {
-      if (gameState.active === "guess") {
-        const num = parseInt(text);
-        if (isNaN(num)) return "لطفاً یک عدد بین ۱ تا ۱۰۰ وارد کن.";
-        if (num === gameState.target) {
-          gameState.active = null;
-          return `🎉 آفرین! عدد درست ${num} بود. بردی! می‌خوای دوباره بازی کنیم؟ بگو «حدس عدد»`;
-        } else if (num > gameState.target) {
-          return "📉 عددت بزرگ‌تر از هدفه. دوباره تلاش کن:";
-        } else {
-          return "📈 عددت کوچک‌تر از هدفه. دوباره تلاش کن:";
-        }
-      }
-
-      if (gameState.active === "rps") {
-        const choices = ["سنگ", "کاغذ", "قیچی"];
-        const userChoice = choices.find(c => text.includes(c));
-        if (!userChoice) return "لطفاً یکی از این‌ها رو انتخاب کن: سنگ، کاغذ یا قیچی.";
-        
-        const botChoice = choices[Math.floor(Math.random() * 3)];
-        let result = "";
-        if (userChoice === botChoice) result = "مساوی شد! 🤝";
-        else if (
-          (userChoice === "سنگ" && botChoice === "قیچی") ||
-          (userChoice === "کاغذ" && botChoice === "سنگ") ||
-          (userChoice === "قیچی" && botChoice === "کاغذ")
-        ) result = "تو بردی! 🎉";
-        else result = "من بردم! 😎";
-        
-        gameState.active = null;
-        return `تو: ${userChoice} | من: ${botChoice}\n${result}\nبرای بازی دوباره بگو «سنگ کاغذ قیچی».`;
-      }
-
-      if (gameState.active === "story") {
-        gameState.active = null;
-        return `📖 داستان کوتاه درباره «${text}»:\n\nدر روزی از روزها، ${text} تصمیم گرفت دنیا را تغییر دهد. او با خود فکر کرد که هیچ‌کس نمی‌تواند او را متوقف کند. با اراده‌ای آهنین، قدم در راه گذاشت و در نهایت فهمید که زیبایی واقعی در تلاش برای رسیدن به رویاست. پایان. ✨\n\nمی‌خوای دوباره داستان بسازی؟ بگو «داستان سازی»`;
-      }
-
-      if (gameState.active === "riddle") {
-        if (text.includes("جواب")) {
-          gameState.active = null;
-          return `💡 جواب معما: ${gameState.answer}\nبرای معمای بعدی بگو «معما».`;
-        }
-        if (text.includes(gameState.answer)) {
-          gameState.active = null;
-          return "🎉 آفرین! درست حدس زدی! برای معمای بعدی بگو «معما».";
-        }
-        return "❌ هنوز درست نیست. دوباره تلاش کن یا بنویس «جواب معما».";
-      }
-
-      return null;
-    }
-
-    // ====== ۴. موتور جستجوی هوشمند ======
-    function findBestMatch(text) {
-      text = text.toLowerCase().trim();
-      
-      // ۱. چک کردن دستورات بازی
-      for (const gameName in games) {
-        if (text.includes(gameName.toLowerCase())) {
-          return games[gameName]();
-        }
-      }
-
-      // ۲. چک کردن وضعیت بازی‌های فعال
-      const gameResponse = handleGame(text);
-      if (gameResponse) return gameResponse;
-
-      // ۳. جستجوی دقیق در دیکشنری
-      if (globalKb[text]) return globalKb[text];
-      
-      // ۴. جستجوی کلمه در متن (طولانی‌ترین کلمه)
-      let bestKey = null;
-      let maxLength = 0;
-      for (const key in globalKb) {
-        if (text.includes(key) && key.length > maxLength) {
-          maxLength = key.length;
-          bestKey = key;
-        }
-      }
-      if (bestKey) return globalKb[bestKey];
-
-      // ۵. جستجوی ریشه کلمه (۴ حرف اول)
-      for (const key in globalKb) {
-        if (key.length > 3) {
-          const root = key.slice(0, 4);
-          if (text.includes(root)) {
-            return globalKb[key];
-          }
-        }
-      }
-      
-      return null;
-    }
-
-    // ====== ۵. ارسال پیام ======
     const chat = document.getElementById('chat');
     const input = document.getElementById('i');
+    const sendBtn = document.getElementById('send');
+    
+    // آرایه تاریخچه برای حفظ حافظه چت
+    let history = [
+        { role: "system", content: "تو گردآلو هستی، یک دستیار هوشمند فارسی‌زبان. پاسخ‌هایت کامل، دقیق و با لحنی صمیمی باشد." }
+    ];
 
-    function sendMessage() {
+    async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
 
+      // نمایش پیام کاربر
       chat.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
-
-      let reply = findBestMatch(text);
-
-      // اگر پاسخ پیدا نشد، یک پاسخ هوشمند تولید کن
-      if (!reply) {
-        reply = `من درباره «${text}» اطلاعات دقیقی ندارم، اما می‌تونم بگم که این موضوع می‌تونه جذاب باشه! می‌خوای باهات بازی کنم؟ (حدس عدد، سنگ کاغذ قیچی، داستان سازی، معما) یا درباره موضوعات دیگه (علمی، احساسی، زردآلو) بپرس. 🍑`;
-      }
-
-      setTimeout(() => {
-        chat.innerHTML += `<div class="msg bot">${reply.replace(/\n/g, '<br>')}</div>`;
-        chat.scrollTop = chat.scrollHeight;
-      }, 500);
-
       chat.scrollTop = chat.scrollHeight;
+
+      // افزودن به تاریخچه
+      history.push({ role: "user", content: text });
+
+      // غیرفعال کردن دکمه ارسال
+      sendBtn.disabled = true;
+      sendBtn.textContent = "...";
+
+      // ساخت حباب پیام برای ربات (خالی در ابتدا)
+      const botMsgDiv = document.createElement('div');
+      botMsgDiv.className = 'msg bot';
+      botMsgDiv.innerHTML = '<span style="color: #f59e0b;">در حال فکر کردن...</span>';
+      chat.appendChild(botMsgDiv);
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        // فراخوانی Puter با مدل درخواستی شما و فعال‌سازی استریم (تایپ کلمه به کلمه)
+        const response = await puter.ai.chat(history, {
+            model: "gpt-5.6-luna",
+            stream: true 
+        });
+
+        botMsgDiv.innerHTML = ''; // پاک کردن متن "در حال فکر کردن"
+        let fullReply = '';
+
+        // خواندن استریم و نمایش کلمه به کلمه
+        for await (const part of response) {
+            if (part?.text) {
+                fullReply += part.text;
+                // تبدیل خطوط جدید به تگ br برای نمایش درست در HTML
+                botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+                chat.scrollTop = chat.scrollHeight;
+            }
+        }
+
+        // افزودن پاسخ کامل به تاریخچه
+        history.push({ role: "assistant", content: fullReply });
+
+      } catch (error) {
+        botMsgDiv.innerHTML = 'خطا در اتصال به هوش مصنوعی. لطفاً اینترنت خود را بررسی کنید یا دوباره تلاش کنید.';
+        console.error(error);
+      } finally {
+        // فعال کردن مجدد دکمه
+        sendBtn.disabled = false;
+        sendBtn.textContent = "ارسال";
+        chat.scrollTop = chat.scrollHeight;
+      }
     }
 
+    // ارسال با زدن Enter
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
     });
