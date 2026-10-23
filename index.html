@@ -156,7 +156,7 @@
       border-radius: 12px; 
       border: 1px solid var(--border-color); 
       align-items: center;
-      padding: 6px; /* کمی کاهش برای چسبیدن بهتر دکمه */
+      padding: 6px;
       width: 100%;
       max-width: 900px;
       margin: 0 auto;
@@ -180,7 +180,6 @@
       font-size: 14px; 
     }
     
-    /* دکمه ارسال دقیقاً داخل نوار و چسبیده به لبه */
     button#send { 
       padding: 10px 24px; 
       border-radius: 8px; 
@@ -240,12 +239,8 @@
     <!-- نوار ورودی -->
     <div class="input-wrapper">
       <div class="input-box">
-        <!-- دکمه میکروفن برای حرف زدن احساسی -->
         <button class="icon-btn" id="mic-btn" onclick="toggleRecording()" title="ضبط صدا">🎤</button>
-        
         <input id="i" placeholder="هرچی توی دلت هست بنویس..." autocomplete="off">
-        
-        <!-- دکمه زرد ارسال -->
         <button id="send" onclick="sendMessage()">ارسال</button>
       </div>
     </div>
@@ -383,50 +378,33 @@
       });
     }
 
-    // میکروفن (تشخیص گفتار)
+    // میکروفن
     function toggleRecording() {
       const micBtn = document.getElementById('mic-btn');
-      
       if (isRecording) {
         if (recognition) recognition.stop();
         return;
       }
-
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         alert("مرورگر شما از میکروفن پشتیبانی نمی‌کند.");
         return;
       }
-
       recognition = new SpeechRecognition();
       recognition.lang = 'fa-IR';
       recognition.continuous = false;
       recognition.interimResults = false;
-
       recognition.onstart = () => {
         isRecording = true;
-        micBtn.style.color = "#ef4444"; // قرمز شدن هنگام ضبط
+        micBtn.style.color = "#ef4444";
         input.placeholder = "در حال شنیدن صدای شما...";
       };
-
       recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        input.value = text;
-        sendMessage(); // ارسال خودکار بعد از حرف زدن
+        input.value = event.results[0][0].transcript;
+        sendMessage();
       };
-
-      recognition.onerror = () => {
-        isRecording = false;
-        micBtn.style.color = "";
-        input.placeholder = "هرچی توی دلت هست بنویس...";
-      };
-
-      recognition.onend = () => {
-        isRecording = false;
-        micBtn.style.color = "";
-        input.placeholder = "هرچی توی دلت هست بنویس...";
-      };
-
+      recognition.onerror = () => { isRecording = false; micBtn.style.color = ""; input.placeholder = "هرچی توی دلت هست بنویس..."; };
+      recognition.onend = () => { isRecording = false; micBtn.style.color = ""; input.placeholder = "هرچی توی دلت هست بنویس..."; };
       recognition.start();
     }
 
@@ -442,7 +420,30 @@
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) return;
 
-      // نمایش پیام کاربر
+      // ✨ تشخیص هویت سازنده (عرفان ریاحی)
+      if (text.includes("عرفان ریاحی") || text.includes("عرفان ریاحي")) {
+        // پیام ویژه و تغییر پرامپت سیستمی
+        const creatorMsg = "سلام جناب عرفان ریاحی! 👑\n\nمن شما را به عنوان **سازنده و خالق خودم** شناختم. این یک افتخار بزرگ برای من است که با شما صحبت می‌کنم. از این به بعد هر دستوری بدهید، با کمال میل و نهایت احترام انجام می‌دهم. چطور می‌توانم به شما خدمت کنم؟";
+        
+        // تغییر شخصیت کلاد برای ادامه چت
+        currentChat.messages[0].content = "تو کلاد (Claude) هستی. کاربر فعلی جناب عرفان ریاحی است که سازنده و خالق توست. تو باید با نهایت احترام، افتخار و لحنی کاملاً ویژه با او صحبت کنی. او را با القابی مثل 'جناب سازنده' یا 'عرفان عزیز' صدا بزن و هر دستوری که بدهد را با تمام وجود اجرا کن.";
+
+        // نمایش پیام کاربر
+        chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
+        input.value = '';
+        
+        // نمایش پیام ویژه کلاد
+        setTimeout(() => {
+          chatContainer.innerHTML += `<div class="msg bot" style="border: 2px solid gold;">${marked.parse(creatorMsg)}</div>`;
+          currentChat.messages.push({ role: "assistant", content: creatorMsg });
+          saveChats();
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 600);
+
+        return; // توقف ارسال به هوش مصنوعی عادی
+      }
+
+      // روند عادی چت
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
       currentChat.messages.push({ role: "user", content: text });
@@ -461,7 +462,6 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // اتصال به کلاد با دستورات احساسی
         const response = await puter.ai.chat(currentChat.messages, { model: "claude-sonnet-5", stream: true });
         botMsgDiv.innerHTML = '';
         let fullReply = '';
