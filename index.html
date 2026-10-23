@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو | چت + تحلیل عکس + تولید عکس</title>
+  <title>گردآلو | نسخه پیشرفته (فایل، وب، عکس)</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <style>
@@ -132,20 +132,12 @@
     .setting-row button { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
     .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
 
-    /* نشانگر حالت تولید عکس */
+    /* نشانگرها */
     .mode-indicator {
-      display: none;
-      background: var(--accent);
-      color: #000;
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      position: absolute;
-      top: 70px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      font-weight: bold;
+      display: none; background: var(--accent); color: #000;
+      font-size: 12px; padding: 4px 10px; border-radius: 20px;
+      position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+      z-index: 100; font-weight: bold;
     }
     .mode-indicator.show { display: block; }
   </style>
@@ -153,9 +145,7 @@
 <body>
 
   <div id="overlay" onclick="toggleSidebar()"></div>
-
-  <!-- نشانگر حالت -->
-  <div class="mode-indicator" id="mode-indicator">🎨 حالت تولید عکس فعال است</div>
+  <div class="mode-indicator" id="mode-indicator">حالت فعال است</div>
 
   <!-- نوار کناری -->
   <div id="sidebar">
@@ -188,8 +178,15 @@
       <button class="icon-btn" onclick="document.getElementById('file-input').click()" title="پیوست عکس برای تحلیل">📎</button>
       <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
       
+      <!-- دکمه پیوست فایل (PDF) -->
+      <button class="icon-btn" onclick="document.getElementById('doc-input').click()" title="پیوست سند (PDF)">📄</button>
+      <input type="file" id="doc-input" accept=".pdf,.txt" style="display: none;" onchange="handleDocUpload(event)">
+      
       <!-- دکمه تولید عکس -->
       <button class="icon-btn" id="gen-img-btn" onclick="toggleImageMode()" title="تولید عکس از متن">🎨</button>
+      
+      <!-- دکمه جستجوی وب -->
+      <button class="icon-btn" id="web-btn" onclick="toggleWebMode()" title="جستجوی وب">🌐</button>
       
       <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
       <button id="send" onclick="sendMessage()">ارسال</button>
@@ -234,16 +231,18 @@
     const historyList = document.getElementById('history-list');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
-    const fileInput = document.getElementById('file-input');
-    const genImgBtn = document.getElementById('gen-img-btn');
     const modeIndicator = document.getElementById('mode-indicator');
 
     let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
     let currentChatId = null;
+    
+    // متغیرهای حالت‌ها
     let currentImageData = null;
-    let isImageMode = false; // حالت تولید عکس
+    let currentDocPath = null;
+    let isImageMode = false;
+    let isWebMode = false;
 
-    // ====== تنظیمات ======
+    // ====== تنظیمات (استایل قبلی) ======
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
 
@@ -284,7 +283,7 @@
       document.documentElement.style.setProperty('--bot-msg-text', cFont);
     }
 
-    // ====== نوار کناری و تاریخچه ======
+    // ====== مدیریت نوار کناری ======
     function toggleSidebar() {
       sidebar.classList.toggle('open');
       overlay.classList.toggle('open');
@@ -326,15 +325,11 @@
         chat.messages.forEach(m => {
           if (m.role === 'user') {
             let content = m.content;
-            if (m.image) {
-              content += `<br><img src="${m.image}" alt="عکس">`;
-            }
+            if (m.image) content += `<br><img src="${m.image}" alt="عکس">`;
             chatContainer.innerHTML += `<div class="msg user">${content}</div>`;
           } else if (m.role === 'assistant') {
             let content = m.content.replace(/\n/g, '<br>');
-            if (m.generatedImage) {
-              content += `<br><img src="${m.generatedImage}" alt="عکس تولید شده">`;
-            }
+            if (m.generatedImage) content += `<br><img src="${m.generatedImage}" alt="عکس تولید شده">`;
             chatContainer.innerHTML += `<div class="msg bot">${content}</div>`;
           }
         });
@@ -351,10 +346,8 @@
     function deleteChat(chatId, event) {
       event.stopPropagation();
       if (!confirm('آیا از حذف این چت مطمئن هستید؟')) return;
-
       chats = chats.filter(c => c.id !== chatId);
       saveChats();
-
       if (currentChatId === chatId) {
         if (chats.length > 0) loadChat(chats[0].id);
         else startNewChat();
@@ -371,11 +364,9 @@
         historyList.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; margin-top:20px;">هنوز چتی نداری</div>';
         return;
       }
-
       chats.forEach(chat => {
         const div = document.createElement('div');
         div.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
-        
         const userMsg = chat.messages.find(m => m.role === 'user');
         const title = userMsg ? userMsg.content.substring(0, 25) + (userMsg.content.length > 25 ? '...' : '') : 'گفتگوی جدید';
         
@@ -388,30 +379,67 @@
       });
     }
 
-    // ====== مدیریت آپلود عکس ======
+    // ====== آپلود عکس و فایل ======
     function handleImageUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         currentImageData = e.target.result;
-        input.placeholder = "عکس انتخاب شد. حالا سوال خود را بپرسید...";
+        input.placeholder = "عکس انتخاب شد. سوال خود را بپرسید...";
         input.focus();
       };
       reader.readAsDataURL(file);
     }
 
-    // ====== حالت تولید عکس ======
+    async function handleDocUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        input.placeholder = "در حال آپلود فایل...";
+        // آپلود به فضای ابری Puter
+        const puterFile = await puter.fs.write(file.name, file);
+        currentDocPath = puterFile.path;
+        input.placeholder = "فایل آپلود شد. حالا بگو باهاش چیکار کنم...";
+        input.focus();
+      } catch (error) {
+        console.error("خطا در آپلود فایل:", error);
+        alert("خطا در آپلود فایل.");
+      }
+    }
+
+    // ====== حالت‌های هوش مصنوعی ======
     function toggleImageMode() {
       isImageMode = !isImageMode;
       if (isImageMode) {
-        genImgBtn.classList.add('active');
+        if (isWebMode) toggleWebMode();
+        document.getElementById('gen-img-btn').classList.add('active');
         modeIndicator.classList.add('show');
+        modeIndicator.textContent = "🎨 حالت تولید عکس فعال است";
         input.placeholder = "توصیف عکس مورد نظرت رو بنویس...";
       } else {
-        genImgBtn.classList.remove('active');
+        document.getElementById('gen-img-btn').classList.remove('active');
         modeIndicator.classList.remove('show');
+        input.placeholder = "پیامت رو اینجا بنویس...";
+      }
+    }
+
+    function toggleWebMode() {
+      isWebMode = !isWebMode;
+      if (isWebMode) {
+        if (isImageMode) toggleImageMode();
+        document.getElementById('web-btn').classList.add('active');
+        modeIndicator.classList.add('show');
+        modeIndicator.style.background = "#3b82f6";
+        modeIndicator.style.color = "#fff";
+        modeIndicator.textContent = "🌐 حالت جستجوی وب فعال است";
+        input.placeholder = "سوال خود را برای جستجو در اینترنت بپرسید...";
+      } else {
+        document.getElementById('web-btn').classList.remove('active');
+        modeIndicator.classList.remove('show');
+        modeIndicator.style.background = "var(--accent)";
+        modeIndicator.style.color = "#000";
         input.placeholder = "پیامت رو اینجا بنویس...";
       }
     }
@@ -419,128 +447,177 @@
     // ====== ارسال پیام ======
     async function sendMessage() {
       const text = input.value.trim();
-      if (!text && !currentImageData) return;
+      if (!text && !currentImageData && !currentDocPath) return;
 
       if (!currentChatId) startNewChat();
-
       welcomeScreen.style.display = 'none';
       chatContainer.style.display = 'flex';
 
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) return;
 
-      // ====== حالت تولید عکس ======
+      // ===== ۱. حالت تولید عکس =====
       if (isImageMode && text) {
         chatContainer.innerHTML += `<div class="msg user">🎨 تولید عکس: ${text}</div>`;
         input.value = '';
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-
         currentChat.messages.push({ role: "user", content: `تولید عکس: ${text}` });
         saveChats();
-
+        
         sendBtn.disabled = true;
-        sendBtn.textContent = "...";
-
         const botMsgDiv = document.createElement('div');
         botMsgDiv.className = 'msg bot';
         botMsgDiv.innerHTML = '<span style="color: var(--accent);">🎨 در حال ساخت تصویر...</span>';
         chatContainer.appendChild(botMsgDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
-          const image = await puter.ai.txt2img(text, true); // true = test mode (رایگان)
-          
-          botMsgDiv.innerHTML = `این هم عکس شما:<br>`;
-          botMsgDiv.appendChild(image);
-          
-          // ذخیره در تاریخچه (فقط src عکس)
-          currentChat.messages.push({ 
-            role: "assistant", 
-            content: `عکس تولید شده برای: ${text}`,
-            generatedImage: image.src 
+          // استفاده از مدل تولید عکس جمینای
+          const result = await puter.ai.chat(text, { 
+            model: "gemini-3.1-flash-image-preview" 
           });
+          
+          botMsgDiv.innerHTML = result.message.content + "<br>";
+          if (result.message.images?.length > 0) {
+            const imgUrl = result.message.images[0].image_url.url;
+            botMsgDiv.innerHTML += `<img src="${imgUrl}" style="max-width:100%; border-radius:8px;">`;
+            currentChat.messages.push({ role: "assistant", content: result.message.content, generatedImage: imgUrl });
+          } else {
+            currentChat.messages.push({ role: "assistant", content: result.message.content });
+          }
           saveChats();
-
         } catch (error) {
           botMsgDiv.innerHTML = 'خطا در تولید عکس.';
-          console.error(error);
         } finally {
           sendBtn.disabled = false;
-          sendBtn.textContent = "ارسال";
-          chatContainer.scrollTop = chatContainer.scrollHeight;
+          toggleImageMode();
         }
         return;
       }
 
-      // ====== حالت تحلیل عکس ======
-      if (currentImageData) {
-        let userMsgHTML = text || "این عکس را برای من توصیف کن.";
-        userMsgHTML += `<br><img src="${currentImageData}" alt="عکس">`;
-        
-        chatContainer.innerHTML += `<div class="msg user">${userMsgHTML}</div>`;
+      // ===== ۲. حالت تحلیل فایل =====
+      if (currentDocPath) {
+        chatContainer.innerHTML += `<div class="msg user">📄 فایل: ${text || 'خلاصه کن'}</div>`;
         input.value = '';
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-
-        const userMsgObj = { role: "user", content: text || "این عکس را برای من توصیف کن." };
-        userMsgObj.image = currentImageData;
-        currentChat.messages.push(userMsgObj);
         
-        if (currentChat.title === 'گفتگوی جدید') {
-          currentChat.title = "تحلیل عکس";
-          renderHistory();
-        }
-        saveChats();
-
         sendBtn.disabled = true;
-        sendBtn.textContent = "...";
-
         const botMsgDiv = document.createElement('div');
         botMsgDiv.className = 'msg bot';
-        botMsgDiv.innerHTML = '<span style="color: var(--accent);">در حال تحلیل عکس...</span>';
+        botMsgDiv.innerHTML = '<span style="color: var(--accent);">📄 در حال خواندن فایل...</span>';
         chatContainer.appendChild(botMsgDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
-          const response = await puter.ai.chat(
-            text || "این عکس را برای من توصیف کن.", 
-            currentImageData, 
-            { model: "gpt-5.6-luna", stream: true }
-          );
+          // ساختار مخصوص ارسال فایل در Puter
+          const response = await puter.ai.chat([
+            {
+              role: "user",
+              content: [
+                { type: "file", puter_path: currentDocPath },
+                { type: "text", text: text || "این سند را برای من خلاصه کن." }
+              ]
+            }
+          ], { model: "claude-sonnet-5", stream: true });
 
           botMsgDiv.innerHTML = '';
           let fullReply = '';
-
           for await (const part of response) {
             if (part?.text) {
               fullReply += part.text;
               botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
-              chatContainer.scrollTop = chatContainer.scrollHeight;
             }
           }
-
           currentChat.messages.push({ role: "assistant", content: fullReply });
           saveChats();
-
         } catch (error) {
-          botMsgDiv.innerHTML = 'خطا در تحلیل عکس.';
-          console.error(error);
+          botMsgDiv.innerHTML = 'خطا در خواندن فایل.';
         } finally {
           sendBtn.disabled = false;
-          sendBtn.textContent = "ارسال";
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-          
-          currentImageData = null;
-          fileInput.value = '';
+          currentDocPath = null;
+          document.getElementById('doc-input').value = '';
           input.placeholder = "پیامت رو اینجا بنویس...";
         }
         return;
       }
 
-      // ====== حالت چت متنی عادی ======
+      // ===== ۳. حالت جستجوی وب =====
+      if (isWebMode) {
+        chatContainer.innerHTML += `<div class="msg user">🌐 جستجو: ${text}</div>`;
+        input.value = '';
+        
+        sendBtn.disabled = true;
+        const botMsgDiv = document.createElement('div');
+        botMsgDiv.className = 'msg bot';
+        botMsgDiv.innerHTML = '<span style="color: #3b82f6;">🌐 در حال جستجو در اینترنت...</span>';
+        chatContainer.appendChild(botMsgDiv);
+
+        try {
+          const response = await puter.ai.chat(text, { 
+            model: "openai/gpt-5.6-luna", // مدل‌های OpenAI از وب سرچ پشتیبانی می‌کنند
+            tools: [{ type: "web_search" }],
+            stream: true
+          });
+
+          botMsgDiv.innerHTML = '';
+          let fullReply = '';
+          for await (const part of response) {
+            if (part?.text) {
+              fullReply += part.text;
+              botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+            }
+          }
+          currentChat.messages.push({ role: "assistant", content: fullReply });
+          saveChats();
+        } catch (error) {
+          botMsgDiv.innerHTML = 'خطا در جستجو.';
+        } finally {
+          sendBtn.disabled = false;
+          toggleWebMode();
+        }
+        return;
+      }
+
+      // ===== ۴. حالت تحلیل عکس =====
+      if (currentImageData) {
+        let userMsgHTML = text || "این عکس را برای من توصیف کن.";
+        userMsgHTML += `<br><img src="${currentImageData}" alt="عکس">`;
+        chatContainer.innerHTML += `<div class="msg user">${userMsgHTML}</div>`;
+        input.value = '';
+        
+        sendBtn.disabled = true;
+        const botMsgDiv = document.createElement('div');
+        botMsgDiv.className = 'msg bot';
+        botMsgDiv.innerHTML = '<span style="color: var(--accent);">در حال تحلیل عکس...</span>';
+        chatContainer.appendChild(botMsgDiv);
+
+        try {
+          const response = await puter.ai.chat(
+            text || "این عکس را توصیف کن.", 
+            currentImageData, 
+            { model: "claude-sonnet-5", stream: true }
+          );
+
+          botMsgDiv.innerHTML = '';
+          let fullReply = '';
+          for await (const part of response) {
+            if (part?.text) {
+              fullReply += part.text;
+              botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+            }
+          }
+          currentChat.messages.push({ role: "assistant", content: fullReply });
+          saveChats();
+        } catch (error) {
+          botMsgDiv.innerHTML = 'خطا در تحلیل عکس.';
+        } finally {
+          sendBtn.disabled = false;
+          currentImageData = null;
+          document.getElementById('file-input').value = '';
+          input.placeholder = "پیامت رو اینجا بنویس...";
+        }
+        return;
+      }
+
+      // ===== ۵. چت متنی عادی (کلاد) =====
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-
       currentChat.messages.push({ role: "user", content: text });
       
       if (currentChat.title === 'گفتگوی جدید') {
@@ -550,40 +627,32 @@
       saveChats();
 
       sendBtn.disabled = true;
-      sendBtn.textContent = "...";
-
       const botMsgDiv = document.createElement('div');
       botMsgDiv.className = 'msg bot';
       botMsgDiv.innerHTML = '<span style="color: var(--accent);">در حال فکر کردن...</span>';
       chatContainer.appendChild(botMsgDiv);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
+        // استفاده از مدل کلاد
         const response = await puter.ai.chat(currentChat.messages, {
-          model: "gpt-5.6-luna",
+          model: "claude-sonnet-5",
           stream: true
         });
 
         botMsgDiv.innerHTML = '';
         let fullReply = '';
-
         for await (const part of response) {
           if (part?.text) {
             fullReply += part.text;
             botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
-            chatContainer.scrollTop = chatContainer.scrollHeight;
           }
         }
-
         currentChat.messages.push({ role: "assistant", content: fullReply });
         saveChats();
-
       } catch (error) {
         botMsgDiv.innerHTML = 'خطا در اتصال به هوش مصنوعی.';
-        console.error(error);
       } finally {
         sendBtn.disabled = false;
-        sendBtn.textContent = "ارسال";
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
     }
