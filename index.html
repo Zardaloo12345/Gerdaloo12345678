@@ -3,110 +3,303 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو | متصل به Puter AI</title>
+  <title>گردآلو | با تاریخچه چت</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
-  <!-- این خط جادویی است: کتابخانه Puter را لود می‌کند -->
   <script src="https://js.puter.com/v2/"></script>
-  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
-    body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    header { padding: 15px; background: #1e293b; text-align: center; font-weight: bold; color: #f59e0b; font-size: 18px; border-bottom: 1px solid #334155; flex-shrink: 0; }
-    #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 5px; }
+    body { background: #0f172a; color: #fff; height: 100vh; display: flex; overflow: hidden; }
+
+    /* ===== نوار کناری (تاریخچه) ===== */
+    #sidebar {
+      width: 280px;
+      background: #1e293b;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 1000;
+      transform: translateX(100%); /* مخفی در حالت بسته */
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+      border-left: 1px solid #334155;
+    }
+    #sidebar.open { transform: translateX(0); }
+
+    /* پوشش تاریک پشت نوار */
+    #overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 999; display: none;
+    }
+    #overlay.open { display: block; }
+
+    /* هدر نوار کناری */
+    .sidebar-header { padding: 15px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-header h2 { font-size: 16px; color: #f59e0b; }
+    .close-sidebar { background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; }
+
+    /* دکمه چت جدید */
+    .new-chat-btn {
+      margin: 15px; padding: 12px;
+      background: #f59e0b; color: #000;
+      border: none; border-radius: 8px;
+      font-weight: bold; font-size: 14px;
+      cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
+    }
+    .new-chat-btn:hover { background: #d97706; }
+
+    /* لیست تاریخچه */
+    .history-list { flex: 1; overflow-y: auto; padding: 0 10px 20px 10px; }
+    .history-item {
+      padding: 12px; margin-bottom: 8px;
+      background: #0f172a; border-radius: 8px;
+      font-size: 13px; color: #cbd5e1;
+      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: 0.2s; border: 1px solid transparent;
+    }
+    .history-item:hover { background: #334155; border-color: #475569; }
+    .history-item.active { border-color: #f59e0b; background: #334155; color: #fff; }
+
+    /* ===== بخش اصلی چت ===== */
+    .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; width: 100%; }
+    
+    header {
+      padding: 15px; background: #1e293b; color: #f59e0b;
+      font-weight: bold; font-size: 18px;
+      display: flex; align-items: center; gap: 15px;
+      border-bottom: 1px solid #334155; flex-shrink: 0;
+    }
+    .menu-btn {
+      background: none; border: none; color: #fff;
+      font-size: 24px; cursor: pointer; padding: 0 5px;
+    }
+
+    #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
     .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; animation: fade 0.3s; white-space: pre-wrap; word-break: break-word; }
     .bot { background: #fff; color: #0f172a; align-self: flex-start; border-top-left-radius: 2px; }
     .user { background: linear-gradient(135deg, #1e40af, #38bdf8); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
-    .input-box { padding: 12px 15px; margin: 0 15px 60px 15px; background: #1e293b; display: flex; gap: 10px; flex-shrink: 0; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
+
+    .input-box { padding: 12px 15px; margin: 0 15px 15px 15px; background: #1e293b; display: flex; gap: 10px; flex-shrink: 0; border-radius: 12px; border: 1px solid #334155; }
     input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: #334155; color: #fff; font-size: 14px; }
-    button#send { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
+    button#send { padding: 10px 20px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
+
     @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-  <header>گردآلو (متصل به gpt-5.6-luna)</header>
-  
-  <div id="chat">
-    <div class="msg bot">سلام! من گردآلو هستم. حالا به یک هوش مصنوعی واقعی (Puter) وصل شدم. هر سوالی داری بپرس! (بار اول ممکن است پنجره ورود Puter باز شود) 🍑🚀</div>
+  <!-- پوشش تاریک -->
+  <div id="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- نوار کناری (تاریخچه) -->
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <h2>تاریخچه چت‌ها</h2>
+      <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+    </div>
+    <button class="new-chat-btn" onclick="startNewChat()">
+      <span>+</span> چت جدید
+    </button>
+    <div class="history-list" id="history-list">
+      <!-- لیست تاریخچه اینجا لود می‌شود -->
+    </div>
   </div>
 
-  <div class="input-box">
-    <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
-    <button id="send" onclick="sendMessage()">ارسال</button>
+  <!-- بخش اصلی -->
+  <div class="main-content">
+    <header>
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <span>گردآلو</span>
+    </header>
+    
+    <div id="chat">
+      <!-- پیام‌ها اینجا لود می‌شوند -->
+    </div>
+
+    <div class="input-box">
+      <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
+      <button id="send" onclick="sendMessage()">ارسال</button>
+    </div>
   </div>
 
   <script>
-    const chat = document.getElementById('chat');
+    // ====== متغیرهای اصلی ======
+    const chatContainer = document.getElementById('chat');
     const input = document.getElementById('i');
     const sendBtn = document.getElementById('send');
-    
-    // آرایه تاریخچه برای حفظ حافظه چت
-    let history = [
-        { role: "system", content: "تو گردآلو هستی، یک دستیار هوشمند فارسی‌زبان. پاسخ‌هایت کامل، دقیق و با لحنی صمیمی باشد." }
-    ];
+    const historyList = document.getElementById('history-list');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
 
+    // آرایه چت‌ها از localStorage لود می‌شود
+    let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
+    let currentChatId = null;
+
+    // ====== مدیریت نوار کناری ======
+    function toggleSidebar() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+      if (sidebar.classList.contains('open')) renderHistory();
+    }
+
+    // ====== شروع چت جدید ======
+    function startNewChat() {
+      currentChatId = Date.now().toString(); // شناسه یکتا
+      const newChat = {
+        id: currentChatId,
+        title: 'گفتگوی جدید',
+        messages: [
+          { role: "system", content: "تو گردآلو هستی، یک دستیار هوشمند فارسی‌زبان. پاسخ‌هایت کامل، دقیق و با لحنی صمیمی باشد." }
+        ]
+      };
+      chats.unshift(newChat); // اضافه به ابتدای لیست
+      saveChats();
+      
+      // پاک کردن صفحه چت
+      chatContainer.innerHTML = `<div class="msg bot">سلام! من گردآلو هستم. چه کمکی می‌تونم بکنم؟ 🍑</div>`;
+      
+      // بستن نوار کناری
+      toggleSidebar();
+      
+      // رندر تاریخچه و فعال کردن چت جدید
+      renderHistory();
+    }
+
+    // ====== بارگذاری یک چت از تاریخچه ======
+    function loadChat(chatId) {
+      const chat = chats.find(c => c.id === chatId);
+      if (!chat) return;
+      
+      currentChatId = chatId;
+      chatContainer.innerHTML = '';
+      
+      // نمایش پیام‌ها (به جز system prompt)
+      chat.messages.forEach(m => {
+        if (m.role === 'user') {
+          chatContainer.innerHTML += `<div class="msg user">${m.content}</div>`;
+        } else if (m.role === 'assistant') {
+          chatContainer.innerHTML += `<div class="msg bot">${m.content.replace(/\n/g, '<br>')}</div>`;
+        }
+      });
+      
+      toggleSidebar(); // بستن نوار کناری
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      renderHistory();
+    }
+
+    // ====== ذخیره چت‌ها ======
+    function saveChats() {
+      localStorage.setItem('gerdaloo_history', JSON.stringify(chats));
+    }
+
+    // ====== رندر تاریخچه ======
+    function renderHistory() {
+      historyList.innerHTML = '';
+      if (chats.length === 0) {
+        historyList.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:13px; margin-top:20px;">هنوز چتی نداری</div>';
+        return;
+      }
+
+      chats.forEach(chat => {
+        const div = document.createElement('div');
+        div.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+        // عنوان چت را از اولین پیام کاربر می‌سازیم
+        const userMsg = chat.messages.find(m => m.role === 'user');
+        const title = userMsg ? userMsg.content.substring(0, 30) + (userMsg.content.length > 30 ? '...' : '') : 'گفتگوی جدید';
+        
+        div.textContent = title;
+        div.onclick = () => loadChat(chat.id);
+        historyList.appendChild(div);
+      });
+    }
+
+    // ====== ارسال پیام ======
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
 
+      // اگر چتی انتخاب نشده، یکی بساز
+      if (!currentChatId) startNewChat();
+
+      // پیدا کردن چت فعلی
+      const currentChat = chats.find(c => c.id === currentChatId);
+      if (!currentChat) return;
+
       // نمایش پیام کاربر
-      chat.innerHTML += `<div class="msg user">${text}</div>`;
+      chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
-      chat.scrollTop = chat.scrollHeight;
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
-      // افزودن به تاریخچه
-      history.push({ role: "user", content: text });
+      // اضافه کردن به تاریخچه چت
+      currentChat.messages.push({ role: "user", content: text });
+      
+      // اگر عنوان چت "گفتگوی جدید" است، عنوان را به اولین پیام تغییر بده
+      if (currentChat.title === 'گفتگوی جدید') {
+        currentChat.title = text.substring(0, 30);
+        saveChats();
+        renderHistory();
+      } else {
+        saveChats();
+      }
 
-      // غیرفعال کردن دکمه ارسال
       sendBtn.disabled = true;
       sendBtn.textContent = "...";
 
-      // ساخت حباب پیام برای ربات (خالی در ابتدا)
       const botMsgDiv = document.createElement('div');
       botMsgDiv.className = 'msg bot';
       botMsgDiv.innerHTML = '<span style="color: #f59e0b;">در حال فکر کردن...</span>';
-      chat.appendChild(botMsgDiv);
-      chat.scrollTop = chat.scrollHeight;
+      chatContainer.appendChild(botMsgDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // فراخوانی Puter با مدل درخواستی شما و فعال‌سازی استریم (تایپ کلمه به کلمه)
-        const response = await puter.ai.chat(history, {
-            model: "gpt-5.6-luna",
-            stream: true 
+        const response = await puter.ai.chat(currentChat.messages, {
+          model: "gpt-5.6-luna",
+          stream: true
         });
 
-        botMsgDiv.innerHTML = ''; // پاک کردن متن "در حال فکر کردن"
+        botMsgDiv.innerHTML = '';
         let fullReply = '';
 
-        // خواندن استریم و نمایش کلمه به کلمه
         for await (const part of response) {
-            if (part?.text) {
-                fullReply += part.text;
-                // تبدیل خطوط جدید به تگ br برای نمایش درست در HTML
-                botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
-                chat.scrollTop = chat.scrollHeight;
-            }
+          if (part?.text) {
+            fullReply += part.text;
+            botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          }
         }
 
-        // افزودن پاسخ کامل به تاریخچه
-        history.push({ role: "assistant", content: fullReply });
+        // اضافه کردن پاسخ ربات به تاریخچه
+        currentChat.messages.push({ role: "assistant", content: fullReply });
+        saveChats();
 
       } catch (error) {
-        botMsgDiv.innerHTML = 'خطا در اتصال به هوش مصنوعی. لطفاً اینترنت خود را بررسی کنید یا دوباره تلاش کنید.';
+        botMsgDiv.innerHTML = 'خطا در اتصال به هوش مصنوعی. لطفاً دوباره تلاش کنید.';
         console.error(error);
       } finally {
-        // فعال کردن مجدد دکمه
         sendBtn.disabled = false;
         sendBtn.textContent = "ارسال";
-        chat.scrollTop = chat.scrollHeight;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
       }
     }
 
-    // ارسال با زدن Enter
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
     });
+
+    // ====== شروع اولیه ======
+    // اگر تاریخچه‌ای وجود ندارد، یک چت جدید بساز
+    if (chats.length === 0) {
+      startNewChat();
+    } else {
+      // بارگذاری آخرین چت
+      loadChat(chats[0].id);
+      // بستن اولیه نوار کناری
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    }
   </script>
 </body>
 </html>
