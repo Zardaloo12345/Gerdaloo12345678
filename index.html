@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو | نسخه پیشرفته (فایل، وب، عکس)</title>
+  <title>گردآلو | نسخه نهایی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
+  <!-- اضافه کردن کتابخانه Marked برای تبدیل ستاره‌ها به متن بولد و لیست -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
   <style>
-    /* ====== متغیرهای رنگ ====== */
     :root {
       --bg-main: #0f172a;
       --bg-header: #1e293b;
@@ -38,7 +40,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
     body { background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; transition: background 0.3s, color 0.3s; }
 
-    /* ===== نوار کناری (تاریخچه) ===== */
+    /* ===== نوار کناری ===== */
     #sidebar {
       width: 280px; background: var(--bg-sidebar); height: 100vh;
       position: fixed; top: 0; right: 0; z-index: 1000;
@@ -83,24 +85,59 @@
     .header-left { display: flex; align-items: center; gap: 15px; }
     .menu-btn, .settings-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
 
-    /* صفحه خوش‌آمدگویی */
     #welcome-screen {
       flex: 1; display: flex; justify-content: center; align-items: center;
-      text-align: center; padding: 20px; animation: fade 0.5s;
+      text-align: center; padding: 20px;
     }
-    #welcome-screen h1 { font-size: 32px; font-weight: bold; color: var(--text-main); line-height: 1.5; }
+    #welcome-screen h1 { font-size: 32px; font-weight: bold; color: var(--text-main); }
 
-    #chat { flex: 1; overflow-y: auto; padding: 15px; display: none; flex-direction: column; gap: 10px; }
+    #chat { flex: 1; overflow-y: auto; padding: 15px; display: none; flex-direction: column; gap: 15px; }
     
-    .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; animation: fade 0.3s; white-space: pre-wrap; word-break: break-word; }
+    .msg { 
+      padding: 12px 16px; border-radius: 12px; max-width: 85%; 
+      font-size: 14px; line-height: 1.8; word-break: break-word; 
+      text-align: right; /* اجبار به راست‌چین بودن */
+    }
     
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
+
+    /* ===== استایل اختصاصی برای خروجی Markdown (حل مشکل به هم ریختگی) ===== */
+    .bot p { margin-bottom: 10px; }
+    .bot p:last-child { margin-bottom: 0; }
     
-    /* استایل عکس در چت */
+    .bot h1, .bot h2, .bot h3, .bot h4 { 
+      margin-top: 15px; margin-bottom: 8px; color: #000; 
+      line-height: 1.4; font-weight: bold;
+    }
+    .bot h1 { font-size: 18px; }
+    .bot h2 { font-size: 16px; }
+    .bot h3 { font-size: 15px; }
+    
+    .bot ul, .bot ol { 
+      margin-right: 25px; /* فاصله از سمت راست */
+      margin-bottom: 12px; 
+      padding-right: 5px;
+    }
+    .bot li { margin-bottom: 6px; }
+    
+    .bot strong { color: #000; font-weight: 900; }
+    
+    .bot code { 
+      background: #e2e8f0; color: #b91c1c; 
+      padding: 2px 6px; border-radius: 4px; 
+      font-family: monospace; direction: ltr; display: inline-block;
+    }
+    .bot pre { 
+      background: #1e293b; color: #fff; 
+      padding: 12px; border-radius: 8px; 
+      direction: ltr; text-align: left; overflow-x: auto; margin-bottom: 10px;
+    }
+    .bot pre code { background: none; color: inherit; padding: 0; }
+
     .msg img { max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; }
 
-    /* نوار ورودی */
+    /* ===== نوار ورودی ===== */
     .input-box { 
       padding: 12px 15px; margin: 0 15px 60px 15px; 
       background: var(--bg-input); display: flex; gap: 10px; 
@@ -120,11 +157,9 @@
     button#send { padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: bold; cursor: pointer; font-size: 14px; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
 
-    @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
     /* ===== مودال تنظیمات ===== */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-    .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 350px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 350px; border: 1px solid var(--border-color); }
     .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; }
     .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
     .setting-row:last-child { border-bottom: none; margin-bottom: 20px; }
@@ -132,7 +167,6 @@
     .setting-row button { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
     .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
 
-    /* نشانگرها */
     .mode-indicator {
       display: none; background: var(--accent); color: #000;
       font-size: 12px; padding: 4px 10px; border-radius: 20px;
@@ -147,7 +181,6 @@
   <div id="overlay" onclick="toggleSidebar()"></div>
   <div class="mode-indicator" id="mode-indicator">حالت فعال است</div>
 
-  <!-- نوار کناری -->
   <div id="sidebar">
     <div class="sidebar-header">
       <h2>تاریخچه چت‌ها</h2>
@@ -157,7 +190,6 @@
     <div class="history-list" id="history-list"></div>
   </div>
 
-  <!-- بخش اصلی -->
   <div class="main-content">
     <header>
       <div class="header-left">
@@ -174,18 +206,13 @@
     <div id="chat"></div>
 
     <div class="input-box">
-      <!-- دکمه پیوست عکس -->
-      <button class="icon-btn" onclick="document.getElementById('file-input').click()" title="پیوست عکس برای تحلیل">📎</button>
+      <button class="icon-btn" onclick="document.getElementById('file-input').click()" title="پیوست عکس">📎</button>
       <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
       
-      <!-- دکمه پیوست فایل (PDF) -->
-      <button class="icon-btn" onclick="document.getElementById('doc-input').click()" title="پیوست سند (PDF)">📄</button>
+      <button class="icon-btn" onclick="document.getElementById('doc-input').click()" title="پیوست فایل">📄</button>
       <input type="file" id="doc-input" accept=".pdf,.txt" style="display: none;" onchange="handleDocUpload(event)">
       
-      <!-- دکمه تولید عکس -->
-      <button class="icon-btn" id="gen-img-btn" onclick="toggleImageMode()" title="تولید عکس از متن">🎨</button>
-      
-      <!-- دکمه جستجوی وب -->
+      <button class="icon-btn" id="gen-img-btn" onclick="toggleImageMode()" title="تولید عکس">🎨</button>
       <button class="icon-btn" id="web-btn" onclick="toggleWebMode()" title="جستجوی وب">🌐</button>
       
       <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
@@ -193,37 +220,30 @@
     </div>
   </div>
 
-  <!-- مودال تنظیمات -->
   <div class="modal" id="settings-modal">
     <div class="modal-content">
       <h3>تنظیمات ظاهری</h3>
-      
       <div class="setting-row">
         <span>حالت تاریک/روشن</span>
-        <button onclick="toggleTheme()" id="theme-btn">تغییر</button>
+        <button onclick="toggleTheme()">تغییر</button>
       </div>
-
       <div class="setting-row">
         <span>رنگ پیام‌های شما</span>
         <input type="color" id="color-user" oninput="applyCustomColors()">
       </div>
-
       <div class="setting-row">
         <span>رنگ پیام‌های گردآلو</span>
         <input type="color" id="color-bot" oninput="applyCustomColors()">
       </div>
-
       <div class="setting-row">
         <span>رنگ متن گردآلو</span>
         <input type="color" id="color-font" oninput="applyCustomColors()">
       </div>
-
       <button class="btn-close-settings" onclick="closeSettings()">بستن</button>
     </div>
   </div>
 
   <script>
-    // ====== متغیرهای اصلی ======
     const chatContainer = document.getElementById('chat');
     const welcomeScreen = document.getElementById('welcome-screen');
     const input = document.getElementById('i');
@@ -235,101 +255,80 @@
 
     let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
     let currentChatId = null;
-    
-    // متغیرهای حالت‌ها
     let currentImageData = null;
     let currentDocPath = null;
     let isImageMode = false;
     let isWebMode = false;
 
-    // ====== تنظیمات (استایل قبلی) ======
+    // تنظیمات
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
-
     function toggleTheme() {
       document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      localStorage.setItem('gerdaloo_theme', isLight ? 'light' : 'dark');
+      localStorage.setItem('gerdaloo_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
     }
-
     function applyCustomColors() {
-      const colorUser = document.getElementById('color-user').value;
-      const colorBot = document.getElementById('color-bot').value;
-      const colorFont = document.getElementById('color-font').value;
-
-      document.documentElement.style.setProperty('--user-msg-bg', colorUser);
-      document.documentElement.style.setProperty('--bot-msg-bg', colorBot);
-      document.documentElement.style.setProperty('--bot-msg-text', colorFont);
-
-      localStorage.setItem('gerdaloo_color_user', colorUser);
-      localStorage.setItem('gerdaloo_color_bot', colorBot);
-      localStorage.setItem('gerdaloo_color_font', colorFont);
+      const cUser = document.getElementById('color-user').value;
+      const cBot = document.getElementById('color-bot').value;
+      const cFont = document.getElementById('color-font').value;
+      document.documentElement.style.setProperty('--user-msg-bg', cUser);
+      document.documentElement.style.setProperty('--bot-msg-bg', cBot);
+      document.documentElement.style.setProperty('--bot-msg-text', cFont);
+      localStorage.setItem('gerdaloo_color_user', cUser);
+      localStorage.setItem('gerdaloo_color_bot', cBot);
+      localStorage.setItem('gerdaloo_color_font', cFont);
     }
-
     function loadSettings() {
-      if (localStorage.getItem('gerdaloo_theme') === 'light') {
-        document.body.classList.add('light-mode');
-      }
+      if (localStorage.getItem('gerdaloo_theme') === 'light') document.body.classList.add('light-mode');
       const cUser = localStorage.getItem('gerdaloo_color_user') || '#1e40af';
       const cBot = localStorage.getItem('gerdaloo_color_bot') || '#ffffff';
       const cFont = localStorage.getItem('gerdaloo_color_font') || '#0f172a';
-
       document.getElementById('color-user').value = cUser;
       document.getElementById('color-bot').value = cBot;
       document.getElementById('color-font').value = cFont;
-
       document.documentElement.style.setProperty('--user-msg-bg', cUser);
       document.documentElement.style.setProperty('--bot-msg-bg', cBot);
       document.documentElement.style.setProperty('--bot-msg-text', cFont);
     }
 
-    // ====== مدیریت نوار کناری ======
+    // نوار کناری و چت‌ها
     function toggleSidebar() {
       sidebar.classList.toggle('open');
       overlay.classList.toggle('open');
       if (sidebar.classList.contains('open')) renderHistory();
     }
-
     function startNewChat() {
       currentChatId = Date.now().toString();
       const newChat = {
         id: currentChatId,
         title: 'گفتگوی جدید',
-        messages: [
-          { role: "system", content: "تو گردآلو هستی، یک دستیار هوشمند فارسی‌زبان. پاسخ‌هایت کامل، دقیق و با لحنی صمیمی باشد." }
-        ]
+        messages: [{ role: "system", content: "تو گردآلو هستی، یک دستیار هوشمند فارسی‌زبان. پاسخ‌هایت کامل، دقیق و با لحنی صمیمی باشد. از Markdown استفاده کن." }]
       };
       chats.unshift(newChat);
       saveChats();
-      
       welcomeScreen.style.display = 'flex';
       chatContainer.style.display = 'none';
       chatContainer.innerHTML = '';
-      
       toggleSidebar();
-      renderHistory();
     }
-
     function loadChat(chatId) {
       const chat = chats.find(c => c.id === chatId);
       if (!chat) return;
-      
       currentChatId = chatId;
       const hasUserMessages = chat.messages.some(m => m.role !== 'system');
-      
       if (hasUserMessages) {
         welcomeScreen.style.display = 'none';
         chatContainer.style.display = 'flex';
         chatContainer.innerHTML = '';
-        
         chat.messages.forEach(m => {
           if (m.role === 'user') {
             let content = m.content;
-            if (m.image) content += `<br><img src="${m.image}" alt="عکس">`;
+            if (m.image) content += `<br><img src="${m.image}">`;
             chatContainer.innerHTML += `<div class="msg user">${content}</div>`;
           } else if (m.role === 'assistant') {
-            let content = m.content.replace(/\n/g, '<br>');
-            if (m.generatedImage) content += `<br><img src="${m.generatedImage}" alt="عکس تولید شده">`;
+            // استفاده از marked.parse برای نمایش درست تاریخچه
+            let content = marked.parse(m.content); 
+            if (m.generatedImage) content += `<br><img src="${m.generatedImage}">`;
             chatContainer.innerHTML += `<div class="msg bot">${content}</div>`;
           }
         });
@@ -338,11 +337,8 @@
         welcomeScreen.style.display = 'flex';
         chatContainer.style.display = 'none';
       }
-      
       toggleSidebar();
-      renderHistory();
     }
-
     function deleteChat(chatId, event) {
       event.stopPropagation();
       if (!confirm('آیا از حذف این چت مطمئن هستید؟')) return;
@@ -355,9 +351,7 @@
         renderHistory();
       }
     }
-
     function saveChats() { localStorage.setItem('gerdaloo_history', JSON.stringify(chats)); }
-
     function renderHistory() {
       historyList.innerHTML = '';
       if (chats.length === 0) {
@@ -369,17 +363,13 @@
         div.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
         const userMsg = chat.messages.find(m => m.role === 'user');
         const title = userMsg ? userMsg.content.substring(0, 25) + (userMsg.content.length > 25 ? '...' : '') : 'گفتگوی جدید';
-        
-        div.innerHTML = `
-          <span class="history-title">${title}</span>
-          <button class="delete-chat-btn" onclick="deleteChat('${chat.id}', event)">🗑️</button>
-        `;
+        div.innerHTML = `<span class="history-title">${title}</span><button class="delete-chat-btn" onclick="deleteChat('${chat.id}', event)">🗑️</button>`;
         div.onclick = () => loadChat(chat.id);
         historyList.appendChild(div);
       });
     }
 
-    // ====== آپلود عکس و فایل ======
+    // آپلودها
     function handleImageUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -391,25 +381,21 @@
       };
       reader.readAsDataURL(file);
     }
-
     async function handleDocUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       try {
         input.placeholder = "در حال آپلود فایل...";
-        // آپلود به فضای ابری Puter
         const puterFile = await puter.fs.write(file.name, file);
         currentDocPath = puterFile.path;
         input.placeholder = "فایل آپلود شد. حالا بگو باهاش چیکار کنم...";
         input.focus();
       } catch (error) {
-        console.error("خطا در آپلود فایل:", error);
         alert("خطا در آپلود فایل.");
       }
     }
 
-    // ====== حالت‌های هوش مصنوعی ======
+    // حالت‌ها
     function toggleImageMode() {
       isImageMode = !isImageMode;
       if (isImageMode) {
@@ -424,27 +410,22 @@
         input.placeholder = "پیامت رو اینجا بنویس...";
       }
     }
-
     function toggleWebMode() {
       isWebMode = !isWebMode;
       if (isWebMode) {
         if (isImageMode) toggleImageMode();
         document.getElementById('web-btn').classList.add('active');
         modeIndicator.classList.add('show');
-        modeIndicator.style.background = "#3b82f6";
-        modeIndicator.style.color = "#fff";
         modeIndicator.textContent = "🌐 حالت جستجوی وب فعال است";
-        input.placeholder = "سوال خود را برای جستجو در اینترنت بپرسید...";
+        input.placeholder = "سوال خود را برای جستجو بپرسید...";
       } else {
         document.getElementById('web-btn').classList.remove('active');
         modeIndicator.classList.remove('show');
-        modeIndicator.style.background = "var(--accent)";
-        modeIndicator.style.color = "#000";
         input.placeholder = "پیامت رو اینجا بنویس...";
       }
     }
 
-    // ====== ارسال پیام ======
+    // ارسال پیام
     async function sendMessage() {
       const text = input.value.trim();
       if (!text && !currentImageData && !currentDocPath) return;
@@ -456,7 +437,7 @@
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) return;
 
-      // ===== ۱. حالت تولید عکس =====
+      // تولید عکس
       if (isImageMode && text) {
         chatContainer.innerHTML += `<div class="msg user">🎨 تولید عکس: ${text}</div>`;
         input.value = '';
@@ -470,15 +451,11 @@
         chatContainer.appendChild(botMsgDiv);
 
         try {
-          // استفاده از مدل تولید عکس جمینای
-          const result = await puter.ai.chat(text, { 
-            model: "gemini-3.1-flash-image-preview" 
-          });
-          
-          botMsgDiv.innerHTML = result.message.content + "<br>";
+          const result = await puter.ai.chat(text, { model: "gemini-3.1-flash-image-preview" });
+          botMsgDiv.innerHTML = marked.parse(result.message.content) + "<br>";
           if (result.message.images?.length > 0) {
             const imgUrl = result.message.images[0].image_url.url;
-            botMsgDiv.innerHTML += `<img src="${imgUrl}" style="max-width:100%; border-radius:8px;">`;
+            botMsgDiv.innerHTML += `<img src="${imgUrl}">`;
             currentChat.messages.push({ role: "assistant", content: result.message.content, generatedImage: imgUrl });
           } else {
             currentChat.messages.push({ role: "assistant", content: result.message.content });
@@ -493,7 +470,7 @@
         return;
       }
 
-      // ===== ۲. حالت تحلیل فایل =====
+      // تحلیل فایل
       if (currentDocPath) {
         chatContainer.innerHTML += `<div class="msg user">📄 فایل: ${text || 'خلاصه کن'}</div>`;
         input.value = '';
@@ -505,23 +482,14 @@
         chatContainer.appendChild(botMsgDiv);
 
         try {
-          // ساختار مخصوص ارسال فایل در Puter
-          const response = await puter.ai.chat([
-            {
-              role: "user",
-              content: [
-                { type: "file", puter_path: currentDocPath },
-                { type: "text", text: text || "این سند را برای من خلاصه کن." }
-              ]
-            }
-          ], { model: "claude-sonnet-5", stream: true });
-
+          const response = await puter.ai.chat([{ role: "user", content: [{ type: "file", puter_path: currentDocPath }, { type: "text", text: text || "این سند را برای من خلاصه کن." }] }], { model: "claude-sonnet-5", stream: true });
           botMsgDiv.innerHTML = '';
           let fullReply = '';
           for await (const part of response) {
             if (part?.text) {
               fullReply += part.text;
-              botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+              botMsgDiv.innerHTML = marked.parse(fullReply); // تبدیل به Markdown
+              chatContainer.scrollTop = chatContainer.scrollHeight;
             }
           }
           currentChat.messages.push({ role: "assistant", content: fullReply });
@@ -537,7 +505,7 @@
         return;
       }
 
-      // ===== ۳. حالت جستجوی وب =====
+      // جستجوی وب
       if (isWebMode) {
         chatContainer.innerHTML += `<div class="msg user">🌐 جستجو: ${text}</div>`;
         input.value = '';
@@ -549,18 +517,14 @@
         chatContainer.appendChild(botMsgDiv);
 
         try {
-          const response = await puter.ai.chat(text, { 
-            model: "openai/gpt-5.6-luna", // مدل‌های OpenAI از وب سرچ پشتیبانی می‌کنند
-            tools: [{ type: "web_search" }],
-            stream: true
-          });
-
+          const response = await puter.ai.chat(text, { model: "openai/gpt-5.6-luna", tools: [{ type: "web_search" }], stream: true });
           botMsgDiv.innerHTML = '';
           let fullReply = '';
           for await (const part of response) {
             if (part?.text) {
               fullReply += part.text;
-              botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+              botMsgDiv.innerHTML = marked.parse(fullReply);
+              chatContainer.scrollTop = chatContainer.scrollHeight;
             }
           }
           currentChat.messages.push({ role: "assistant", content: fullReply });
@@ -574,10 +538,10 @@
         return;
       }
 
-      // ===== ۴. حالت تحلیل عکس =====
+      // تحلیل عکس
       if (currentImageData) {
-        let userMsgHTML = text || "این عکس را برای من توصیف کن.";
-        userMsgHTML += `<br><img src="${currentImageData}" alt="عکس">`;
+        let userMsgHTML = text || "این عکس را توصیف کن.";
+        userMsgHTML += `<br><img src="${currentImageData}">`;
         chatContainer.innerHTML += `<div class="msg user">${userMsgHTML}</div>`;
         input.value = '';
         
@@ -588,18 +552,14 @@
         chatContainer.appendChild(botMsgDiv);
 
         try {
-          const response = await puter.ai.chat(
-            text || "این عکس را توصیف کن.", 
-            currentImageData, 
-            { model: "claude-sonnet-5", stream: true }
-          );
-
+          const response = await puter.ai.chat(text || "این عکس را توصیف کن.", currentImageData, { model: "claude-sonnet-5", stream: true });
           botMsgDiv.innerHTML = '';
           let fullReply = '';
           for await (const part of response) {
             if (part?.text) {
               fullReply += part.text;
-              botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+              botMsgDiv.innerHTML = marked.parse(fullReply);
+              chatContainer.scrollTop = chatContainer.scrollHeight;
             }
           }
           currentChat.messages.push({ role: "assistant", content: fullReply });
@@ -615,7 +575,7 @@
         return;
       }
 
-      // ===== ۵. چت متنی عادی (کلاد) =====
+      // چت متنی عادی (کلاد)
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
       currentChat.messages.push({ role: "user", content: text });
@@ -633,18 +593,15 @@
       chatContainer.appendChild(botMsgDiv);
 
       try {
-        // استفاده از مدل کلاد
-        const response = await puter.ai.chat(currentChat.messages, {
-          model: "claude-sonnet-5",
-          stream: true
-        });
-
+        const response = await puter.ai.chat(currentChat.messages, { model: "claude-sonnet-5", stream: true });
         botMsgDiv.innerHTML = '';
         let fullReply = '';
         for await (const part of response) {
           if (part?.text) {
             fullReply += part.text;
-            botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+            // این خط مهم‌ترین تغییره! ستاره‌ها رو تبدیل به بولد و لیست می‌کنه
+            botMsgDiv.innerHTML = marked.parse(fullReply); 
+            chatContainer.scrollTop = chatContainer.scrollHeight;
           }
         }
         currentChat.messages.push({ role: "assistant", content: fullReply });
@@ -661,16 +618,10 @@
       if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
     });
 
-    // ====== شروع اولیه ======
+    // شروع
     loadSettings();
-    
-    if (chats.length === 0) {
-      startNewChat();
-    } else {
-      loadChat(chats[0].id);
-      sidebar.classList.remove('open');
-      overlay.classList.remove('open');
-    }
+    if (chats.length === 0) startNewChat();
+    else loadChat(chats[0].id);
   </script>
 </body>
 </html>
