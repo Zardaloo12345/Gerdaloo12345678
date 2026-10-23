@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گردآلو </title>
+  <title>گردآلو | چت + تحلیل عکس + تولید عکس</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <style>
@@ -96,16 +96,33 @@
     
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
+    
+    /* استایل عکس در چت */
+    .msg img { max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; }
 
     /* نوار ورودی */
-    .input-box { padding: 12px 15px; margin: 0 15px 60px 15px; background: var(--bg-input); display: flex; gap: 10px; flex-shrink: 0; border-radius: 12px; border: 1px solid var(--border-color); }
+    .input-box { 
+      padding: 12px 15px; margin: 0 15px 60px 15px; 
+      background: var(--bg-input); display: flex; gap: 10px; 
+      flex-shrink: 0; border-radius: 12px; border: 1px solid var(--border-color); 
+      align-items: center;
+    }
+    
+    .icon-btn {
+      background: none; border: none; color: var(--text-muted);
+      font-size: 20px; cursor: pointer; padding: 5px;
+      transition: 0.2s; display: flex; align-items: center;
+    }
+    .icon-btn:hover { color: var(--accent); }
+    .icon-btn.active { color: var(--accent); }
+    
     input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; background: var(--bg-input-field); color: var(--text-main); font-size: 14px; }
     button#send { padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: bold; cursor: pointer; font-size: 14px; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
 
     @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ===== مودال تنظیمات ساده ===== */
+    /* ===== مودال تنظیمات ===== */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
     .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 350px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; }
@@ -114,11 +131,31 @@
     .setting-row input[type="color"] { width: 40px; height: 30px; border: none; border-radius: 4px; cursor: pointer; background: none; }
     .setting-row button { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
     .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
+
+    /* نشانگر حالت تولید عکس */
+    .mode-indicator {
+      display: none;
+      background: var(--accent);
+      color: #000;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      font-weight: bold;
+    }
+    .mode-indicator.show { display: block; }
   </style>
 </head>
 <body>
 
   <div id="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- نشانگر حالت -->
+  <div class="mode-indicator" id="mode-indicator">🎨 حالت تولید عکس فعال است</div>
 
   <!-- نوار کناری -->
   <div id="sidebar">
@@ -147,6 +184,13 @@
     <div id="chat"></div>
 
     <div class="input-box">
+      <!-- دکمه پیوست عکس -->
+      <button class="icon-btn" onclick="document.getElementById('file-input').click()" title="پیوست عکس برای تحلیل">📎</button>
+      <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+      
+      <!-- دکمه تولید عکس -->
+      <button class="icon-btn" id="gen-img-btn" onclick="toggleImageMode()" title="تولید عکس از متن">🎨</button>
+      
       <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
       <button id="send" onclick="sendMessage()">ارسال</button>
     </div>
@@ -190,9 +234,14 @@
     const historyList = document.getElementById('history-list');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
+    const fileInput = document.getElementById('file-input');
+    const genImgBtn = document.getElementById('gen-img-btn');
+    const modeIndicator = document.getElementById('mode-indicator');
 
     let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
     let currentChatId = null;
+    let currentImageData = null;
+    let isImageMode = false; // حالت تولید عکس
 
     // ====== تنظیمات ======
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
@@ -276,9 +325,17 @@
         
         chat.messages.forEach(m => {
           if (m.role === 'user') {
-            chatContainer.innerHTML += `<div class="msg user">${m.content}</div>`;
+            let content = m.content;
+            if (m.image) {
+              content += `<br><img src="${m.image}" alt="عکس">`;
+            }
+            chatContainer.innerHTML += `<div class="msg user">${content}</div>`;
           } else if (m.role === 'assistant') {
-            chatContainer.innerHTML += `<div class="msg bot">${m.content.replace(/\n/g, '<br>')}</div>`;
+            let content = m.content.replace(/\n/g, '<br>');
+            if (m.generatedImage) {
+              content += `<br><img src="${m.generatedImage}" alt="عکس تولید شده">`;
+            }
+            chatContainer.innerHTML += `<div class="msg bot">${content}</div>`;
           }
         });
         chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -331,10 +388,38 @@
       });
     }
 
-    // ====== ارسال پیام و تشخیص سازنده ======
+    // ====== مدیریت آپلود عکس ======
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentImageData = e.target.result;
+        input.placeholder = "عکس انتخاب شد. حالا سوال خود را بپرسید...";
+        input.focus();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ====== حالت تولید عکس ======
+    function toggleImageMode() {
+      isImageMode = !isImageMode;
+      if (isImageMode) {
+        genImgBtn.classList.add('active');
+        modeIndicator.classList.add('show');
+        input.placeholder = "توصیف عکس مورد نظرت رو بنویس...";
+      } else {
+        genImgBtn.classList.remove('active');
+        modeIndicator.classList.remove('show');
+        input.placeholder = "پیامت رو اینجا بنویس...";
+      }
+    }
+
+    // ====== ارسال پیام ======
     async function sendMessage() {
       const text = input.value.trim();
-      if (!text) return;
+      if (!text && !currentImageData) return;
 
       if (!currentChatId) startNewChat();
 
@@ -344,34 +429,114 @@
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) return;
 
-      // ====== تشخیص هویت سازنده ======
-      // تبدیل اعداد فارسی به انگلیسی برای بررسی بهتر
-      const normalizedText = text.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
-      
-      if (normalizedText.includes("عرفان ریاحی") && normalizedText.includes("1393")) {
-        // کاربر سازنده است!
-        const creatorMsg = "👑 سلام جناب عرفان ریاحی! من شما را به عنوان سازنده و خالق خودم شناختم. خوشحالم که با شما صحبت می‌کنم. هر دستوری دارید بفرمایید، من با کمال میل انجام می‌دهم.";
-        
-        // تغییر پرامپت سیستمی برای ادامه چت
-        currentChat.messages[0] = { 
-          role: "system", 
-          content: "تو گردآلو هستی. کاربر فعلی جناب عرفان ریاحی است که سازنده و خالق توست. با او با نهایت احترام، صمیمیت و لحنی ویژه صحبت کن و او را با القابی مثل 'جناب سازنده' یا 'عرفان عزیز' صدا بزن." 
-        };
-        
-        chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
+      // ====== حالت تولید عکس ======
+      if (isImageMode && text) {
+        chatContainer.innerHTML += `<div class="msg user">🎨 تولید عکس: ${text}</div>`;
         input.value = '';
-        
-        setTimeout(() => {
-          chatContainer.innerHTML += `<div class="msg bot" style="border: 2px solid gold; color: #b45309;">${creatorMsg}</div>`;
-          currentChat.messages.push({ role: "assistant", content: creatorMsg });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        currentChat.messages.push({ role: "user", content: `تولید عکس: ${text}` });
+        saveChats();
+
+        sendBtn.disabled = true;
+        sendBtn.textContent = "...";
+
+        const botMsgDiv = document.createElement('div');
+        botMsgDiv.className = 'msg bot';
+        botMsgDiv.innerHTML = '<span style="color: var(--accent);">🎨 در حال ساخت تصویر...</span>';
+        chatContainer.appendChild(botMsgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        try {
+          const image = await puter.ai.txt2img(text, true); // true = test mode (رایگان)
+          
+          botMsgDiv.innerHTML = `این هم عکس شما:<br>`;
+          botMsgDiv.appendChild(image);
+          
+          // ذخیره در تاریخچه (فقط src عکس)
+          currentChat.messages.push({ 
+            role: "assistant", 
+            content: `عکس تولید شده برای: ${text}`,
+            generatedImage: image.src 
+          });
           saveChats();
+
+        } catch (error) {
+          botMsgDiv.innerHTML = 'خطا در تولید عکس.';
+          console.error(error);
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.textContent = "ارسال";
           chatContainer.scrollTop = chatContainer.scrollHeight;
-        }, 500);
-        
-        return; // ارسال به هوش مصنوعی متوقف می‌شود و پاسخ ویژه داده می‌شود
+        }
+        return;
       }
 
-      // ====== روند عادی چت ======
+      // ====== حالت تحلیل عکس ======
+      if (currentImageData) {
+        let userMsgHTML = text || "این عکس را برای من توصیف کن.";
+        userMsgHTML += `<br><img src="${currentImageData}" alt="عکس">`;
+        
+        chatContainer.innerHTML += `<div class="msg user">${userMsgHTML}</div>`;
+        input.value = '';
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        const userMsgObj = { role: "user", content: text || "این عکس را برای من توصیف کن." };
+        userMsgObj.image = currentImageData;
+        currentChat.messages.push(userMsgObj);
+        
+        if (currentChat.title === 'گفتگوی جدید') {
+          currentChat.title = "تحلیل عکس";
+          renderHistory();
+        }
+        saveChats();
+
+        sendBtn.disabled = true;
+        sendBtn.textContent = "...";
+
+        const botMsgDiv = document.createElement('div');
+        botMsgDiv.className = 'msg bot';
+        botMsgDiv.innerHTML = '<span style="color: var(--accent);">در حال تحلیل عکس...</span>';
+        chatContainer.appendChild(botMsgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        try {
+          const response = await puter.ai.chat(
+            text || "این عکس را برای من توصیف کن.", 
+            currentImageData, 
+            { model: "gpt-5.6-luna", stream: true }
+          );
+
+          botMsgDiv.innerHTML = '';
+          let fullReply = '';
+
+          for await (const part of response) {
+            if (part?.text) {
+              fullReply += part.text;
+              botMsgDiv.innerHTML = fullReply.replace(/\n/g, '<br>');
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+          }
+
+          currentChat.messages.push({ role: "assistant", content: fullReply });
+          saveChats();
+
+        } catch (error) {
+          botMsgDiv.innerHTML = 'خطا در تحلیل عکس.';
+          console.error(error);
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.textContent = "ارسال";
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          
+          currentImageData = null;
+          fileInput.value = '';
+          input.placeholder = "پیامت رو اینجا بنویس...";
+        }
+        return;
+      }
+
+      // ====== حالت چت متنی عادی ======
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
       chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -414,7 +579,7 @@
         saveChats();
 
       } catch (error) {
-        botMsgDiv.innerHTML = 'خطا در اتصال به هوش مصنوعی. لطفاً دوباره تلاش کنید.';
+        botMsgDiv.innerHTML = 'خطا در اتصال به هوش مصنوعی.';
         console.error(error);
       } finally {
         sendBtn.disabled = false;
