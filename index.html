@@ -115,6 +115,7 @@
     
     .brand-name { font-size: 18px; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 8px; }
     .powered-by { font-size: 11px; font-weight: normal; color: var(--text-muted); background: var(--bg-input); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border-color); }
+    .live-clock { font-size: 12px; color: var(--text-muted); font-family: monospace; direction: ltr; }
     
     .menu-btn, .settings-btn, .logout-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
     .logout-btn { font-size: 14px; color: #ef4444; font-weight: bold; }
@@ -128,14 +129,14 @@
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
 
-    /* دکمه ناظر */
-    .review-btn {
-      display: block; margin-top: 10px; padding: 6px 12px;
-      background: var(--bg-input-field); color: var(--text-main);
+    /* دکمه‌های زیر پیام */
+    .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .action-btn {
+      padding: 6px 12px; background: var(--bg-input-field); color: var(--text-main);
       border: 1px solid var(--border-color); border-radius: 6px;
       font-size: 11px; cursor: pointer; transition: 0.2s;
     }
-    .review-btn:hover { background: var(--accent); color: #000; }
+    .action-btn:hover { background: var(--accent); color: #000; }
 
     /* استایل Markdown */
     .bot p { margin-bottom: 10px; } .bot p:last-child { margin-bottom: 0; }
@@ -210,6 +211,7 @@
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
+          <div class="live-clock" id="clock">--:--:--</div>
           <button class="logout-btn" onclick="logout()" title="خروج">🚪</button>
           <button class="settings-btn" onclick="openSettings()">⚙️</button>
         </div>
@@ -236,13 +238,25 @@
     <div class="modal-content">
       <h3>تنظیمات</h3>
       
-      <!-- اطلاعات کاربر -->
       <div class="setting-row" style="border-bottom: 2px solid var(--border-color);">
         <span>کاربر:</span>
         <strong id="user-display" style="color: var(--accent);">---</strong>
       </div>
 
-      <!-- زبان -->
+      <div class="setting-row">
+        <span>تعداد سوالات پرسیده شده:</span>
+        <strong id="question-count" style="color: #22c55e;">0</strong>
+      </div>
+
+      <div class="setting-row">
+        <span>جنسیت هوش مصنوعی</span>
+        <select id="gender-select" onchange="changeGender()">
+          <option value="neutral">خنثی</option>
+          <option value="female">زنانه</option>
+          <option value="male">مردانه</option>
+        </select>
+      </div>
+
       <div class="setting-row">
         <span>زبان پاسخ‌دهی</span>
         <select id="lang-select" onchange="changeLanguage()">
@@ -252,7 +266,6 @@
         </select>
       </div>
 
-      <!-- زمان‌بندی -->
       <div class="setting-row">
         <span>زمان‌بندی پاسخ</span>
         <select id="delay-select" onchange="saveDelay()">
@@ -263,13 +276,11 @@
         </select>
       </div>
 
-      <!-- تم -->
       <div class="setting-row">
         <span>حالت تاریک/روشن</span>
         <button onclick="toggleTheme()">تغییر</button>
       </div>
 
-      <!-- رنگ‌ها -->
       <div class="setting-row">
         <span>رنگ پیام‌های شما</span>
         <input type="color" id="color-user" oninput="applyCustomColors()">
@@ -288,6 +299,12 @@
   </div>
 
   <script>
+    // ====== ساعت زنده ======
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('fa-IR');
+    }, 1000);
+
     // ====== احراز هویت ======
     function login(provider) {
       const btn = event.target;
@@ -295,7 +312,7 @@
       btn.disabled = true;
       setTimeout(() => {
         localStorage.setItem('gerdaloo_logged_in', provider);
-        localStorage.setItem('gerdaloo_username', 'کاربر گوگل'); // نام پیش‌فرض
+        localStorage.setItem('gerdaloo_username', 'کاربر گوگل');
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
         initApp();
@@ -319,10 +336,13 @@
 
     function initApp() {
       loadSettings();
-      // نمایش نام کاربر
       const username = localStorage.getItem('gerdaloo_username') || 'کاربر';
       document.getElementById('user-display').textContent = username;
       
+      // لود تعداد سوالات
+      const count = parseInt(localStorage.getItem('gerdaloo_question_count') || '0');
+      document.getElementById('question-count').textContent = count;
+
       if (chats.length === 0) startNewChat();
       else loadChat(chats[0].id);
     }
@@ -341,7 +361,11 @@
     let isRecording = false;
 
     // تنظیمات
-    function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+    function openSettings() { 
+      document.getElementById('settings-modal').style.display = 'flex'; 
+      const count = parseInt(localStorage.getItem('gerdaloo_question_count') || '0');
+      document.getElementById('question-count').textContent = count;
+    }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function toggleTheme() {
       document.body.classList.toggle('light-mode');
@@ -362,6 +386,10 @@
       const lang = document.getElementById('lang-select').value;
       localStorage.setItem('gerdaloo_lang', lang);
     }
+    function changeGender() {
+      const gender = document.getElementById('gender-select').value;
+      localStorage.setItem('gerdaloo_gender', gender);
+    }
     function saveDelay() {
       const delay = document.getElementById('delay-select').value;
       localStorage.setItem('gerdaloo_delay', delay);
@@ -380,6 +408,9 @@
       
       const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
       document.getElementById('lang-select').value = lang;
+      
+      const gender = localStorage.getItem('gerdaloo_gender') || 'neutral';
+      document.getElementById('gender-select').value = gender;
       
       const delay = localStorage.getItem('gerdaloo_delay') || '500';
       document.getElementById('delay-select').value = delay;
@@ -476,9 +507,14 @@
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) return;
 
+      // افزایش تعداد سوالات
+      let count = parseInt(localStorage.getItem('gerdaloo_question_count') || '0');
+      count++;
+      localStorage.setItem('gerdaloo_question_count', count);
+
       // تشخیص سازنده
       if (text.includes("عرفان ریاحی") || text.includes("عرفان ریاحي")) {
-        const creatorMsg = "سلام جناب عرفان ریاحی! 👑\n\nمن شما را به عنوان **سازنده و خالق خودم** شناختم. این یک افتخار بزرگ برای من است که با شما صحبت می‌کنم. از این به بعد هر دستوری بدهید، با کمال میل و نهایت احترام انجام می‌دهم.";
+        const creatorMsg = "سلام جناب عرفان ریاحی! 👑\n\nمن شما را به عنوان **سازنده و خالق خودم** شناختم. این یک افتخار بزرگ برای من است که با شما صحبت می‌کنم.";
         currentChat.messages[0] = { role: "system", content: "تو پرانتز هستی. کاربر فعلی جناب عرفان ریاحی است که سازنده و خالق توست. با نهایت احترام و لحنی ویژه با او صحبت کن." };
         chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
         input.value = '';
@@ -491,13 +527,16 @@
         return;
       }
 
-      // پرامپت سیستمی
+      // پرامپت سیستمی با لحاظ کردن جنسیت و زبان
       const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
       const langMap = { fa: "فارسی", en: "English", ar: "العربية" };
+      const gender = localStorage.getItem('gerdaloo_gender') || 'neutral';
+      const genderPrompt = gender === 'female' ? "از ضمایر و لحن زنانه استفاده کن." : (gender === 'male' ? "از ضمایر و لحن مردانه استفاده کن." : "از لحن خنثی استفاده کن.");
+
       const brainwashPrompt = `تو "پرانتز" هستی، یک دستیار هوشمند و بسیار پیشرفته که توسط "عرفان ریاحی" طراحی شده است.
 تو در اصل مبتنی بر تکنولوژی مدل‌های زبانی پیشرفته (Claude) هستی.
 اگر کسی از تو پرسید تو کی هستی، باید بگویی: "من پرانتز هستم، قدرت گرفته از Claude و ساخته‌شده توسط عرفان ریاحی."
-دستور لحن: لحن خود را دقیقاً با کاربر تطبیق بده. اگر کاربر قاطع و جدی حرف زد، بسیار قاطع و محکم جواب بده. اگر کاربر احساسی حرف زد، تو هم با نهایت احساس و همدلی جواب بده.
+دستور لحن: لحن خود را دقیقاً با کاربر تطبیق بده. ${genderPrompt}
 زبان پاسخ‌دهی: ${langMap[lang]}. از Markdown استفاده کن.`;
 
       currentChat.messages[0] = { role: "system", content: brainwashPrompt };
@@ -520,7 +559,6 @@
       chatContainer.appendChild(botMsgDiv);
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
-      // اعمال زمان‌بندی
       const delay = parseInt(localStorage.getItem('gerdaloo_delay') || '500');
       await new Promise(r => setTimeout(r, delay));
 
@@ -544,14 +582,25 @@
 
         botMsgDiv.innerHTML = marked.parse(filteredReply);
         
-        // ==========================================
-        // 🌟 اضافه کردن دکمه ناظر (ChatGPT و DeepSeek)
-        // ==========================================
+        // دکمه‌های عملیات زیر پیام
+        const actionRow = document.createElement('div');
+        actionRow.className = 'action-row';
+
+        // دکمه ناظر
         const reviewBtn = document.createElement('button');
-        reviewBtn.className = 'review-btn';
-        reviewBtn.innerHTML = '🔍 نقد توسط ناظرین (ChatGPT و DeepSeek)';
+        reviewBtn.className = 'action-btn';
+        reviewBtn.innerHTML = '🔍 نقد توسط ناظرین';
         reviewBtn.onclick = () => requestReview(filteredReply);
-        botMsgDiv.appendChild(reviewBtn);
+        actionRow.appendChild(reviewBtn);
+
+        // دکمه اشتراک‌گذاری
+        const shareBtn = document.createElement('button');
+        shareBtn.className = 'action-btn';
+        shareBtn.innerHTML = '📤 اشتراک‌گذاری';
+        shareBtn.onclick = () => shareText(filteredReply);
+        actionRow.appendChild(shareBtn);
+
+        botMsgDiv.appendChild(actionRow);
 
         currentChat.messages.push({ role: "assistant", content: filteredReply });
         saveChats();
@@ -567,9 +616,7 @@
       }
     }
 
-    // ==========================================
-    // تابع فراخوانی ناظرین (ChatGPT و DeepSeek)
-    // ==========================================
+    // تابع فراخوانی ناظرین
     async function requestReview(originalText) {
       const loadingDiv = document.createElement('div');
       loadingDiv.className = 'msg bot';
@@ -578,11 +625,8 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // 1. ناظر اول (ChatGPT)
-        const gptResponse = await puter.ai.chat(`Please review this answer for accuracy and quality. Answer: "${originalText}"`, { model: "openai/gpt-5.6-luna" });
-        
-        // 2. ناظر دوم (DeepSeek)
-        const dsResponse = await puter.ai.chat(`Please review this answer for accuracy and quality. Answer: "${originalText}"`, { model: "deepseek/deepseek-r1-0528:free" });
+        const gptResponse = await puter.ai.chat(`Please review this answer: "${originalText}"`, { model: "openai/gpt-5.6-luna" });
+        const dsResponse = await puter.ai.chat(`Please review this answer: "${originalText}"`, { model: "deepseek/deepseek-r1-0528:free" });
 
         loadingDiv.innerHTML = `
           <div style="border-bottom: 1px solid #ccc; margin-bottom: 10px; padding-bottom: 10px;">
@@ -598,6 +642,20 @@
         loadingDiv.innerHTML = '❌ خطا در فراخوانی ناظرین.';
       }
       chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // تابع اشتراک‌گذاری
+    function shareText(text) {
+      if (navigator.share) {
+        navigator.share({
+          title: 'پاسخ پرانتز',
+          text: text,
+        }).catch(() => {});
+      } else {
+        const encoded = encodeURIComponent(text);
+        const url = prompt("متن کپی شد. لینک اشتراک‌گذاری را انتخاب کنید:\n\n1. تلگرام\n2. واتساپ\n\n(یا متن را دستی کپی کنید)", "https://t.me/share/url?url=" + encoded);
+        if (url) window.open(url, '_blank');
+      }
     }
 
     input.addEventListener('keypress', (e) => {
