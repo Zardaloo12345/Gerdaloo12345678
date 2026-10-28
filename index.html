@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>پرانتز | هوش مصنوعی رایگان</title>
+  <title>پرانتز | هوش مصنوعی سریع و رایگان</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -88,6 +88,7 @@
     .action-btn { padding: 6px 12px; background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; font-size: 11px; cursor: pointer; transition: 0.2s; }
     .action-btn:hover { background: var(--accent); color: #000; }
 
+    /* استایل Markdown */
     .bot p { margin-bottom: 10px; } .bot p:last-child { margin-bottom: 0; }
     .bot h1, .bot h2, .bot h3, .bot h4 { margin-top: 15px; margin-bottom: 8px; color: #000; line-height: 1.4; font-weight: bold; }
     .bot ul, .bot ol { margin-right: 25px; margin-bottom: 12px; padding-right: 5px; }
@@ -97,6 +98,7 @@
     .bot pre { background: #1e293b; color: #fff; padding: 12px; border-radius: 8px; direction: ltr; text-align: left; overflow-x: auto; margin-bottom: 10px; }
     .bot pre code { background: none; color: inherit; padding: 0; }
 
+    /* نوار ورودی */
     .input-wrapper { padding: 10px 15px 40px 15px; background: var(--bg-main); flex-shrink: 0; width: 100%; }
     .input-box { background: var(--bg-input); display: flex; gap: 8px; border-radius: 12px; border: 1px solid var(--border-color); align-items: center; padding: 6px; width: 100%; max-width: 900px; margin: 0 auto; }
     .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 8px; transition: 0.2s; display: flex; align-items: center; }
@@ -106,6 +108,7 @@
     button#send:hover { background: #d97706; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
 
+    /* تنظیمات */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
     .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
     .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; }
@@ -145,7 +148,7 @@
           <button class="menu-btn" onclick="toggleSidebar()">☰</button>
           <div class="brand-name">
             پرانتز
-            <span class="powered-by">نسخه رایگان</span>
+            <span class="powered-by">نسخه سریع</span>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -211,10 +214,12 @@
   </div>
 
   <script>
+    // ساعت زنده
     setInterval(() => {
       document.getElementById('clock').textContent = new Date().toLocaleTimeString('fa-IR');
     }, 1000);
 
+    // ====== سیستم لاگین ======
     document.getElementById('sign-in-btn').addEventListener('click', async () => {
       const btn = document.getElementById('sign-in-btn');
       btn.innerHTML = 'در حال اتصال...';
@@ -397,6 +402,7 @@
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) return;
 
+      // تشخیص سازنده
       if (text.includes("عرفان ریاحی") || text.includes("عرفان ریاحي")) {
         const creatorMsg = "سلام جناب عرفان ریاحی! 👑\n\nمن شما را به عنوان **سازنده و خالق خودم** شناختم. این یک افتخار بزرگ برای من است که با شما صحبت می‌کنم.";
         chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
@@ -439,9 +445,9 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // استفاده از مدل رایگان Llama 3.2
+        // استفاده از مدل سریع و رایگان StepFun
         const response = await puter.ai.chat(messagesToSend, { 
-            model: "meta-llama/llama-3.2-3b-instruct:free", 
+            model: "stepfun/step-3.5-flash:free", 
             stream: true 
         });
         
@@ -459,7 +465,8 @@
         currentChat.messages.push({ role: "assistant", content: fullReply });
         saveChats();
       } catch (error) {
-        botMsgDiv.innerHTML = '⚠️ خطا در پردازش. لطفاً دوباره تلاش کنید.';
+        console.error("Error details:", error);
+        botMsgDiv.innerHTML = '⚠️ خطا در پردازش. لطفاً دوباره تلاش کنید یا اتصال خود را بررسی کنید.';
       } finally {
         sendBtn.disabled = false;
         chatContainer.scrollTop = chatContainer.scrollHeight;
