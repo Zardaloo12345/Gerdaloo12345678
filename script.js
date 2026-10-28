@@ -1,127 +1,284 @@
-const chatArea = document.getElementById('chatArea');
-const chatMessages = document.getElementById('chatMessages');
-const welcomeHeader = document.getElementById('welcomeHeader');
-const userInput = document.getElementById('userInput');
-const sendBtn = document.getElementById('sendBtn');
+// ====== ساعت زنده ======
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('fa-IR');
+}, 1000);
 
-// ============================================
-// موتور ۱۰۰۰+ موضوعی
-// ============================================
-const ANSWERS = {
-  intro: "سایت زردآلو یک بازار آنلاین برای خرید و فروش کالاست. شعارش «با زردآلو خرید راحته!» است و توسط عرفان ریاحی ساخته شده. 🍑",
-  creator: "سازنده و مالک سایت زردآلو، عرفان ریاحی است. 🧑🏻‍💻",
-  link: "آدرس سایت زردآلو: https://zardaloo12345.github.io/zardaloo.online.shop/ 🌍",
-  profile: "برای استفاده از زردآلو، اول باید پروفایل خودت را بسازی: نام، شماره تماس و شماره زردآلو. 👤",
-  market: "بخش «بازار زردآلو» محل خرید و فروش کالاست. 🛒",
-  product: "برای ثبت کالای جدید، از بخش «ثبت کالای جدید» در منو استفاده کن. 📦",
-  cart: "سبد خریدت فعلاً خالی است. 🛍️",
-  messenger: "بخش «پیام‌رسان» زردآلو برای ارتباط با فروشندگان یا خریداران است. 💬",
-  report: "بخش «گزارش فروشنده» آمار تعداد کالا، ارزش کل و بازدید کل را نشان می‌دهد. 📊",
-  free: "سایت زردآلو رایگان است. 🆓",
-  thanks: "از این عزیزان تشکر شده: شهاب‌الدین ریاحی، دکتر عباس امیدی، آقای زارعی، کوشان طلائی، ملیحه همت‌گیر، سپهر میر قادری، سید ابوالفضل صمصام شریعت، محمد پارسا آیتی، محمد طاها نیرومند، آقای قاسمی، کیان عسگری، مانی شیروی. 🙏",
-  self: "من گردآلو هستم، دستیار هوشمند و آفلاین سایت زردآلو. 🍑",
-  greeting: "سلام! چطور می‌تونم کمکت کنم؟ 😊",
-  bye: "خداحافظ! بازم بیا پیشم 👋",
-  default: "متأسفم، هنوز درباره این موضوع چیزی یاد نگرفته‌ام. 🍑"
+// ====== سیستم لاگین ======
+document.getElementById('sign-in-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('sign-in-btn');
+  btn.innerHTML = 'در حال اتصال...';
+  btn.disabled = true;
+
+  try {
+    const user = await puter.auth.signIn();
+    const username = user.username || 'کاربر پرانتز';
+    localStorage.setItem('gerdaloo_logged_in', 'true');
+    localStorage.setItem('gerdaloo_username', username);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    initApp();
+  } catch (error) {
+    alert("ورود انجام نشد. دوباره تلاش کنید.");
+    btn.innerHTML = 'ورود با حساب کاربری';
+    btn.disabled = false;
+  }
+});
+
+// ====== خروج ======
+async function logout() {
+  if (!confirm("آیا می‌خواهید خارج شوید؟")) return;
+  try { await puter.auth.signOut(); } catch(e) {}
+  localStorage.removeItem('gerdaloo_logged_in');
+  localStorage.removeItem('gerdaloo_username');
+  location.reload();
+}
+
+// ====== بررسی وضعیت لاگین در شروع ======
+window.onload = async function() {
+  if (localStorage.getItem('gerdaloo_logged_in')) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    initApp();
+  }
 };
 
-const WORDS = {
-  subjects: ["زردآلو", "سایت", "بازار", "فروشگاه", "پلتفرم", "وبسایت", "سامانه", "سیستم", "اپلیکیشن", "برنامه"],
-  actions: ["چیه", "چیست", "چه کار می‌کند", "چطور کار می‌کند", "چه امکاناتی دارد", "چه کاربردی دارد", "به چه درد می‌خورد", "چه مزیتی دارد", "چه ویژگی دارد", "چگونه کار می‌کند"],
-  features: ["پروفایل", "بازار", "ثبت کالا", "سبد خرید", "پیام‌رسان", "گزارش فروشنده", "مدیریت کالاها", "ثبت‌نام", "ورود", "خرید", "فروش", "پرداخت", "ارسال", "تحویل", "جستجو", "فیلتر", "دسته‌بندی", "قیمت", "تخفیف", "گارانتی"],
-  featureActions: ["چیه", "چیست", "چطور کار می‌کند", "چه کار می‌کند", "چه امکاناتی دارد", "چگونه استفاده کنم", "کجا پیدا کنم", "چه مزیتی دارد", "چه مشکلی دارد", "چطور تنظیم کنم"],
-  people: ["عرفان ریاحی", "شهاب‌الدین ریاحی", "دکتر عباس امیدی", "آقای زارعی", "کوشان طلائی", "ملیحه همت‌گیر", "سپهر میر قادری", "سید ابوالفضل صمصام شریعت", "محمد پارسا آیتی", "محمد طاها نیرومند", "آقای قاسمی", "کیان عسگری", "مانی شیروی"],
-  peopleQuestions: ["کیست", "چه کسی است", "چه نقشی دارد", "چه کاره است", "چه می‌کند", "کجاست", "چه مهارتی دارد", "چه تخصصی دارد", "چه پروژه‌ای دارد", "چه سابقه‌ای دارد"],
-  general: ["آدرس", "لینک", "گیت‌هاب", "github", "نسخه", "آپدیت", "به‌روزرسانی", "امنیت", "حریم خصوصی", "قوانین", "شرایط", "پشتیبانی", "تماس", "ارتباط", "سوال", "پاسخ", "راهنما", "آموزش", "کمک", "دمو", "نمونه", "تست", "رایگان", "هزینه", "پرداخت", "زبان", "فارسی", "موبایل", "اپلیکیشن", "باگ", "خطا", "مشکل", "عیب", "مزیت", "ویژگی", "قابلیت", "امکانات"],
-  generalQuestions: ["چیه", "چیست", "کجاست", "چطور", "چگونه", "چه زمانی", "چه کسی", "چرا", "آیا", "چه"]
-};
+// ====== شروع برنامه ======
+function initApp() {
+  loadSettings();
+  const username = localStorage.getItem('gerdaloo_username') || 'کاربر';
+  document.getElementById('user-display').textContent = username;
+  if (chats.length === 0) startNewChat();
+  else loadChat(chats[0].id);
+}
 
-const KNOWLEDGE = [];
-const seen = new Set();
+// ====== متغیرهای اصلی ======
+const chatContainer = document.getElementById('chat');
+const welcomeScreen = document.getElementById('welcome-screen');
+const input = document.getElementById('i');
+const sendBtn = document.getElementById('send');
+const historyList = document.getElementById('history-list');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
 
-function add(keyword, answer) {
-  const k = keyword.trim().toLowerCase();
-  if (!seen.has(k) && k.length > 0) {
-    seen.add(k);
-    KNOWLEDGE.push({ keywords: [k], answer });
+let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
+let currentChatId = null;
+let recognition = null;
+let isRecording = false;
+
+// ====== تنظیمات ======
+function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+
+function toggleTheme() {
+  document.body.classList.toggle('light-mode');
+  localStorage.setItem('gerdaloo_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+}
+
+function applyCustomColors() {
+  const cUser = document.getElementById('color-user').value;
+  const cBot = document.getElementById('color-bot').value;
+  const cFont = document.getElementById('color-font').value;
+  localStorage.setItem('gerdaloo_color_user', cUser);
+  localStorage.setItem('gerdaloo_color_bot', cBot);
+  localStorage.setItem('gerdaloo_color_font', cFont);
+  document.documentElement.style.setProperty('--user-msg-bg', cUser);
+  document.documentElement.style.setProperty('--bot-msg-bg', cBot);
+  document.documentElement.style.setProperty('--bot-msg-text', cFont);
+}
+
+function changeLanguage() {
+  localStorage.setItem('gerdaloo_lang', document.getElementById('lang-select').value);
+}
+
+function loadSettings() {
+  if (localStorage.getItem('gerdaloo_theme') === 'light') document.body.classList.add('light-mode');
+  const cUser = localStorage.getItem('gerdaloo_color_user') || '#1e40af';
+  const cBot = localStorage.getItem('gerdaloo_color_bot') || '#ffffff';
+  const cFont = localStorage.getItem('gerdaloo_color_font') || '#0f172a';
+  document.getElementById('color-user').value = cUser;
+  document.getElementById('color-bot').value = cBot;
+  document.getElementById('color-font').value = cFont;
+  document.documentElement.style.setProperty('--user-msg-bg', cUser);
+  document.documentElement.style.setProperty('--bot-msg-bg', cBot);
+  document.documentElement.style.setProperty('--bot-msg-text', cFont);
+
+  const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
+  document.getElementById('lang-select').value = lang;
+}
+
+// ====== مدیریت تاریخچه و نوار کناری ======
+function toggleSidebar() {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (sidebar.classList.contains('open')) renderHistory();
+}
+
+function startNewChat() {
+  currentChatId = Date.now().toString();
+  const newChat = { id: currentChatId, title: 'گفتگوی جدید', messages: [] };
+  chats.unshift(newChat);
+  saveChats();
+  welcomeScreen.style.display = 'flex';
+  chatContainer.style.display = 'none';
+  chatContainer.innerHTML = '';
+  toggleSidebar();
+}
+
+function loadChat(chatId) {
+  const chat = chats.find(c => c.id === chatId);
+  if (!chat) return;
+  currentChatId = chatId;
+  
+  if (chat.messages.length > 0) {
+    welcomeScreen.style.display = 'none';
+    chatContainer.style.display = 'flex';
+    chatContainer.innerHTML = '';
+    chat.messages.forEach(m => {
+      if (m.role === 'user') chatContainer.innerHTML += `<div class="msg user">${m.content}</div>`;
+      else if (m.role === 'assistant') chatContainer.innerHTML += `<div class="msg bot">${marked.parse(m.content)}</div>`;
+    });
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  } else {
+    welcomeScreen.style.display = 'flex';
+    chatContainer.style.display = 'none';
+  }
+  toggleSidebar();
+}
+
+function deleteChat(chatId, event) {
+  event.stopPropagation();
+  if (!confirm('آیا از حذف این چت مطمئن هستید؟')) return;
+  chats = chats.filter(c => c.id !== chatId);
+  saveChats();
+  if (currentChatId === chatId) {
+    if (chats.length > 0) loadChat(chats[0].id);
+    else startNewChat();
+  } else renderHistory();
+}
+
+function saveChats() { localStorage.setItem('gerdaloo_history', JSON.stringify(chats)); }
+
+function renderHistory() {
+  historyList.innerHTML = '';
+  if (chats.length === 0) {
+    historyList.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; margin-top:20px;">هنوز چتی نداری</div>';
+    return;
+  }
+  chats.forEach(chat => {
+    const div = document.createElement('div');
+    div.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+    const userMsg = chat.messages.find(m => m.role === 'user');
+    const title = userMsg ? userMsg.content.substring(0, 25) + (userMsg.content.length > 25 ? '...' : '') : 'گفتگوی جدید';
+    div.innerHTML = `<span class="history-title">${title}</span><button class="delete-chat-btn" onclick="deleteChat('${chat.id}', event)">🗑️</button>`;
+    div.onclick = () => loadChat(chat.id);
+    historyList.appendChild(div);
+  });
+}
+
+// ====== میکروفن ======
+function toggleRecording() {
+  const micBtn = document.getElementById('mic-btn');
+  if (isRecording) { if (recognition) recognition.stop(); return; }
+  
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { alert("مرورگر شما از میکروفن پشتیبانی نمی‌کند."); return; }
+  
+  recognition = new SpeechRecognition();
+  recognition.lang = 'fa-IR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  
+  recognition.onstart = () => { isRecording = true; micBtn.style.color = "#ef4444"; input.placeholder = "در حال شنیدن..."; };
+  recognition.onresult = (event) => { input.value = event.results[0][0].transcript; sendMessage(); };
+  recognition.onerror = () => { isRecording = false; micBtn.style.color = ""; input.placeholder = "پیامت رو اینجا بنویس..."; };
+  recognition.onend = () => { isRecording = false; micBtn.style.color = ""; input.placeholder = "پیامت رو اینجا بنویس..."; };
+  recognition.start();
+}
+
+// ====== ارسال پیام ======
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+
+  if (!currentChatId) startNewChat();
+  welcomeScreen.style.display = 'none';
+  chatContainer.style.display = 'flex';
+
+  const currentChat = chats.find(c => c.id === currentChatId);
+  if (!currentChat) return;
+
+  // تشخیص هویت سازنده
+  if (text.includes("عرفان ریاحی") || text.includes("عرفان ریاحي")) {
+    const creatorMsg = "سلام جناب عرفان ریاحی! 👑\n\nمن شما را به عنوان **سازنده و خالق خودم** شناختم. این یک افتخار بزرگ برای من است که با شما صحبت می‌کنم.";
+    chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
+    input.value = '';
+    setTimeout(() => {
+      chatContainer.innerHTML += `<div class="msg bot" style="border: 2px solid gold;">${marked.parse(creatorMsg)}</div>`;
+      currentChat.messages.push({ role: "user", content: text });
+      currentChat.messages.push({ role: "assistant", content: creatorMsg });
+      saveChats();
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 600);
+    return;
+  }
+
+  const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
+  const langMap = { fa: "فارسی", en: "English" };
+
+  const systemPrompt = {
+    role: "system",
+    content: `تو "پرانتز" هستی، یک دستیار هوشمند. تو توسط "عرفان ریاحی" طراحی شده‌ای. زبان پاسخ‌دهی: ${langMap[lang]}.`
+  };
+
+  chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
+  input.value = '';
+  
+  const messagesToSend = [systemPrompt, ...currentChat.messages, { role: "user", content: text }];
+  currentChat.messages.push({ role: "user", content: text });
+  
+  if (currentChat.title === 'گفتگوی جدید') {
+    currentChat.title = text.substring(0, 30);
+    renderHistory();
+  }
+  saveChats();
+
+  sendBtn.disabled = true;
+  const botMsgDiv = document.createElement('div');
+  botMsgDiv.className = 'msg bot';
+  botMsgDiv.innerHTML = '<span style="color: var(--accent);">در حال پردازش...</span>';
+  chatContainer.appendChild(botMsgDiv);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  try {
+    // ⚡ استفاده از مدل سریع و رایگان StepFun
+    const response = await puter.ai.chat(messagesToSend, { 
+        model: "stepfun/step-3.5-flash:free", 
+        stream: true 
+    });
+    
+    botMsgDiv.innerHTML = '';
+    let fullReply = '';
+    
+    for await (const part of response) {
+      if (part?.text) {
+        fullReply += part.text;
+        botMsgDiv.innerHTML = marked.parse(fullReply); 
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
+    
+    currentChat.messages.push({ role: "assistant", content: fullReply });
+    saveChats();
+  } catch (error) {
+    console.error("Error details:", error);
+    botMsgDiv.innerHTML = '⚠️ خطا در پردازش. لطفاً دوباره تلاش کنید یا اتصال خود را بررسی کنید.';
+  } finally {
+    sendBtn.disabled = false;
+    chatContainer.scrollTop = chatContainer.scrollHeight;
   }
 }
 
-function buildKnowledgeBase() {
-  for (const s of WORDS.subjects) for (const a of WORDS.actions) add(`${s} ${a}`, ANSWERS.intro);
-  for (const f of WORDS.features) for (const fa of WORDS.featureActions) {
-    let ans = ANSWERS.default;
-    if (/پروفایل|ثبت‌نام|ورود/.test(f)) ans = ANSWERS.profile;
-    if (/بازار|خرید|فروش|قیمت|تخفیف|پرداخت|ارسال|تحویل|گارانتی/.test(f)) ans = ANSWERS.market;
-    if (/ثبت کالا|مدیریت|دسته‌بندی|جستجو|فیلتر/.test(f)) ans = ANSWERS.product;
-    if (/سبد/.test(f)) ans = ANSWERS.cart;
-    if (/پیام/.test(f)) ans = ANSWERS.messenger;
-    if (/گزارش/.test(f)) ans = ANSWERS.report;
-    add(`${f} ${fa}`, ans);
-  }
-  for (const p of WORDS.people) for (const q of WORDS.peopleQuestions) {
-    add(`${p} ${q}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
-  }
-  for (const g of WORDS.general) for (const gq of WORDS.generalQuestions) {
-    let ans = ANSWERS.default;
-    if (/آدرس|لینک|گیت|github/.test(g)) ans = ANSWERS.link;
-    if (/رایگان|هزینه|پرداخت/.test(g)) ans = ANSWERS.free;
-    if (/مزیت|ویژگی|قابلیت|امکانات/.test(g)) ans = ANSWERS.intro;
-    add(`${g} ${gq}`, ans);
-  }
-  for (const s of WORDS.subjects) for (const f of WORDS.features) {
-    let ans = ANSWERS.default;
-    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-    if (/بازار|خرید|فروش/.test(f)) ans = ANSWERS.market;
-    if (/ثبت کالا|مدیریت/.test(f)) ans = ANSWERS.product;
-    if (/پیام/.test(f)) ans = ANSWERS.messenger;
-    if (/گزارش/.test(f)) ans = ANSWERS.report;
-    add(`${s} ${f}`, ans);
-  }
-  for (const f of WORDS.features) for (const s of WORDS.subjects) {
-    let ans = ANSWERS.default;
-    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-    if (/بازار|خرید|فروش/.test(f)) ans = ANSWERS.market;
-    if (/ثبت کالا|مدیریت/.test(f)) ans = ANSWERS.product;
-    if (/پیام/.test(f)) ans = ANSWERS.messenger;
-    if (/گزارش/.test(f)) ans = ANSWERS.report;
-    add(`${f} ${s}`, ans);
-  }
-  for (const s of WORDS.subjects) for (const p of WORDS.people) {
-    add(`${s} ${p}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
-  }
-  for (const p of WORDS.people) for (const s of WORDS.subjects) {
-    add(`${p} ${s}`, p === "عرفان ریاحی" ? ANSWERS.creator : ANSWERS.thanks);
-  }
-  for (const f of WORDS.features) for (const g of WORDS.general) {
-    let ans = ANSWERS.default;
-    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-    if (/بازار/.test(f)) ans = ANSWERS.market;
-    if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
-    if (/پیام/.test(f)) ans = ANSWERS.messenger;
-    if (/گزارش/.test(f)) ans = ANSWERS.report;
-    if (/آدرس/.test(g)) ans = ANSWERS.link;
-    if (/رایگان/.test(g)) ans = ANSWERS.free;
-    add(`${f} ${g}`, ans);
-  }
-  for (const g of WORDS.general) for (const f of WORDS.features) {
-    let ans = ANSWERS.default;
-    if (/پروفایل/.test(f)) ans = ANSWERS.profile;
-    if (/بازار/.test(f)) ans = ANSWERS.market;
-    if (/ثبت کالا/.test(f)) ans = ANSWERS.product;
-    if (/پیام/.test(f)) ans = ANSWERS.messenger;
-    if (/گزارش/.test(f)) ans = ANSWERS.report;
-    if (/آدرس/.test(g)) ans = ANSWERS.link;
-    if (/رایگان/.test(g)) ans = ANSWERS.free;
-    add(`${g} ${f}`, ans);
-  }
-  for (const p of WORDS.people) for (const g of WORDS.general) {
-    let ans = ANSWERS.default;
-    if (p === "عرفان ریاحی") ans = ANSWERS.creator;
-    if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
-    add(`${p} ${g}`, ans);
-  }
-  for (const g of WORDS.general) for (const p of WORDS.people) {
-    let ans = ANSWERS.default;
-    if (p === "عرفان ریاحی") ans = ANSWERS.creator;
-    if (/آدرس|لینک/.test(g)) ans = ANSWERS.link;
+// ====== ارسال با Enter ======
+input.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
+});
