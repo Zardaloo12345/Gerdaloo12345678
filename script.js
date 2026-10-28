@@ -1,28 +1,45 @@
 // ====== ساعت زنده ======
 setInterval(() => {
-  document.getElementById('clock').textContent = new Date().toLocaleTimeString('fa-IR');
+  const clockEl = document.getElementById('clock');
+  if (clockEl) clockEl.textContent = new Date().toLocaleTimeString('fa-IR');
 }, 1000);
 
-// ====== سیستم لاگین ======
-document.getElementById('sign-in-btn').addEventListener('click', async () => {
-  const btn = document.getElementById('sign-in-btn');
-  btn.innerHTML = 'در حال اتصال...';
-  btn.disabled = true;
+// ====== متغیرهای اصلی ======
+const chatContainer = document.getElementById('chat');
+const welcomeScreen = document.getElementById('welcome-screen');
+const input = document.getElementById('i');
+const sendBtn = document.getElementById('send');
+const historyList = document.getElementById('history-list');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
 
-  try {
-    const user = await puter.auth.signIn();
-    const username = user.username || 'کاربر پرانتز';
-    localStorage.setItem('gerdaloo_logged_in', 'true');
-    localStorage.setItem('gerdaloo_username', username);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-container').style.display = 'block';
-    initApp();
-  } catch (error) {
-    alert("ورود انجام نشد. دوباره تلاش کنید.");
-    btn.innerHTML = 'ورود با حساب کاربری';
-    btn.disabled = false;
-  }
-});
+let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
+let currentChatId = null;
+let recognition = null;
+let isRecording = false;
+
+// ====== سیستم لاگین ======
+const signInBtn = document.getElementById('sign-in-btn');
+if (signInBtn) {
+  signInBtn.addEventListener('click', async () => {
+    signInBtn.innerHTML = 'در حال اتصال...';
+    signInBtn.disabled = true;
+
+    try {
+      const user = await puter.auth.signIn();
+      const username = user.username || 'کاربر پرانتز';
+      localStorage.setItem('gerdaloo_logged_in', 'true');
+      localStorage.setItem('gerdaloo_username', username);
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-container').style.display = 'block';
+      initApp();
+    } catch (error) {
+      alert("ورود انجام نشد. دوباره تلاش کنید.");
+      signInBtn.innerHTML = 'ورود با حساب کاربری';
+      signInBtn.disabled = false;
+    }
+  });
+}
 
 // ====== خروج ======
 async function logout() {
@@ -46,28 +63,23 @@ window.onload = async function() {
 function initApp() {
   loadSettings();
   const username = localStorage.getItem('gerdaloo_username') || 'کاربر';
-  document.getElementById('user-display').textContent = username;
+  const userDisplay = document.getElementById('user-display');
+  if (userDisplay) userDisplay.textContent = username;
+  
   if (chats.length === 0) startNewChat();
   else loadChat(chats[0].id);
 }
 
-// ====== متغیرهای اصلی ======
-const chatContainer = document.getElementById('chat');
-const welcomeScreen = document.getElementById('welcome-screen');
-const input = document.getElementById('i');
-const sendBtn = document.getElementById('send');
-const historyList = document.getElementById('history-list');
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-
-let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
-let currentChatId = null;
-let recognition = null;
-let isRecording = false;
-
 // ====== تنظیمات ======
-function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
-function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+function openSettings() { 
+  const modal = document.getElementById('settings-modal');
+  if (modal) modal.style.display = 'flex'; 
+}
+
+function closeSettings() { 
+  const modal = document.getElementById('settings-modal');
+  if (modal) modal.style.display = 'none'; 
+}
 
 function toggleTheme() {
   document.body.classList.toggle('light-mode');
@@ -92,18 +104,21 @@ function changeLanguage() {
 
 function loadSettings() {
   if (localStorage.getItem('gerdaloo_theme') === 'light') document.body.classList.add('light-mode');
+  
   const cUser = localStorage.getItem('gerdaloo_color_user') || '#1e40af';
   const cBot = localStorage.getItem('gerdaloo_color_bot') || '#ffffff';
   const cFont = localStorage.getItem('gerdaloo_color_font') || '#0f172a';
-  document.getElementById('color-user').value = cUser;
-  document.getElementById('color-bot').value = cBot;
-  document.getElementById('color-font').value = cFont;
+  
+  if (document.getElementById('color-user')) document.getElementById('color-user').value = cUser;
+  if (document.getElementById('color-bot')) document.getElementById('color-bot').value = cBot;
+  if (document.getElementById('color-font')) document.getElementById('color-font').value = cFont;
+  
   document.documentElement.style.setProperty('--user-msg-bg', cUser);
   document.documentElement.style.setProperty('--bot-msg-bg', cBot);
   document.documentElement.style.setProperty('--bot-msg-text', cFont);
 
   const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
-  document.getElementById('lang-select').value = lang;
+  if (document.getElementById('lang-select')) document.getElementById('lang-select').value = lang;
 }
 
 // ====== مدیریت تاریخچه و نوار کناری ======
@@ -156,7 +171,9 @@ function deleteChat(chatId, event) {
   } else renderHistory();
 }
 
-function saveChats() { localStorage.setItem('gerdaloo_history', JSON.stringify(chats)); }
+function saveChats() { 
+  localStorage.setItem('gerdaloo_history', JSON.stringify(chats)); 
+}
 
 function renderHistory() {
   historyList.innerHTML = '';
@@ -250,7 +267,7 @@ async function sendMessage() {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
   try {
-    // ⚡ استفاده از مدل سریع و رایگان StepFun
+    // ⚡ مدل سریع و رایگان StepFun
     const response = await puter.ai.chat(messagesToSend, { 
         model: "stepfun/step-3.5-flash:free", 
         stream: true 
