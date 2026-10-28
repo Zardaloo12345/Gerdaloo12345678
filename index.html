@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>پرانتز | نسخه رایگان</title>
+  <title>پرانتز | نسخه نهایی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -124,9 +124,9 @@
 
   <div id="login-screen">
     <div class="login-box">
-      <h1> پرانتز</h1>
-      <p>برای ادامه، با حساب گوگل خود وارد شوید</p>
-      <button class="auth-btn" onclick="login('Google')">ورود با گوگل</button>
+      <h1>پرانتز</h1>
+      <p>برای ادامه، با حساب کاربری خود وارد شوید</p>
+      <button class="auth-btn" id="sign-in-btn">ورود با حساب کاربری</button>
     </div>
   </div>
 
@@ -167,6 +167,7 @@
       <div class="input-wrapper">
         <div class="input-box">
           <button class="icon-btn" id="mic-btn" onclick="toggleRecording()" title="ضبط صدا">🎤</button>
+          <button class="icon-btn" id="web-btn" onclick="toggleWebSearch()" title="جستجوی وب">🌐</button>
           <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
           <button id="send" onclick="sendMessage()">ارسال</button>
         </div>
@@ -238,33 +239,40 @@
   </div>
 
   <script>
-    // ساعت زنده
     setInterval(() => {
       document.getElementById('clock').textContent = new Date().toLocaleTimeString('fa-IR');
     }, 1000);
 
-    // احراز هویت
-    function login(provider) {
-      const btn = event.target;
-      btn.innerHTML = 'در حال ورود...';
+    // ====== سیستم لاگین واقعی ======
+    document.getElementById('sign-in-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('sign-in-btn');
+      btn.innerHTML = 'در حال اتصال...';
       btn.disabled = true;
-      setTimeout(() => {
-        localStorage.setItem('gerdaloo_logged_in', provider);
-        localStorage.setItem('gerdaloo_username', 'کاربر گوگل');
+
+      try {
+        const user = await puter.auth.signIn();
+        const username = user.username || 'کاربر پرانتز';
+        localStorage.setItem('gerdaloo_logged_in', 'true');
+        localStorage.setItem('gerdaloo_username', username);
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
         initApp();
-      }, 1000);
-    }
+      } catch (error) {
+        alert("ورود انجام نشد. دوباره تلاش کنید.");
+        btn.innerHTML = 'ورود با حساب کاربری';
+        btn.disabled = false;
+      }
+    });
 
-    function logout() {
+    async function logout() {
       if (!confirm("آیا می‌خواهید خارج شوید؟")) return;
+      try { await puter.auth.signOut(); } catch(e) {}
       localStorage.removeItem('gerdaloo_logged_in');
       localStorage.removeItem('gerdaloo_username');
       location.reload();
     }
 
-    window.onload = function() {
+    window.onload = async function() {
       if (localStorage.getItem('gerdaloo_logged_in')) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
@@ -295,6 +303,22 @@
     let currentChatId = null;
     let recognition = null;
     let isRecording = false;
+
+    // ====== متغیرهای جستجوی وب ======
+    let isWebSearchMode = false;
+
+    function toggleWebSearch() {
+      isWebSearchMode = !isWebSearchMode;
+      const webBtn = document.getElementById('web-btn');
+      
+      if (isWebSearchMode) {
+        webBtn.style.color = '#3b82f6'; // آبی برای حالت فعال
+        input.placeholder = "سوال خود را برای جستجوی وب بپرسید...";
+      } else {
+        webBtn.style.color = ''; // برگشت به حالت عادی
+        input.placeholder = "پیامت رو اینجا بنویس...";
+      }
+    }
 
     function openSettings() { 
       document.getElementById('settings-modal').style.display = 'flex'; 
@@ -493,8 +517,19 @@
       await new Promise(r => setTimeout(r, delay));
 
       try {
-        // تغییر مدل به DeepSeek رایگان
-        const response = await puter.ai.chat(currentChat.messages, { model: "deepseek/deepseek-r1-0528:free", stream: true });
+        let options = { stream: true };
+
+        // ==========================================
+        // اگر حالت جستجوی وب فعال باشد، از ابزار Web Search استفاده می‌کنیم
+        // ==========================================
+        if (isWebSearchMode) {
+            options.model = "openai/gpt-5.6-luna"; // مدل‌های OpenAI از وب‌سرچ پشتیبانی می‌کنند
+            options.tools = [{ type: "web_search" }];
+        } else {
+            options.model = "deepseek/deepseek-r1-0528:free";
+        }
+
+        const response = await puter.ai.chat(currentChat.messages, options);
         botMsgDiv.innerHTML = '';
         let fullReply = '';
         
@@ -541,6 +576,8 @@
       } finally {
         sendBtn.disabled = false;
         chatContainer.scrollTop = chatContainer.scrollHeight;
+        // خاموش کردن خودکار حالت وب‌سرچ بعد از ارسال
+        if (isWebSearchMode) toggleWebSearch();
       }
     }
 
