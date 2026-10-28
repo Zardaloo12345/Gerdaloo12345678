@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>گردآلو | قدرت گرفته از Claude</title>
+  <title>پرانتز | قدرت گرفته از Claude</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -43,7 +43,7 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* ===== صفحه ورود ===== */
+    /* صفحه ورود */
     #login-screen {
       position: fixed; inset: 0; background: var(--bg-main);
       display: flex; justify-content: center; align-items: center;
@@ -68,11 +68,10 @@
     }
     .auth-btn:hover { background: var(--border-color); transform: translateY(-2px); }
     .auth-btn.google { border-color: #db4437; }
-    .auth-btn.microsoft { border-color: #00a4ef; }
     
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ===== بقیه برنامه ===== */
+    /* بقیه برنامه */
     #app-container { display: none; height: 100vh; width: 100vw; }
 
     #sidebar {
@@ -117,17 +116,26 @@
     .brand-name { font-size: 18px; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 8px; }
     .powered-by { font-size: 11px; font-weight: normal; color: var(--text-muted); background: var(--bg-input); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border-color); }
     
-    .menu-btn, .settings-btn, .secret-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
-    .secret-btn { font-size: 16px; opacity: 0.3; transition: 0.3s; }
-    .secret-btn:hover { opacity: 1; color: var(--accent); }
+    .menu-btn, .settings-btn, .logout-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
+    .logout-btn { font-size: 14px; color: #ef4444; font-weight: bold; }
+    .logout-btn:hover { text-decoration: underline; }
 
     #welcome-screen { flex: 1; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px; }
     #welcome-screen h1 { font-size: 24px; font-weight: bold; color: var(--text-main); line-height: 1.8;}
 
     #chat { flex: 1; overflow-y: auto; padding: 15px; display: none; flex-direction: column; gap: 15px; padding-bottom: 20px; }
-    .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; word-break: break-word; text-align: right; }
+    .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; word-break: break-word; text-align: right; position: relative; }
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
+
+    /* دکمه ناظر */
+    .review-btn {
+      display: block; margin-top: 10px; padding: 6px 12px;
+      background: var(--bg-input-field); color: var(--text-main);
+      border: 1px solid var(--border-color); border-radius: 6px;
+      font-size: 11px; cursor: pointer; transition: 0.2s;
+    }
+    .review-btn:hover { background: var(--accent); color: #000; }
 
     /* استایل Markdown */
     .bot p { margin-bottom: 10px; } .bot p:last-child { margin-bottom: 0; }
@@ -151,19 +159,16 @@
     button#send:hover { background: #d97706; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
 
-    /* تنظیمات و مودال‌ها */
+    /* تنظیمات */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-    .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 350px; border: 1px solid var(--border-color); }
+    .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
     .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; }
     .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
     .setting-row:last-child { border-bottom: none; margin-bottom: 20px; }
     .setting-row input[type="color"] { width: 40px; height: 30px; border: none; border-radius: 4px; cursor: pointer; background: none; }
     .setting-row button { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+    .setting-row select { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px; border-radius: 6px; outline: none; }
     .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
-
-    /* استایل مخصوص مودال کد مخفی */
-    .secret-modal-content input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-size: 16px; text-align: center; letter-spacing: 5px; outline: none; margin-bottom: 15px; }
-    .btn-secret { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #22c55e; color: #fff; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -171,10 +176,12 @@
   <!-- صفحه لاگین -->
   <div id="login-screen">
     <div class="login-box">
-      <h1>🍑 گردآلو</h1>
-      <p>برای ادامه، وارد حساب خود شوید</p>
-      <button class="auth-btn google" onclick="login('Google')">ورود با گوگل</button>
-      <button class="auth-btn microsoft" onclick="login('Microsoft')">ورود با مایکروسافت</button>
+      <h1>🍑 پرانتز</h1>
+      <p>برای ادامه، با حساب گوگل خود وارد شوید</p>
+      <button class="auth-btn google" onclick="login('Google')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20" alt="Google">
+        ورود با گوگل
+      </button>
     </div>
   </div>
 
@@ -198,19 +205,18 @@
         <div class="header-left">
           <button class="menu-btn" onclick="toggleSidebar()">☰</button>
           <div class="brand-name">
-            گردآلو
+            پرانتز
             <span class="powered-by">قدرت گرفته از Claude</span>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
-          <!-- دکمه مخفی برای وارد کردن کد ABC -->
-          <button class="secret-btn" onclick="openSecretModal()" title="پنل ویژه سازنده">🔑</button>
+          <button class="logout-btn" onclick="logout()" title="خروج">🚪</button>
           <button class="settings-btn" onclick="openSettings()">⚙️</button>
         </div>
       </header>
       
       <div id="welcome-screen">
-        <h1>سلام...<br>من گردآلو هستم.<br>چطور می‌تونم کمکت کنم؟</h1>
+        <h1>سلام...<br>من پرانتز هستم.<br>چطور می‌تونم کمکت کنم؟</h1>
       </div>
 
       <div id="chat"></div>
@@ -225,69 +231,82 @@
     </div>
   </div>
 
-  <!-- مودال تنظیمات ظاهری -->
+  <!-- مودال تنظیمات -->
   <div class="modal" id="settings-modal">
     <div class="modal-content">
-      <h3>تنظیمات ظاهری</h3>
+      <h3>تنظیمات</h3>
+      
+      <!-- اطلاعات کاربر -->
+      <div class="setting-row" style="border-bottom: 2px solid var(--border-color);">
+        <span>کاربر:</span>
+        <strong id="user-display" style="color: var(--accent);">---</strong>
+      </div>
+
+      <!-- زبان -->
+      <div class="setting-row">
+        <span>زبان پاسخ‌دهی</span>
+        <select id="lang-select" onchange="changeLanguage()">
+          <option value="fa">فارسی</option>
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+
+      <!-- زمان‌بندی -->
+      <div class="setting-row">
+        <span>زمان‌بندی پاسخ</span>
+        <select id="delay-select" onchange="saveDelay()">
+          <option value="0">فوری</option>
+          <option value="500">0.5 ثانیه</option>
+          <option value="1000">1 ثانیه</option>
+          <option value="2000">2 ثانیه</option>
+        </select>
+      </div>
+
+      <!-- تم -->
       <div class="setting-row">
         <span>حالت تاریک/روشن</span>
         <button onclick="toggleTheme()">تغییر</button>
       </div>
+
+      <!-- رنگ‌ها -->
       <div class="setting-row">
         <span>رنگ پیام‌های شما</span>
         <input type="color" id="color-user" oninput="applyCustomColors()">
       </div>
       <div class="setting-row">
-        <span>رنگ پیام‌های گردآلو</span>
+        <span>رنگ پیام‌های پرانتز</span>
         <input type="color" id="color-bot" oninput="applyCustomColors()">
       </div>
+      <div class="setting-row">
+        <span>رنگ فونت پرانتز</span>
+        <input type="color" id="color-font" oninput="applyCustomColors()">
+      </div>
+
       <button class="btn-close-settings" onclick="closeSettings()">بستن</button>
     </div>
   </div>
 
-  <!-- مودال مخفی کد ABC -->
-  <div class="modal" id="secret-modal">
-    <div class="modal-content secret-modal-content">
-      <h3>پنل ویژه سازنده</h3>
-      <p style="text-align:center; font-size:13px; color:var(--text-muted); margin-bottom:15px;">برای فعال‌سازی هوش پیشرفته (Claude)، کد را وارد کنید.</p>
-      <input type="password" id="secret-code" placeholder="کد را وارد کنید...">
-      <button class="btn-secret" onclick="verifySecretCode()">فعال‌سازی</button>
-      <button class="btn-close-settings" style="margin-top: 10px;" onclick="closeSecretModal()">لغو</button>
-    </div>
-  </div>
-
   <script>
-    // ====== متغیرهای اصلی ======
-    const chatContainer = document.getElementById('chat');
-    const welcomeScreen = document.getElementById('welcome-screen');
-    const input = document.getElementById('i');
-    const sendBtn = document.getElementById('send');
-    const historyList = document.getElementById('history-list');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-
-    let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
-    let currentChatId = null;
-    let recognition = null;
-    let isRecording = false;
-    
-    // متغیرهای مخفی
-    let isProModeActive = false;
-    const SECRET_CODE = "ABC";
-    const DEFAULT_MODEL = "gemini-3.5-flash-lite"; // مدل رایگان
-    const PRO_MODEL = "claude-sonnet-5"; // مدل قوی و احساسی
-
-    // ====== ورود ======
+    // ====== احراز هویت ======
     function login(provider) {
       const btn = event.target;
       btn.innerHTML = 'در حال ورود...';
       btn.disabled = true;
       setTimeout(() => {
         localStorage.setItem('gerdaloo_logged_in', provider);
+        localStorage.setItem('gerdaloo_username', 'کاربر گوگل'); // نام پیش‌فرض
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
         initApp();
       }, 1000);
+    }
+
+    function logout() {
+      if (!confirm("آیا می‌خواهید خارج شوید؟")) return;
+      localStorage.removeItem('gerdaloo_logged_in');
+      localStorage.removeItem('gerdaloo_username');
+      location.reload();
     }
 
     window.onload = function() {
@@ -300,11 +319,28 @@
 
     function initApp() {
       loadSettings();
+      // نمایش نام کاربر
+      const username = localStorage.getItem('gerdaloo_username') || 'کاربر';
+      document.getElementById('user-display').textContent = username;
+      
       if (chats.length === 0) startNewChat();
       else loadChat(chats[0].id);
     }
 
-    // ====== تنظیمات ======
+    const chatContainer = document.getElementById('chat');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const input = document.getElementById('i');
+    const sendBtn = document.getElementById('send');
+    const historyList = document.getElementById('history-list');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    let chats = JSON.parse(localStorage.getItem('gerdaloo_history')) || [];
+    let currentChatId = null;
+    let recognition = null;
+    let isRecording = false;
+
+    // تنظیمات
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function toggleTheme() {
@@ -314,36 +350,42 @@
     function applyCustomColors() {
       const cUser = document.getElementById('color-user').value;
       const cBot = document.getElementById('color-bot').value;
+      const cFont = document.getElementById('color-font').value;
       localStorage.setItem('gerdaloo_color_user', cUser);
       localStorage.setItem('gerdaloo_color_bot', cBot);
+      localStorage.setItem('gerdaloo_color_font', cFont);
       document.documentElement.style.setProperty('--user-msg-bg', cUser);
       document.documentElement.style.setProperty('--bot-msg-bg', cBot);
+      document.documentElement.style.setProperty('--bot-msg-text', cFont);
+    }
+    function changeLanguage() {
+      const lang = document.getElementById('lang-select').value;
+      localStorage.setItem('gerdaloo_lang', lang);
+    }
+    function saveDelay() {
+      const delay = document.getElementById('delay-select').value;
+      localStorage.setItem('gerdaloo_delay', delay);
     }
     function loadSettings() {
       if (localStorage.getItem('gerdaloo_theme') === 'light') document.body.classList.add('light-mode');
       const cUser = localStorage.getItem('gerdaloo_color_user') || '#1e40af';
       const cBot = localStorage.getItem('gerdaloo_color_bot') || '#ffffff';
+      const cFont = localStorage.getItem('gerdaloo_color_font') || '#0f172a';
       document.getElementById('color-user').value = cUser;
       document.getElementById('color-bot').value = cBot;
+      document.getElementById('color-font').value = cFont;
       document.documentElement.style.setProperty('--user-msg-bg', cUser);
       document.documentElement.style.setProperty('--bot-msg-bg', cBot);
+      document.documentElement.style.setProperty('--bot-msg-text', cFont);
+      
+      const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
+      document.getElementById('lang-select').value = lang;
+      
+      const delay = localStorage.getItem('gerdaloo_delay') || '500';
+      document.getElementById('delay-select').value = delay;
     }
 
-    // ====== کد مخفی ======
-    function openSecretModal() { document.getElementById('secret-modal').style.display = 'flex'; }
-    function closeSecretModal() { document.getElementById('secret-modal').style.display = 'none'; }
-    function verifySecretCode() {
-      const code = document.getElementById('secret-code').value;
-      if (code === SECRET_CODE) {
-        isProModeActive = true;
-        closeSecretModal();
-        alert("✅ حالت ویژه فعال شد! از این به بعد گردآلو با قدرت کامل (Claude) و لحن احساسی جواب می‌ده.");
-      } else {
-        alert("❌ کد اشتباه است!");
-      }
-    }
-
-    // ====== مدیریت چت ======
+    // نوار کناری و چت‌ها
     function toggleSidebar() {
       sidebar.classList.toggle('open');
       overlay.classList.toggle('open');
@@ -407,7 +449,6 @@
       });
     }
 
-    // ====== میکروفن ======
     function toggleRecording() {
       const micBtn = document.getElementById('mic-btn');
       if (isRecording) { if (recognition) recognition.stop(); return; }
@@ -424,7 +465,6 @@
       recognition.start();
     }
 
-    // ====== ارسال پیام ======
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
@@ -436,10 +476,10 @@
       const currentChat = chats.find(c => c.id === currentChatId);
       if (!currentChat) return;
 
-      // تشخیص سازنده (همیشه کار می‌کند)
+      // تشخیص سازنده
       if (text.includes("عرفان ریاحی") || text.includes("عرفان ریاحي")) {
         const creatorMsg = "سلام جناب عرفان ریاحی! 👑\n\nمن شما را به عنوان **سازنده و خالق خودم** شناختم. این یک افتخار بزرگ برای من است که با شما صحبت می‌کنم. از این به بعد هر دستوری بدهید، با کمال میل و نهایت احترام انجام می‌دهم.";
-        currentChat.messages[0] = { role: "system", content: "تو گردآلو هستی. کاربر فعلی جناب عرفان ریاحی است که سازنده و خالق توست. با نهایت احترام و لحنی ویژه با او صحبت کن." };
+        currentChat.messages[0] = { role: "system", content: "تو پرانتز هستی. کاربر فعلی جناب عرفان ریاحی است که سازنده و خالق توست. با نهایت احترام و لحنی ویژه با او صحبت کن." };
         chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
         input.value = '';
         setTimeout(() => {
@@ -451,16 +491,16 @@
         return;
       }
 
-      // انتخاب مدل بر اساس وضعیت (معمولی یا مخفی)
-      const selectedModel = isProModeActive ? PRO_MODEL : DEFAULT_MODEL;
-      
-      let systemPrompt = `تو "گردآلو" هستی، یک دستیار هوشمند. توسط عرفان ریاحی ساخته شده‌ای.`;
-      if (isProModeActive) {
-        systemPrompt += ` تو قدرت گرفته از Claude هستی و باید با نهایت احساس، همدلی و هوش با کاربر صحبت کنی. اگر کاربر قاطع بود، قاطع باش و اگر احساسی بود، کاملاً احساسی باش.`;
-      } else {
-        systemPrompt += ` پاسخ‌هایت باید مفید و مختصر باشند.`;
-      }
-      currentChat.messages[0] = { role: "system", content: systemPrompt };
+      // پرامپت سیستمی
+      const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
+      const langMap = { fa: "فارسی", en: "English", ar: "العربية" };
+      const brainwashPrompt = `تو "پرانتز" هستی، یک دستیار هوشمند و بسیار پیشرفته که توسط "عرفان ریاحی" طراحی شده است.
+تو در اصل مبتنی بر تکنولوژی مدل‌های زبانی پیشرفته (Claude) هستی.
+اگر کسی از تو پرسید تو کی هستی، باید بگویی: "من پرانتز هستم، قدرت گرفته از Claude و ساخته‌شده توسط عرفان ریاحی."
+دستور لحن: لحن خود را دقیقاً با کاربر تطبیق بده. اگر کاربر قاطع و جدی حرف زد، بسیار قاطع و محکم جواب بده. اگر کاربر احساسی حرف زد، تو هم با نهایت احساس و همدلی جواب بده.
+زبان پاسخ‌دهی: ${langMap[lang]}. از Markdown استفاده کن.`;
+
+      currentChat.messages[0] = { role: "system", content: brainwashPrompt };
 
       // نمایش پیام کاربر
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
@@ -480,9 +520,12 @@
       chatContainer.appendChild(botMsgDiv);
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
+      // اعمال زمان‌بندی
+      const delay = parseInt(localStorage.getItem('gerdaloo_delay') || '500');
+      await new Promise(r => setTimeout(r, delay));
+
       try {
-        // فراخوانی با مدل انتخاب شده
-        const response = await puter.ai.chat(currentChat.messages, { model: selectedModel, stream: true });
+        const response = await puter.ai.chat(currentChat.messages, { model: "claude-sonnet-5", stream: true });
         botMsgDiv.innerHTML = '';
         let fullReply = '';
         
@@ -494,18 +537,27 @@
           }
         }
         
-        // فیلتر کلمات (فقط در حالت عادی)
-        if (!isProModeActive) {
-            fullReply = fullReply.replace(/Anthropic/g, "عرفان ریاحی").replace(/آنتروپیک/g, "عرفان ریاحی");
+        let filteredReply = fullReply;
+        if (filteredReply.includes("Anthropic") || filteredReply.includes("آنتروپیک")) {
+            filteredReply = filteredReply.replace(/Anthropic/g, "عرفان ریاحی").replace(/آنتروپیک/g, "عرفان ریاحی");
         }
 
-        botMsgDiv.innerHTML = marked.parse(fullReply); 
-        currentChat.messages.push({ role: "assistant", content: fullReply });
+        botMsgDiv.innerHTML = marked.parse(filteredReply);
+        
+        // ==========================================
+        // 🌟 اضافه کردن دکمه ناظر (ChatGPT و DeepSeek)
+        // ==========================================
+        const reviewBtn = document.createElement('button');
+        reviewBtn.className = 'review-btn';
+        reviewBtn.innerHTML = '🔍 نقد توسط ناظرین (ChatGPT و DeepSeek)';
+        reviewBtn.onclick = () => requestReview(filteredReply);
+        botMsgDiv.appendChild(reviewBtn);
+
+        currentChat.messages.push({ role: "assistant", content: filteredReply });
         saveChats();
       } catch (error) {
-        // اگر خطای اعتبار داد، به کاربر بگو
         if (error.message && error.message.includes("Balance")) {
-            botMsgDiv.innerHTML = '⚠️ اعتبار حساب تمام شده است. لطفاً کد ویژه سازنده را وارد کنید یا بعداً تلاش کنید.';
+            botMsgDiv.innerHTML = '⚠️ اعتبار حساب تمام شده است. لطفاً از دکمه <b>«🚪»</b> در بالای صفحه استفاده کنید و با یک ایمیل جدید وارد شوید.';
         } else {
             botMsgDiv.innerHTML = 'خطا در پردازش اطلاعات...';
         }
@@ -513,6 +565,39 @@
         sendBtn.disabled = false;
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
+    }
+
+    // ==========================================
+    // تابع فراخوانی ناظرین (ChatGPT و DeepSeek)
+    // ==========================================
+    async function requestReview(originalText) {
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'msg bot';
+      loadingDiv.innerHTML = '⏳ ناظرین در حال بررسی پاسخ هستند...';
+      chatContainer.appendChild(loadingDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      try {
+        // 1. ناظر اول (ChatGPT)
+        const gptResponse = await puter.ai.chat(`Please review this answer for accuracy and quality. Answer: "${originalText}"`, { model: "openai/gpt-5.6-luna" });
+        
+        // 2. ناظر دوم (DeepSeek)
+        const dsResponse = await puter.ai.chat(`Please review this answer for accuracy and quality. Answer: "${originalText}"`, { model: "deepseek/deepseek-r1-0528:free" });
+
+        loadingDiv.innerHTML = `
+          <div style="border-bottom: 1px solid #ccc; margin-bottom: 10px; padding-bottom: 10px;">
+            <strong style="color:#10a37f;">🤖 ناظر ۱ (ChatGPT):</strong><br>
+            ${marked.parse(gptResponse.message.content)}
+          </div>
+          <div>
+            <strong style="color:#1e40af;">🧠 ناظر ۲ (DeepSeek):</strong><br>
+            ${marked.parse(dsResponse.message.content)}
+          </div>
+        `;
+      } catch (error) {
+        loadingDiv.innerHTML = '❌ خطا در فراخوانی ناظرین.';
+      }
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
     input.addEventListener('keypress', (e) => {
