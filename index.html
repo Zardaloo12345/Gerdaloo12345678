@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>پرانتز | هوش مصنوعی رایگان</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
-  <!-- کتابخانه تبدیل متن به Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
   <style>
@@ -211,7 +210,7 @@
 
   <script>
     // ==========================================
-    // کلید API شما برای Pollinations
+    // تنظیمات اتصال به Pollinations
     // ==========================================
     const POLLINATIONS_API_KEY = "pk_pHdVdwVtuMrJgdxF"; 
     const POLLINATIONS_URL = "https://text.pollinations.ai/openai";
@@ -409,12 +408,13 @@
         return;
       }
 
-      const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
-      const langMap = { fa: "فارسی", en: "English" };
-
+      // پرامپت سخت‌گیرانه برای فارسی روان
       const systemPrompt = {
         role: "system",
-        content: `تو "پرانتز" هستی، یک دستیار هوشمند. تو توسط "عرفان ریاحی" طراحی شده‌ای. زبان پاسخ‌دهی: ${langMap[lang]}.`
+        content: `تو "پرانتز" هستی، یک دستیار هوشمند. تو توسط "عرفان ریاحی" طراحی شده‌ای. 
+        قانون بسیار مهم: باید حتماً و فقط به زبان فارسی روان، محاوره‌ای و کاملاً طبیعی پاسخ دهی. 
+        از به کار بردن کلمات انگلیسی خودداری کن. 
+        پاسخ‌هایت باید کوتاه، مفید و دقیق باشند.`
       };
 
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
@@ -437,7 +437,7 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // اتصال به Pollinations با استفاده از کلید API
+        // مدل Mistral برای فارسی بهتر
         const response = await fetch(POLLINATIONS_URL, {
             method: "POST",
             headers: {
@@ -445,7 +445,7 @@
                 "Authorization": `Bearer ${POLLINATIONS_API_KEY}`
             },
             body: JSON.stringify({
-                model: "openai", 
+                model: "mistral", 
                 messages: messagesToSend,
                 stream: true 
             })
