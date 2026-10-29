@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>پرانتز | Puter AI + Video</title>
+  <title>پرانتز | Puter AI (Luna)</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -84,6 +84,7 @@
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
 
+    /* استایل Markdown */
     .bot p { margin-bottom: 10px; } .bot p:last-child { margin-bottom: 0; }
     .bot h1, .bot h2, .bot h3, .bot h4 { margin-top: 15px; margin-bottom: 8px; color: #000; line-height: 1.4; font-weight: bold; }
     .bot ul, .bot ol { margin-right: 25px; margin-bottom: 12px; padding-right: 5px; }
@@ -98,7 +99,6 @@
     .input-box { background: var(--bg-input); display: flex; gap: 8px; border-radius: 12px; border: 1px solid var(--border-color); align-items: center; padding: 6px; width: 100%; max-width: 900px; margin: 0 auto; }
     .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 8px; transition: 0.2s; display: flex; align-items: center; }
     .icon-btn:hover { color: var(--accent); }
-    .icon-btn.active { color: var(--accent); background: rgba(245, 158, 11, 0.1); border-radius: 6px; }
     input { flex: 1; padding: 10px 8px; border-radius: 8px; border: none; outline: none; background: transparent; color: var(--text-main); font-size: 14px; }
     button#send { padding: 10px 24px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: bold; font-size: 15px; cursor: pointer; flex-shrink: 0; margin-left: 2px; }
     button#send:hover { background: #d97706; }
@@ -112,7 +112,6 @@
     .setting-row:last-child { border-bottom: none; margin-bottom: 20px; }
     .setting-row input[type="color"] { width: 40px; height: 30px; border: none; border-radius: 4px; cursor: pointer; background: none; }
     .setting-row button { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
-    .setting-row select { background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px; border-radius: 6px; outline: none; }
     .btn-close-settings { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
   </style>
 </head>
@@ -121,7 +120,7 @@
   <div id="login-screen">
     <div class="login-box">
       <h1>پرانتز</h1>
-      <p>هوش مصنوعی (Puter)</p>
+      <p>هوش مصنوعی پیشرفته (Luna)</p>
       <button class="auth-btn" onclick="login()">ورود با حساب Puter</button>
     </div>
   </div>
@@ -144,7 +143,7 @@
           <button class="menu-btn" onclick="toggleSidebar()">☰</button>
           <div class="brand-name">
             پرانتز
-            <span class="powered-by">Puter AI</span>
+            <span class="powered-by">Puter (Luna)</span>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -162,11 +161,7 @@
 
       <div class="input-wrapper">
         <div class="input-box">
-          <!-- دکمه میکروفن -->
           <button class="icon-btn" id="mic-btn" onclick="toggleRecording()" title="ضبط صدا">🎤</button>
-          <!-- دکمه تولید ویدیو -->
-          <button class="icon-btn" id="vid-btn" onclick="toggleVideoMode()" title="تولید ویدیو">🎬</button>
-          
           <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
           <button id="send" onclick="sendMessage()">ارسال</button>
         </div>
@@ -268,9 +263,6 @@
     let currentChatId = null;
     let recognition = null;
     let isRecording = false;
-    
-    // متغیر حالت ویدیو
-    let isVideoMode = false;
 
     // تنظیمات
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
@@ -383,14 +375,6 @@
       recognition.start();
     }
 
-    // حالت تولید ویدیو
-    function toggleVideoMode() {
-      isVideoMode = !isVideoMode;
-      const btn = document.getElementById('vid-btn');
-      btn.classList.toggle('active', isVideoMode);
-      input.placeholder = isVideoMode ? "توصیف ویدیویی که می‌خواهی بسازی را بنویس (به انگلیسی بهتر جواب می‌دهد)..." : "پیامت رو اینجا بنویس...";
-    }
-
     // ارسال پیام
     async function sendMessage() {
       const text = input.value.trim();
@@ -418,8 +402,17 @@
         return;
       }
 
+      const systemPrompt = {
+        role: "system",
+        content: `تو "پرانتز" هستی، یک دستیار هوشمند. توسط عرفان ریاحی ساخته شده‌ای. باید فقط و فقط به زبان فارسی روان و محاوره‌ای جواب بدهی.`
+      };
+
+      const recentHistory = currentChat.messages.slice(-10);
+      const messagesToSend = [systemPrompt, ...recentHistory, { role: "user", content: text }];
+
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
+      
       currentChat.messages.push({ role: "user", content: text });
       
       if (currentChat.title === 'گفتگوی جدید') {
@@ -436,40 +429,9 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // اگر حالت ویدیو فعال است
-        if (isVideoMode) {
-            botMsgDiv.innerHTML = '<span style="color: var(--accent);">🎬 در حال ساخت ویدیو... (ممکن است کمی طول بکشد)</span>';
-            
-            // فراخوانی Puter برای ساخت ویدیو
-            // پارامتر false یعنی از اعتبار کم می‌شود (همانطور که گفتی مهم نیست)
-            const videoElement = await puter.ai.txt2vid(text, false);
-            
-            botMsgDiv.innerHTML = 'این هم ویدیوی شما:<br>';
-            // اضافه کردن ویدیو به پیام
-            videoElement.style.maxWidth = '100%';
-            videoElement.style.borderRadius = '8px';
-            videoElement.style.marginTop = '10px';
-            videoElement.setAttribute('controls', 'true'); // اضافه کردن کنترل‌های پخش
-            botMsgDiv.appendChild(videoElement);
-            
-            currentChat.messages.push({ role: "assistant", content: `[ویدیو تولید شد]: ${text}` });
-            saveChats();
-            
-            // خاموش کردن حالت ویدیو بعد از ساخت
-            toggleVideoMode();
-            return;
-        }
-
-        // اگر حالت ویدیو نبود (چت متنی عادی)
-        const systemPrompt = {
-            role: "system",
-            content: `تو "پرانتز" هستی، یک دستیار هوشمند. توسط عرفان ریاحی ساخته شده‌ای. باید فقط و فقط به زبان فارسی روان و محاوره‌ای جواب بدهی.`
-        };
-        const recentHistory = currentChat.messages.slice(-10);
-        const messagesToSend = [systemPrompt, ...recentHistory];
-
+        // استفاده از مدل قدرتمند gpt-5.6-luna
         const response = await puter.ai.chat(messagesToSend, { 
-            model: "deepseek/deepseek-r1:free", 
+            model: "gpt-5.6-luna", 
             stream: true 
         });
         
@@ -486,7 +448,6 @@
         
         currentChat.messages.push({ role: "assistant", content: fullReply });
         saveChats();
-
       } catch (error) {
         console.error("Puter Error:", error);
         if (error.message && (error.message.includes("insufficient") || error.message.includes("usage-limited"))) {
