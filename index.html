@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>پرانتز | Hugging Face</title>
+  <title>پرانتز | Puter AI + Video</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
   <style>
@@ -42,7 +43,6 @@
     .login-box { background: var(--bg-header); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; animation: fadeIn 0.5s ease-out; }
     .login-box h1 { color: var(--accent); font-size: 32px; margin-bottom: 10px; }
     .login-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
-    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); outline: none; text-align: center; font-family: inherit; }
     .auth-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
     .auth-btn:hover { background: var(--border-color); transform: translateY(-2px); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -84,7 +84,6 @@
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
 
-    /* استایل Markdown */
     .bot p { margin-bottom: 10px; } .bot p:last-child { margin-bottom: 0; }
     .bot h1, .bot h2, .bot h3, .bot h4 { margin-top: 15px; margin-bottom: 8px; color: #000; line-height: 1.4; font-weight: bold; }
     .bot ul, .bot ol { margin-right: 25px; margin-bottom: 12px; padding-right: 5px; }
@@ -99,6 +98,7 @@
     .input-box { background: var(--bg-input); display: flex; gap: 8px; border-radius: 12px; border: 1px solid var(--border-color); align-items: center; padding: 6px; width: 100%; max-width: 900px; margin: 0 auto; }
     .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 8px; transition: 0.2s; display: flex; align-items: center; }
     .icon-btn:hover { color: var(--accent); }
+    .icon-btn.active { color: var(--accent); background: rgba(245, 158, 11, 0.1); border-radius: 6px; }
     input { flex: 1; padding: 10px 8px; border-radius: 8px; border: none; outline: none; background: transparent; color: var(--text-main); font-size: 14px; }
     button#send { padding: 10px 24px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: bold; font-size: 15px; cursor: pointer; flex-shrink: 0; margin-left: 2px; }
     button#send:hover { background: #d97706; }
@@ -121,9 +121,8 @@
   <div id="login-screen">
     <div class="login-box">
       <h1>پرانتز</h1>
-      <p>هوش مصنوعی (Hugging Face)</p>
-      <input type="text" id="login-name" placeholder="نام شما">
-      <button class="auth-btn" onclick="login()">ورود به برنامه</button>
+      <p>هوش مصنوعی (Puter)</p>
+      <button class="auth-btn" onclick="login()">ورود با حساب Puter</button>
     </div>
   </div>
 
@@ -145,7 +144,7 @@
           <button class="menu-btn" onclick="toggleSidebar()">☰</button>
           <div class="brand-name">
             پرانتز
-            <span class="powered-by">Hugging Face</span>
+            <span class="powered-by">Puter AI</span>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -163,7 +162,11 @@
 
       <div class="input-wrapper">
         <div class="input-box">
+          <!-- دکمه میکروفن -->
           <button class="icon-btn" id="mic-btn" onclick="toggleRecording()" title="ضبط صدا">🎤</button>
+          <!-- دکمه تولید ویدیو -->
+          <button class="icon-btn" id="vid-btn" onclick="toggleVideoMode()" title="تولید ویدیو">🎬</button>
+          
           <input id="i" placeholder="پیامت رو اینجا بنویس..." autocomplete="off">
           <button id="send" onclick="sendMessage()">ارسال</button>
         </div>
@@ -181,18 +184,10 @@
       </div>
 
       <div class="setting-row">
-        <span>زبان پاسخ‌دهی</span>
-        <select id="lang-select" onchange="changeLanguage()">
-          <option value="fa">فارسی</option>
-          <option value="en">English</option>
-        </select>
-      </div>
-
-      <div class="setting-row">
         <span>حالت تاریک/روشن</span>
         <button onclick="toggleTheme()">تغییر</button>
       </div>
-
+      
       <div class="setting-row">
         <span>رنگ پیام‌های شما</span>
         <input type="color" id="color-user" oninput="applyCustomColors()">
@@ -211,38 +206,41 @@
   </div>
 
   <script>
-    // ==========================================
-    // ۱. کلید API خودت رو از Hugging Face اینجا بذار
-    // ==========================================
-    const HF_API_KEY = "hf_کلید_خودت_رو_اینجا_بذار"; 
-    
-    // استفاده از مدل Qwen2.5 (برای فارسی خوب است)
-    const HF_MODEL_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct/v1/chat/completions";
-
     // ساعت زنده
     setInterval(() => {
       document.getElementById('clock').textContent = new Date().toLocaleTimeString('fa-IR');
     }, 1000);
 
-    // ورود و خروج
-    function login() {
-      const name = document.getElementById('login-name').value.trim();
-      if (!name) { alert("لطفاً نام خود را وارد کنید."); return; }
-      
-      localStorage.setItem('gerdaloo_logged_in', 'true');
-      localStorage.setItem('gerdaloo_username', name);
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app-container').style.display = 'block';
-      initApp();
+    // ورود با Puter
+    async function login() {
+      const btn = document.querySelector('.auth-btn');
+      btn.innerHTML = 'در حال اتصال...';
+      btn.disabled = true;
+
+      try {
+        const user = await puter.auth.signIn();
+        const username = user.username || 'کاربر پرانتز';
+        localStorage.setItem('gerdaloo_logged_in', 'true');
+        localStorage.setItem('gerdaloo_username', username);
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+        initApp();
+      } catch (error) {
+        alert("ورود انجام نشد. دوباره تلاش کنید.");
+        btn.innerHTML = 'ورود با حساب Puter';
+        btn.disabled = false;
+      }
     }
 
-    function logout() {
+    async function logout() {
       if (!confirm("آیا می‌خواهید خارج شوید؟")) return;
-      localStorage.clear();
+      try { await puter.auth.signOut(); } catch(e) {}
+      localStorage.removeItem('gerdaloo_logged_in');
+      localStorage.removeItem('gerdaloo_username');
       location.reload();
     }
 
-    window.onload = function() {
+    window.onload = async function() {
       if (localStorage.getItem('gerdaloo_logged_in')) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
@@ -270,6 +268,9 @@
     let currentChatId = null;
     let recognition = null;
     let isRecording = false;
+    
+    // متغیر حالت ویدیو
+    let isVideoMode = false;
 
     // تنظیمات
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
@@ -289,9 +290,6 @@
       document.documentElement.style.setProperty('--bot-msg-bg', cBot);
       document.documentElement.style.setProperty('--bot-msg-text', cFont);
     }
-    function changeLanguage() {
-      localStorage.setItem('gerdaloo_lang', document.getElementById('lang-select').value);
-    }
     function loadSettings() {
       if (localStorage.getItem('gerdaloo_theme') === 'light') document.body.classList.add('light-mode');
       const cUser = localStorage.getItem('gerdaloo_color_user') || '#1e40af';
@@ -303,9 +301,6 @@
       document.documentElement.style.setProperty('--user-msg-bg', cUser);
       document.documentElement.style.setProperty('--bot-msg-bg', cBot);
       document.documentElement.style.setProperty('--bot-msg-text', cFont);
-      
-      const lang = localStorage.getItem('gerdaloo_lang') || 'fa';
-      document.getElementById('lang-select').value = lang;
     }
 
     // نوار کناری
@@ -388,6 +383,14 @@
       recognition.start();
     }
 
+    // حالت تولید ویدیو
+    function toggleVideoMode() {
+      isVideoMode = !isVideoMode;
+      const btn = document.getElementById('vid-btn');
+      btn.classList.toggle('active', isVideoMode);
+      input.placeholder = isVideoMode ? "توصیف ویدیویی که می‌خواهی بسازی را بنویس (به انگلیسی بهتر جواب می‌دهد)..." : "پیامت رو اینجا بنویس...";
+    }
+
     // ارسال پیام
     async function sendMessage() {
       const text = input.value.trim();
@@ -415,17 +418,8 @@
         return;
       }
 
-      const systemPrompt = {
-        role: "system",
-        content: `تو "پرانتز" هستی، یک دستیار هوشمند. توسط عرفان ریاحی ساخته شده‌ای. باید فقط و فقط به زبان فارسی روان و محاوره‌ای جواب بدهی.`
-      };
-
-      const recentHistory = currentChat.messages.slice(-10);
-      const messagesToSend = [systemPrompt, ...recentHistory, { role: "user", content: text }];
-
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
-      
       currentChat.messages.push({ role: "user", content: text });
       
       if (currentChat.title === 'گفتگوی جدید') {
@@ -442,56 +436,64 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        const response = await fetch(HF_MODEL_URL, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${HF_API_KEY}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: "Qwen/Qwen2.5-7B-Instruct",
-                messages: messagesToSend,
-                stream: true,
-                max_tokens: 500
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        // اگر حالت ویدیو فعال است
+        if (isVideoMode) {
+            botMsgDiv.innerHTML = '<span style="color: var(--accent);">🎬 در حال ساخت ویدیو... (ممکن است کمی طول بکشد)</span>';
+            
+            // فراخوانی Puter برای ساخت ویدیو
+            // پارامتر false یعنی از اعتبار کم می‌شود (همانطور که گفتی مهم نیست)
+            const videoElement = await puter.ai.txt2vid(text, false);
+            
+            botMsgDiv.innerHTML = 'این هم ویدیوی شما:<br>';
+            // اضافه کردن ویدیو به پیام
+            videoElement.style.maxWidth = '100%';
+            videoElement.style.borderRadius = '8px';
+            videoElement.style.marginTop = '10px';
+            videoElement.setAttribute('controls', 'true'); // اضافه کردن کنترل‌های پخش
+            botMsgDiv.appendChild(videoElement);
+            
+            currentChat.messages.push({ role: "assistant", content: `[ویدیو تولید شد]: ${text}` });
+            saveChats();
+            
+            // خاموش کردن حالت ویدیو بعد از ساخت
+            toggleVideoMode();
+            return;
         }
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullReply = '';
-        botMsgDiv.innerHTML = '';
+        // اگر حالت ویدیو نبود (چت متنی عادی)
+        const systemPrompt = {
+            role: "system",
+            content: `تو "پرانتز" هستی، یک دستیار هوشمند. توسط عرفان ریاحی ساخته شده‌ای. باید فقط و فقط به زبان فارسی روان و محاوره‌ای جواب بدهی.`
+        };
+        const recentHistory = currentChat.messages.slice(-10);
+        const messagesToSend = [systemPrompt, ...recentHistory];
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
-                  fullReply += data.choices[0].delta.content;
-                  botMsgDiv.innerHTML = marked.parse(fullReply);
-                  chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
-              } catch (e) {}
-            }
+        const response = await puter.ai.chat(messagesToSend, { 
+            model: "deepseek/deepseek-r1:free", 
+            stream: true 
+        });
+        
+        botMsgDiv.innerHTML = '';
+        let fullReply = '';
+        
+        for await (const part of response) {
+          if (part?.text) {
+            fullReply += part.text;
+            botMsgDiv.innerHTML = marked.parse(fullReply); 
+            chatContainer.scrollTop = chatContainer.scrollHeight;
           }
         }
-
+        
         currentChat.messages.push({ role: "assistant", content: fullReply });
         saveChats();
+
       } catch (error) {
-        console.error("HF Error:", error);
-        botMsgDiv.innerHTML = `⚠️ خطا: ${error.message} (ممکن است مدل در حال لود باشد، ۱۰ ثانیه صبر کنید و دوباره بفرستید)`;
+        console.error("Puter Error:", error);
+        if (error.message && (error.message.includes("insufficient") || error.message.includes("usage-limited"))) {
+            botMsgDiv.innerHTML = `🔒 اعتبار حساب Puter تمام شده است. لطفاً از دکمه خروج (🚪) استفاده کنید و با یک حساب جدید وارد شوید.`;
+        } else {
+            botMsgDiv.innerHTML = `⚠️ خطا: ${error.message}`;
+        }
       } finally {
         sendBtn.disabled = false;
         chatContainer.scrollTop = chatContainer.scrollHeight;
