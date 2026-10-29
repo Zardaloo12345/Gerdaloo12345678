@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>پرانتز | Puter AI</title>
+  <title>پرانتز | GPT-5.6 Luna</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -117,7 +117,7 @@
   <div id="login-screen">
     <div class="login-box">
       <h1>پرانتز</h1>
-      <p>هوش مصنوعی (Puter)</p>
+      <p>هوش مصنوعی (GPT-5.6 Luna)</p>
       <button class="auth-btn" onclick="login()">ورود با حساب Puter</button>
     </div>
   </div>
@@ -140,7 +140,7 @@
           <button class="menu-btn" onclick="toggleSidebar()">☰</button>
           <div class="brand-name">
             پرانتز
-            <span class="powered-by">Puter AI</span>
+            <span class="powered-by">GPT-5.6 Luna</span>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -420,9 +420,11 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // مدل رایگان DeepSeek
+        // ==========================================
+        // اینجا دقیقاً همون کد پاتری که دادی استفاده شده
+        // ==========================================
         const response = await puter.ai.chat(messagesToSend, { 
-            model: "deepseek/deepseek-r1:free", 
+            model: "gpt-5.6-luna", 
             stream: true 
         });
         
