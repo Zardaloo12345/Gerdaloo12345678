@@ -37,7 +37,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
     html, body { height: 100vh; width: 100vw; overflow: hidden; background: var(--bg-main); color: var(--text-main); transition: background 0.3s, color 0.3s; }
 
-    /* صفحه ورود */
     #login-screen { position: fixed; inset: 0; background: var(--bg-main); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; flex-direction: column; }
     .login-box { background: var(--bg-header); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; animation: fadeIn 0.5s ease-out; }
     .login-box h1 { color: var(--accent); font-size: 32px; margin-bottom: 10px; }
@@ -46,7 +45,6 @@
     .auth-btn:hover { background: var(--border-color); transform: translateY(-2px); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* بقیه برنامه */
     #app-container { display: none; height: 100vh; width: 100vw; }
     #sidebar { width: 280px; background: var(--bg-sidebar); height: 100vh; position: fixed; top: 0; right: 0; z-index: 1000; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; border-left: 1px solid var(--border-color); }
     #sidebar.open { transform: translateX(0); }
@@ -65,7 +63,6 @@
     .delete-chat-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; display: none; padding: 2px 5px; border-radius: 4px; }
     .history-item:hover .delete-chat-btn { display: block; }
 
-    /* بخش اصلی */
     .main-content { display: flex; flex-direction: column; height: 100vh; width: 100%; position: relative; }
     header { padding: 15px; background: var(--bg-header); color: var(--accent); font-weight: bold; font-size: 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
     .header-left { display: flex; align-items: center; gap: 15px; }
@@ -83,7 +80,6 @@
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
 
-    /* استایل Markdown */
     .bot p { margin-bottom: 10px; } .bot p:last-child { margin-bottom: 0; }
     .bot h1, .bot h2, .bot h3, .bot h4 { margin-top: 15px; margin-bottom: 8px; color: #000; line-height: 1.4; font-weight: bold; }
     .bot ul, .bot ol { margin-right: 25px; margin-bottom: 12px; padding-right: 5px; }
@@ -93,7 +89,6 @@
     .bot pre { background: #1e293b; color: #fff; padding: 12px; border-radius: 8px; direction: ltr; text-align: left; overflow-x: auto; margin-bottom: 10px; }
     .bot pre code { background: none; color: inherit; padding: 0; }
 
-    /* نوار ورودی */
     .input-wrapper { padding: 10px 15px 40px 15px; background: var(--bg-main); flex-shrink: 0; width: 100%; }
     .input-box { background: var(--bg-input); display: flex; gap: 8px; border-radius: 12px; border: 1px solid var(--border-color); align-items: center; padding: 6px; width: 100%; max-width: 900px; margin: 0 auto; }
     .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 8px; transition: 0.2s; display: flex; align-items: center; }
@@ -103,7 +98,6 @@
     button#send:hover { background: #d97706; }
     button#send:disabled { background: #64748b; cursor: not-allowed; }
 
-    /* تنظیمات */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
     .modal-content { background: var(--bg-header); padding: 25px; border-radius: 16px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
     .modal-content h3 { color: var(--accent); margin-bottom: 20px; text-align: center; }
@@ -143,7 +137,7 @@
           <button class="menu-btn" onclick="toggleSidebar()">☰</button>
           <div class="brand-name">
             پرانتز
-            <span class="powered-by">نسخه ابری</span>
+            <span class="powered-by">Hugging Face</span>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -210,10 +204,12 @@
 
   <script>
     // ==========================================
-    // تنظیمات اتصال به Pollinations
+    // ۱. کلید API خودت رو از Hugging Face اینجا بذار
     // ==========================================
-    const POLLINATIONS_API_KEY = "pk_pHdVdwVtuMrJgdxF"; 
-    const POLLINATIONS_URL = "https://text.pollinations.ai/openai";
+    const HF_API_KEY = "YOUR_HF_API_KEY_HERE"; 
+    
+    // استفاده از مدل Zephyr که در حالت رایگان پایدارتر است
+    const HF_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta";
 
     // ساعت زنده
     setInterval(() => {
@@ -408,21 +404,20 @@
         return;
       }
 
-      // پرامپت سخت‌گیرانه برای فارسی روان
-      const systemPrompt = {
-        role: "system",
-        content: `تو "پرانتز" هستی، یک دستیار هوشمند. تو توسط "عرفان ریاحی" طراحی شده‌ای. 
-        قانون بسیار مهم: باید حتماً و فقط به زبان فارسی روان، محاوره‌ای و کاملاً طبیعی پاسخ دهی. 
-        از به کار بردن کلمات انگلیسی خودداری کن. 
-        پاسخ‌هایت باید کوتاه، مفید و دقیق باشند.`
-      };
+      // ساخت پرامپت به فرمت متنی (چون Hugging Face آرایه پیام قبول نمی‌کند)
+      const systemPrompt = "تو پرانتز هستی، یک دستیار هوشمند که توسط عرفان ریاحی ساخته شده. باید فقط و فقط به زبان فارسی روان جواب بدهی.\n\n";
+      let conversationHistory = "";
+      currentChat.messages.forEach(msg => {
+        if (msg.role === 'user') conversationHistory += `کاربر: ${msg.content}\n`;
+        if (msg.role === 'assistant') conversationHistory += `پرانتز: ${msg.content}\n`;
+      });
+      
+      const fullPrompt = systemPrompt + conversationHistory + `کاربر: ${text}\nپرانتز:`;
 
       chatContainer.innerHTML += `<div class="msg user">${text}</div>`;
       input.value = '';
       
-      const messagesToSend = [systemPrompt, ...currentChat.messages, { role: "user", content: text }];
       currentChat.messages.push({ role: "user", content: text });
-      
       if (currentChat.title === 'گفتگوی جدید') {
         currentChat.title = text.substring(0, 30);
         renderHistory();
@@ -437,53 +432,44 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // مدل Mistral برای فارسی بهتر
-        const response = await fetch(POLLINATIONS_URL, {
+        // درخواست به Hugging Face
+        const response = await fetch(HF_URL, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${POLLINATIONS_API_KEY}`
+                "Authorization": `Bearer ${HF_API_KEY}`,
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "mistral", 
-                messages: messagesToSend,
-                stream: true 
+                inputs: fullPrompt,
+                parameters: { 
+                    max_new_tokens: 300,
+                    temperature: 0.7,
+                    return_full_text: false // فقط جواب رو برگردون، نه کل پرامپت
+                }
             })
         });
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullReply = '';
-        botMsgDiv.innerHTML = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
-                  fullReply += data.choices[0].delta.content;
-                  botMsgDiv.innerHTML = marked.parse(fullReply);
-                  chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
-              } catch (e) {}
-            }
-          }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
 
-        currentChat.messages.push({ role: "assistant", content: fullReply });
+        const data = await response.json();
+        
+        let botReply = "";
+        if (Array.isArray(data) && data[0].generated_text) {
+            botReply = data[0].generated_text.trim();
+        } else {
+             botReply = "متأسفم، پاسخی دریافت نشد.";
+        }
+        
+        botMsgDiv.innerHTML = marked.parse(botReply);
+        currentChat.messages.push({ role: "assistant", content: botReply });
         saveChats();
+        
       } catch (error) {
-        console.error("Error details:", error);
-        botMsgDiv.innerHTML = '⚠️ خطا در پردازش. لطفاً دوباره تلاش کنید یا اتصال خود را بررسی کنید.';
+        console.error("HF Error:", error);
+        botMsgDiv.innerHTML = `⚠️ خطا: ${error.message} (ممکن است مدل در حال بیدار شدن باشد، ۱۰ ثانیه صبر کنید و دوباره بفرستید)`;
       } finally {
         sendBtn.disabled = false;
         chatContainer.scrollTop = chatContainer.scrollHeight;
