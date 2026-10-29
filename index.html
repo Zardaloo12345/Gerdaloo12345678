@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>پرانتز | هوش مصنوعی سریع و رایگان</title>
+  <title>پرانتز | هوش مصنوعی رایگان</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://js.puter.com/v2/"></script>
+  <!-- کتابخانه تبدیل متن به Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
   <style>
@@ -43,7 +43,7 @@
     .login-box { background: var(--bg-header); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; animation: fadeIn 0.5s ease-out; }
     .login-box h1 { color: var(--accent); font-size: 32px; margin-bottom: 10px; }
     .login-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
-    .auth-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+    .auth-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
     .auth-btn:hover { background: var(--border-color); transform: translateY(-2px); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -84,10 +84,6 @@
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; border-top-left-radius: 2px; border: 1px solid var(--border-color); }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; border-top-right-radius: 2px; }
 
-    .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .action-btn { padding: 6px 12px; background: var(--bg-input-field); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; font-size: 11px; cursor: pointer; transition: 0.2s; }
-    .action-btn:hover { background: var(--accent); color: #000; }
-
     /* استایل Markdown */
     .bot p { margin-bottom: 10px; } .bot p:last-child { margin-bottom: 0; }
     .bot h1, .bot h2, .bot h3, .bot h4 { margin-top: 15px; margin-bottom: 8px; color: #000; line-height: 1.4; font-weight: bold; }
@@ -125,8 +121,8 @@
   <div id="login-screen">
     <div class="login-box">
       <h1>پرانتز</h1>
-      <p>برای ادامه، با حساب کاربری خود وارد شوید</p>
-      <button class="auth-btn" id="sign-in-btn">ورود با حساب کاربری</button>
+      <p>هوش مصنوعی رایگان و بدون محدودیت</p>
+      <button class="auth-btn" onclick="login()">ورود به برنامه</button>
     </div>
   </div>
 
@@ -148,7 +144,7 @@
           <button class="menu-btn" onclick="toggleSidebar()">☰</button>
           <div class="brand-name">
             پرانتز
-            <span class="powered-by">نسخه سریع</span>
+            <span class="powered-by">نسخه ابری</span>
           </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -214,41 +210,33 @@
   </div>
 
   <script>
+    // ==========================================
+    // کلید API شما برای Pollinations
+    // ==========================================
+    const POLLINATIONS_API_KEY = "pk_pHdVdwVtuMrJgdxF"; 
+    const POLLINATIONS_URL = "https://text.pollinations.ai/openai";
+
     // ساعت زنده
     setInterval(() => {
       document.getElementById('clock').textContent = new Date().toLocaleTimeString('fa-IR');
     }, 1000);
 
-    // ====== سیستم لاگین ======
-    document.getElementById('sign-in-btn').addEventListener('click', async () => {
-      const btn = document.getElementById('sign-in-btn');
-      btn.innerHTML = 'در حال اتصال...';
-      btn.disabled = true;
+    // ورود و خروج
+    function login() {
+      localStorage.setItem('gerdaloo_logged_in', 'true');
+      localStorage.setItem('gerdaloo_username', 'کاربر پرانتز');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-container').style.display = 'block';
+      initApp();
+    }
 
-      try {
-        const user = await puter.auth.signIn();
-        const username = user.username || 'کاربر پرانتز';
-        localStorage.setItem('gerdaloo_logged_in', 'true');
-        localStorage.setItem('gerdaloo_username', username);
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-container').style.display = 'block';
-        initApp();
-      } catch (error) {
-        alert("ورود انجام نشد. دوباره تلاش کنید.");
-        btn.innerHTML = 'ورود با حساب کاربری';
-        btn.disabled = false;
-      }
-    });
-
-    async function logout() {
+    function logout() {
       if (!confirm("آیا می‌خواهید خارج شوید؟")) return;
-      try { await puter.auth.signOut(); } catch(e) {}
       localStorage.removeItem('gerdaloo_logged_in');
-      localStorage.removeItem('gerdaloo_username');
       location.reload();
     }
 
-    window.onload = async function() {
+    window.onload = function() {
       if (localStorage.getItem('gerdaloo_logged_in')) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
@@ -277,6 +265,7 @@
     let recognition = null;
     let isRecording = false;
 
+    // تنظیمات
     function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function toggleTheme() {
@@ -313,6 +302,7 @@
       document.getElementById('lang-select').value = lang;
     }
 
+    // نوار کناری
     function toggleSidebar() {
       sidebar.classList.toggle('open');
       overlay.classList.toggle('open');
@@ -375,6 +365,7 @@
       });
     }
 
+    // میکروفن
     function toggleRecording() {
       const micBtn = document.getElementById('mic-btn');
       if (isRecording) { if (recognition) recognition.stop(); return; }
@@ -391,6 +382,7 @@
       recognition.start();
     }
 
+    // ارسال پیام
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
@@ -445,23 +437,48 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        // استفاده از مدل سریع و رایگان StepFun
-        const response = await puter.ai.chat(messagesToSend, { 
-            model: "stepfun/step-3.5-flash:free", 
-            stream: true 
+        // اتصال به Pollinations با استفاده از کلید API
+        const response = await fetch(POLLINATIONS_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${POLLINATIONS_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "openai", 
+                messages: messagesToSend,
+                stream: true 
+            })
         });
-        
-        botMsgDiv.innerHTML = '';
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
         let fullReply = '';
-        
-        for await (const part of response) {
-          if (part?.text) {
-            fullReply += part.text;
-            botMsgDiv.innerHTML = marked.parse(fullReply); 
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+        botMsgDiv.innerHTML = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.choices && data.choices[0].delta && data.choices[0].delta.content) {
+                  fullReply += data.choices[0].delta.content;
+                  botMsgDiv.innerHTML = marked.parse(fullReply);
+                  chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+              } catch (e) {}
+            }
           }
         }
-        
+
         currentChat.messages.push({ role: "assistant", content: fullReply });
         saveChats();
       } catch (error) {
