@@ -27,14 +27,14 @@
     .device-icon { font-size: 60px; }
     .device-btn span { font-size: 18px; font-weight: bold; color: var(--text-main); }
 
-    /* صفحه ورود و چت (مخفی در ابتدا) */
-    #login-screen, #app-container { display: none; height: 100vh; width: 100vw; }
-    #login-screen { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+    /* صفحه ورود Puter (فقط برای گوشی) */
+    #login-screen { display: none; position: fixed; inset: 0; justify-content: center; align-items: center; z-index: 9999; padding: 20px; background: var(--bg-main); }
     .login-box { background: var(--bg-header); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); text-align: center; }
     .login-box h1 { color: var(--accent); font-size: 32px; margin-bottom: 10px; }
     .auth-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-size: 15px; font-weight: bold; cursor: pointer; }
 
-    /* بقیه استایل‌های چت */
+    /* محیط چت */
+    #app-container { display: none; flex-direction: column; height: 100vh; width: 100vw; }
     header { padding: 15px; background: var(--bg-header); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
     .brand-name { color: var(--accent); font-size: 18px; font-weight: bold; }
     #sidebar { width: 280px; background: var(--bg-header); height: 100vh; position: fixed; top: 0; right: 0; z-index: 1000; transform: translateX(100%); transition: transform 0.3s; display: flex; flex-direction: column; border-left: 1px solid var(--border-color); }
@@ -75,7 +75,7 @@
     </div>
   </div>
 
-  <!-- ۲. صفحه ورود (برای گوشی) -->
+  <!-- ۲. صفحه ورود (فقط برای گوشی) -->
   <div id="login-screen">
     <div class="login-box">
       <h1>پرانتز</h1>
@@ -117,8 +117,14 @@
   </div>
 
   <script>
+    // ==========================================
+    // تنظیمات AvalAI (برای حالت کامپیوتر)
+    // ==========================================
+    const AVALAI_API_KEY = "aa-BQ297TbDAQHYeq8sPzTbwII1v4SyAQkSKHzCjuhlZ5fH7iiy"; 
+    const AVALAI_URL = "https://api.avalai.ir/v1/chat/completions";
+
     // ====== متغیرهای اصلی ======
-    let currentDeviceMode = 'mobile'; // پیش‌فرض
+    let currentDeviceMode = 'mobile';
     const chatContainer = document.getElementById('chat');
     const welcomeScreen = document.getElementById('welcome-screen');
     const input = document.getElementById('i');
@@ -137,40 +143,22 @@
       currentDeviceMode = mode;
       localStorage.setItem('gerdaloo_device_mode', mode);
 
-      // تغییر سایز پنجره در Electron (اگر در محیط دسکتاپ باشیم)
       if (window.electronAPI) {
         window.electronAPI.setMode(mode);
       }
 
       document.getElementById('device-screen').style.display = 'none';
 
-      // اگر کامپیوتر انتخاب شد، مستقیم برو به چت (لوکال هاست)
       if (mode === 'desktop') {
+        // حالت کامپیوتر: مستقیم برو به چت (بدون لاگین Puter)
+        document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
-        localStorage.setItem('gerdaloo_logged_in', 'true'); // لاگین خودکار
         initApp();
-        // تلاش برای اتصال به سرور محلی
-        checkLocalServer();
-      } 
-      // اگر گوشی انتخاب شد، برو به صفحه لاگین Puter
-      else {
+        addSystemMessage("✅ اتصال به AvalAI برقرار است. آماده پاسخگویی هستم.");
+      } else {
+        // حالت گوشی: برو به صفحه لاگین Puter
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('login-device-text').textContent = 'حالت گوشی انتخاب شد';
-      }
-    }
-
-    // ====== بررسی سرور محلی (برای حالت کامپیوتر) ======
-    async function checkLocalServer() {
-      try {
-        // تلاش برای اتصال به Ollama (یا هر سرور محلی دیگر)
-        const res = await fetch("http://localhost:11434/api/tags", { method: 'GET' });
-        if (res.ok) {
-          addSystemMessage("✅ اتصال به سرور محلی برقرار شد. آماده پاسخگویی هستم.");
-        } else {
-          addSystemMessage("⚠️ سرور محلی پاسخ نداد. لطفاً Ollama را اجرا کنید.");
-        }
-      } catch (e) {
-        addSystemMessage("⚠️ سرور محلی پیدا نشد. لطفاً Ollama را نصب و اجرا کنید.");
       }
     }
 
@@ -276,7 +264,7 @@
       recognition.start();
     }
 
-    // ====== ارسال پیام (با تشخیص حالت) ======
+    // ====== ارسال پیام ======
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
@@ -300,19 +288,25 @@
 
         if (currentDeviceMode === 'desktop') {
           // ==========================================
-          // حالت کامپیوتر: اتصال به Ollama (لوکال هاست)
+          // حالت کامپیوتر: اتصال به AvalAI
           // ==========================================
-          const response = await fetch("http://localhost:11434/api/chat", {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
+          const response = await fetch(AVALAI_URL, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${AVALAI_API_KEY}`,
+              "Content-Type": "application/json"
+            },
             body: JSON.stringify({
-              model: "llama3.2", // نام مدلی که در Ollama نصب کردی
+              model: "gpt-5.4-mini", // مدل ارزان و سریع
               messages: currentChat.messages,
               stream: true
             })
           });
 
-          if (!response.ok) throw new Error("سرور محلی پاسخ نداد.");
+          if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || `HTTP error! status: ${response.status}`);
+          }
 
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
@@ -323,20 +317,22 @@
             if (done) break;
             const chunk = decoder.decode(value, { stream: true });
             for (const line of chunk.split('\n').filter(Boolean)) {
-              try {
-                const json = JSON.parse(line);
-                if (json.message?.content) {
-                  fullReply += json.message.content;
-                  botMsgDiv.innerHTML = marked.parse(fullReply);
-                  chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
-              } catch (e) {}
+              if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                try {
+                  const json = JSON.parse(line.slice(6));
+                  if (json.choices?.[0]?.delta?.content) {
+                    fullReply += json.choices[0].delta.content;
+                    botMsgDiv.innerHTML = marked.parse(fullReply);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                  }
+                } catch (e) {}
+              }
             }
           }
 
         } else {
           // ==========================================
-          // حالت گوشی: اتصال به Puter (ابر)
+          // حالت گوشی: اتصال به Puter
           // ==========================================
           const response = await puter.ai.chat(currentChat.messages, { model: 'gpt-5.6-luna', stream: true });
           botMsgDiv.innerHTML = '';
