@@ -37,6 +37,15 @@
     #app-container { display: none; flex-direction: column; height: 100vh; width: 100vw; }
     header { padding: 15px; background: var(--bg-header); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
     .brand-name { color: var(--accent); font-size: 18px; font-weight: bold; }
+    .about-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--bg-main); color: var(--accent);
+      border: 1px solid var(--border-color); font-weight: bold; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .about-btn:hover { background: var(--accent); color: #000; }
+
     #sidebar { width: 280px; background: var(--bg-header); height: 100vh; position: fixed; top: 0; right: 0; z-index: 1000; transform: translateX(100%); transition: transform 0.3s; display: flex; flex-direction: column; border-left: 1px solid var(--border-color); }
     #sidebar.open { transform: translateX(0); }
     .sidebar-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
@@ -48,11 +57,24 @@
     .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.8; }
     .bot { background: var(--bot-msg-bg); color: var(--bot-msg-text); align-self: flex-start; }
     .user { background: var(--user-msg-bg); color: #fff; align-self: flex-end; }
-    .input-wrapper { padding: 10px 15px 20px 15px; }
+    
+    /* نوار نوشتن (بالاتر آمده) */
+    .input-wrapper { padding: 10px 15px 60px 15px; }
+    
     .input-box { background: var(--bg-input); display: flex; gap: 8px; border-radius: 12px; border: 1px solid var(--border-color); padding: 6px; }
     input { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-main); outline: none; }
     #send { padding: 10px 24px; background: var(--accent); border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
     .icon-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+
+    /* مودال درباره ما */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; padding: 20px; }
+    .modal-content { background: var(--bg-header); padding: 30px; border-radius: 20px; width: 100%; max-width: 450px; border: 1px solid var(--border-color); text-align: right; }
+    .modal-content h2 { color: var(--accent); margin-bottom: 15px; text-align: center; }
+    .modal-content p { color: var(--text-muted); font-size: 14px; line-height: 1.8; margin-bottom: 15px; }
+    .modal-content strong { color: var(--text-main); }
+    .modal-content ul { margin-right: 20px; margin-bottom: 20px; color: var(--text-muted); font-size: 14px; }
+    .modal-content li { margin-bottom: 8px; }
+    .btn-close-about { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ef4444; color: #fff; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -87,25 +109,31 @@
   <!-- ۳. محیط چت -->
   <div id="app-container">
     <div id="overlay" onclick="toggleSidebar()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999;"></div>
+    
     <div id="sidebar">
       <div class="sidebar-header"><h2>تاریخچه</h2><button class="close-sidebar" onclick="toggleSidebar()" style="background:none; border:none; color:white; font-size:20px;">✕</button></div>
       <button class="new-chat-btn" onclick="startNewChat()">+ چت جدید</button>
       <div class="history-list" id="history-list"></div>
     </div>
+
     <div class="main-content">
       <header>
-        <div style="display:flex; align-items:center; gap:15px;">
-          <button class="icon-btn" onclick="toggleSidebar()" style="color:white;">☰</button>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button class="about-btn" onclick="openAbout()">i</button>
           <div class="brand-name">پرانتز</div>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
+          <button class="icon-btn" onclick="toggleSidebar()">☰</button>
           <button class="icon-btn" onclick="logout()">🚪</button>
         </div>
       </header>
+
       <div id="welcome-screen" style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
         <h1 style="font-size:24px; margin-bottom:10px;">سلام...<br>من پرانتز هستم.</h1>
       </div>
       <div id="chat"></div>
+      
+      <!-- نوار نوشتن با فاصله بیشتر از پایین -->
       <div class="input-wrapper">
         <div class="input-box">
           <button class="icon-btn" id="mic-btn" onclick="toggleRecording()">🎤</button>
@@ -116,11 +144,40 @@
     </div>
   </div>
 
+  <!-- ۴. مودال درباره ما -->
+  <div class="modal" id="about-modal">
+    <div class="modal-content">
+      <h2>درباره پرانتز</h2>
+      <p>
+        <strong>پرانتز</strong> یک دستیار هوشمند فارسی‌زبان است.<br>
+        نسخه: ۱.۰.۰<br>
+        سازنده: <strong>عرفان ریاحی</strong><br>
+        موتور: Puter & AvalAI
+      </p>
+      
+      <hr style="border-color: var(--border-color); margin: 15px 0;">
+      
+      <p><strong>راهنمای تغییر ایمیل در Puter (برای حالت گوشی):</strong></p>
+      <ul>
+        <li>از دکمه خروج (🚪) در بالای صفحه استفاده کنید.</li>
+        <li>پس از خروج، روی دکمه ورود کلیک کرده و با یک <strong>ایمیل جدید</strong> ثبت‌نام کنید.</li>
+        <li>با این کار، اعتبار رایگان جدیدی دریافت می‌کنید.</li>
+      </ul>
+
+      <hr style="border-color: var(--border-color); margin: 15px 0;">
+
+      <p><strong>اتمام اعتبار در حالت کامپیوتر:</strong></p>
+      <p>در صورت اتمام اشتراک شما در کامپیوتر، لطفاً به شماره <strong>۰۹۹۴۰۵۱۲۹۷۰</strong> پیام دهید.</p>
+
+      <button class="btn-close-about" onclick="closeAbout()">بستن</button>
+    </div>
+  </div>
+
   <script>
     // ==========================================
     // تنظیمات AvalAI (برای حالت کامپیوتر)
     // ==========================================
-    const AVALAI_API_KEY = "aa-BQ297TbDAQHYeq8sPzTbwII1v4SyAQkSKHzCjuhlZ5fH7iiy"; 
+    const AVALAI_API_KEY = "کلید_API_خودت_رو_اینجا_بذار"; 
     const AVALAI_URL = "https://api.avalai.ir/v1/chat/completions";
 
     // ====== متغیرهای اصلی ======
@@ -138,6 +195,14 @@
     let recognition = null;
     let isRecording = false;
 
+    // ====== مودال درباره ما ======
+    function openAbout() {
+      document.getElementById('about-modal').style.display = 'flex';
+    }
+    function closeAbout() {
+      document.getElementById('about-modal').style.display = 'none';
+    }
+
     // ====== انتخاب دستگاه ======
     function selectDevice(mode) {
       currentDeviceMode = mode;
@@ -150,13 +215,11 @@
       document.getElementById('device-screen').style.display = 'none';
 
       if (mode === 'desktop') {
-        // حالت کامپیوتر: مستقیم برو به چت (بدون لاگین Puter)
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
         initApp();
         addSystemMessage("✅ اتصال به AvalAI برقرار است. آماده پاسخگویی هستم.");
       } else {
-        // حالت گوشی: برو به صفحه لاگین Puter
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('login-device-text').textContent = 'حالت گوشی انتخاب شد';
       }
@@ -287,9 +350,7 @@
         let fullReply = '';
 
         if (currentDeviceMode === 'desktop') {
-          // ==========================================
           // حالت کامپیوتر: اتصال به AvalAI
-          // ==========================================
           const response = await fetch(AVALAI_URL, {
             method: "POST",
             headers: {
@@ -297,7 +358,7 @@
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              model: "gpt-5.4-mini", // مدل ارزان و سریع
+              model: "gpt-5.4-mini",
               messages: currentChat.messages,
               stream: true
             })
@@ -305,6 +366,9 @@
 
           if (!response.ok) {
             const err = await response.json();
+            if (response.status === 402 || response.status === 429) {
+                 throw new Error("اعتبار حساب شما در کامپیوتر به پایان رسیده است. لطفاً به شماره ۰۹۹۴۰۵۱۲۹۷۰ پیام دهید.");
+            }
             throw new Error(err.error?.message || `HTTP error! status: ${response.status}`);
           }
 
@@ -331,9 +395,7 @@
           }
 
         } else {
-          // ==========================================
           // حالت گوشی: اتصال به Puter
-          // ==========================================
           const response = await puter.ai.chat(currentChat.messages, { model: 'gpt-5.6-luna', stream: true });
           botMsgDiv.innerHTML = '';
           for await (const part of response) {
